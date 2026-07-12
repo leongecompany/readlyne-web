@@ -1,0 +1,11 @@
+Vercel CLI 54.17.3 (Node.js 26.0.0)
+Retrieving project…
+Deploying leon-ge/readlyne-web
+Uploading [--------------------] (0.0B/75.1KB)
+Uploading [========------------] (32.0KB/75.1KB)
+Uploading [============--------] (48.0KB/75.1KB)
+Uploading [=================---] (64.0KB/75.1KB)
+Uploading [====================] (75.1KB/75.1KB)
+  Inspect         https://vercel.com/leon-ge/readlyne-web/E2hWHXaf4evZZXnduP6tB1ShAfaQ
+  Production      https://readlyne-eybp536l6-leon-ge.vercel.app
+https://readlyne-eybp536l6-leon-ge.vercel.appBuilding…

@@ -1,30 +1,35 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* ═══════════════════════════════════════════════
+   Readlyne Web — Style 4: Minimal White / Apple-like
+   ═══════════════════════════════════════════════ */
 
 :root {
+  color-scheme: light only;
   --bg: #ffffff;
   --bg-secondary: #f5f5f7;
   --card: #ffffff;
   --card-border: #e5e5ea;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   --text: #1d1d1f;
   --text-secondary: #86868b;
   --text-tertiary: #aeaeb2;
-  --accent: #007aff;
-  --accent-hover: #0056cc;
+  --accent: #1d1d1f;
+  --accent-hover: #000;
+  --btn-secondary-border: #d2d2d7;
   --danger: #ff3b30;
   --success: #34c759;
   --warning: #ff9500;
   --separator: #e5e5ea;
-  --lock-overlay: rgba(255, 255, 255, 0.85);
+  --input-bg: #f5f5f7;
+  --trust-bg: #f5f5f7;
 }
 
 * { box-sizing: border-box; }
 
 html {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
   background: var(--bg);
   color: var(--text);
+  color-scheme: light;
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -32,57 +37,35 @@ html {
 
 body {
   margin: 0;
-  padding: 0 0 64px 0;
+  padding: env(safe-area-inset-top) 0 64px 0; /* bottom nav space */
   min-height: 100dvh;
+  background: var(--bg);
   overflow-x: hidden;
-  background: var(--bg-secondary);
 }
 
-/* Mobile container */
+/* ─── Container ─── */
 .app-container {
   max-width: 480px;
   margin: 0 auto;
-  padding: 0;
   min-height: 100dvh;
   background: var(--bg);
-  box-shadow: 0 0 0 1px var(--separator);
 }
 
-/* iOS-style card */
+/* ─── iOS-style card ─── */
 .card {
   background: var(--card);
-  border-bottom: 1px solid var(--separator);
-  padding: 16px 20px;
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 20px;
+  margin: 0 16px 12px;
+  box-shadow: var(--card-shadow);
 }
 
-/* Submit button — Apple black CTA */
+/* ─── Buttons ─── */
 .btn-primary {
+  display: block;
   width: 100%;
-  padding: 15px;
-  background: var(--text);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 17px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
-  letter-spacing: -0.01em;
-}
-.btn-primary:active {
-  opacity: 0.85;
-  transform: scale(0.98);
-}
-.btn-primary:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Secondary button */
-.btn-secondary {
-  width: 100%;
-  padding: 15px;
+  padding: 16px;
   background: var(--accent);
   color: #fff;
   border: none;
@@ -91,15 +74,34 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.15s;
+  letter-spacing: -0.01em;
+  text-align: center;
 }
-.btn-secondary:active { opacity: 0.85; }
+.btn-primary:active { opacity: 0.8; }
+.btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.btn-secondary {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--btn-secondary-border);
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: center;
+}
+.btn-secondary:active { background: var(--bg-secondary); }
 .btn-secondary:disabled { opacity: 0.3; cursor: not-allowed; }
 
-/* Textarea — clean iOS style */
+/* ─── Text input ─── */
 .text-input {
   width: 100%;
   padding: 14px 16px;
-  background: var(--bg-secondary);
+  background: var(--input-bg);
   border: 1px solid var(--card-border);
   border-radius: 12px;
   color: var(--text);
@@ -111,15 +113,10 @@ body {
   font-family: inherit;
   -webkit-appearance: none;
 }
-.text-input:focus {
-  border-color: var(--accent);
-}
-.text-input::placeholder {
-  color: var(--text-tertiary);
-  font-weight: 400;
-}
+.text-input:focus { border-color: var(--text); }
+.text-input::placeholder { color: var(--text-tertiary); }
 
-/* Bottom nav — iOS-style tab bar */
+/* ─── Bottom nav — iOS tab bar ─── */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -127,11 +124,12 @@ body {
   right: 0;
   display: flex;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255,255,255,0.92);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--separator);
   z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 .bottom-nav-inner {
   max-width: 480px;
@@ -152,41 +150,84 @@ body {
   transition: color 0.1s;
   letter-spacing: 0.02em;
 }
-.nav-item.active {
-  color: var(--accent);
+.nav-item.active { color: var(--accent); }
+.nav-icon { font-size: 22px; line-height: 1; }
+
+/* ─── Typography ─── */
+.page-section { padding: 0 16px; }
+.hero-title {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+  padding: 0 16px;
 }
-.nav-icon {
-  font-size: 24px;
-  line-height: 1;
+.hero-sub {
+  font-size: 15px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 24px;
+  padding: 0 16px;
 }
 
-/* Page header */
-.page-header {
-  padding: 20px 20px 4px;
+/* ─── Label ─── */
+.input-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  display: block;
 }
-.page-header h1 {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+.input-label .optional { font-weight: 400; color: var(--text-tertiary); }
+
+/* ─── Trust points ─── */
+.trust-bar {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  padding: 24px 20px;
+}
+.trust-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+}
+.trust-icon { font-size: 20px; }
+
+/* ─── App promo ─── */
+.app-promo {
+  text-align: center;
+  padding: 32px 20px 16px;
+  border-top: 1px solid var(--separator);
+  margin: 16px 16px 0;
+}
+.app-promo p {
+  font-size: 13px;
+  color: var(--text-tertiary);
   margin: 0 0 4px;
 }
-.page-header p {
-  color: var(--text-secondary);
-  font-size: 14px;
-  margin: 0;
+.app-promo .app-name {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 12px;
 }
 
-/* Section header */
+/* ─── Result sections ─── */
 .section-title {
   font-size: 13px;
   font-weight: 600;
   color: var(--text-secondary);
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  margin: 0 0 8px;
+  margin: 0 0 12px;
 }
-
-/* Result text */
 .result-text {
   white-space: pre-wrap;
   word-break: break-word;
@@ -194,11 +235,8 @@ body {
   line-height: 1.55;
   color: var(--text);
 }
-.result-text strong {
-  font-weight: 600;
-}
 
-/* Tag / badge */
+/* ─── Tags ─── */
 .tag {
   display: inline-flex;
   align-items: center;
@@ -212,7 +250,7 @@ body {
 .tag-low { background: #e8f5e9; color: #248a3d; }
 .tag-info { background: #e8f0fe; color: #0060df; }
 
-/* Skeleton */
+/* ─── Loading skeleton ─── */
 @keyframes shimmer {
   0% { background-position: -200px 0; }
   100% { background-position: calc(200px + 100%) 0; }
@@ -226,47 +264,10 @@ body {
   margin-bottom: 8px;
 }
 
-/* Paid unlock section */
-.locked-section {
-  position: relative;
-  overflow: hidden;
-}
-.locked-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 0%, var(--lock-overlay) 40%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 24px;
-  z-index: 10;
-}
-.locked-overlay .lock-icon {
-  font-size: 36px;
-  margin-bottom: 8px;
-}
-.locked-overlay .lock-text {
-  font-size: 15px;
-  font-weight: 600;
-  text-align: center;
-  color: var(--text);
-  margin-bottom: 4px;
-}
-.locked-overlay .lock-sub {
-  font-size: 13px;
-  color: var(--text-secondary);
-  text-align: center;
-  margin-bottom: 16px;
-}
-
-/* Divider */
-.divider { border: none; border-top: 1px solid var(--separator); margin: 0; }
-
-/* Suggestion card */
+/* ─── Suggestion card ─── */
 .suggestion-card {
   background: var(--bg-secondary);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 14px 16px;
   margin: 8px 0;
   font-size: 15px;
@@ -274,36 +275,33 @@ body {
   color: var(--text);
 }
 
-/* Utility */
-.text-secondary { color: var(--text-secondary); }
-.text-tertiary { color: var(--text-tertiary); }
-.text-accent { color: var(--accent); }
-.text-success { color: var(--success); }
-.mt-8 { margin-top: 8px; }
-.mt-12 { margin-top: 12px; }
-.mt-16 { margin-top: 16px; }
-.mb-4 { margin-bottom: 4px; }
-.mb-8 { margin-bottom: 8px; }
-.gap-6 { gap: 6px; }
-.flex { display: flex; }
-.items-center { align-items: center; }
-.inline-block { display: inline-block; }
+/* ─── Error banner ─── */
+.error-banner {
+  padding: 12px 20px;
+  background: #fff5f5;
+  border-bottom: 1px solid #ffd7d5;
+  margin: 0 16px 12px;
+  border-radius: 10px;
+}
+.error-banner p { color: #d70015; font-size: 14px; margin: 0; }
 
-/* Empty state */
+/* ─── Empty state ─── */
 .empty-state {
   padding: 40px 20px;
   text-align: center;
 }
-.empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-.empty-state h2 { font-size: 20px; font-weight: 600; margin: 0 0 6px; }
+.empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+.empty-state h3 { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
 .empty-state p { color: var(--text-secondary); font-size: 14px; margin: 0; }
 
-/* Success banner */
-.banner-paid {
-  background: #e8f5e9;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #248a3d;
-  text-align: center;
-}
+/* ─── Utilities ─── */
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.gap-6 { gap: 6px; }
+.mb-4 { margin-bottom: 4px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }

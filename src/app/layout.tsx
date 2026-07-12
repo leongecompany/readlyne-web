@@ -3,8 +3,8 @@ import './globals.css';
 import BottomNav from '@/components/BottomNav';
 
 export const metadata: Metadata = {
-  title: 'Readlyne — AI 沟通助手',
-  description: '分析聊天潜台词，生成回复建议',
+  title: 'Readlyne — 看不懂 TA 的话？AI 分析潜台词和回复建议',
+  description: '看不懂 TA 的话？粘贴聊天内容，AI 帮你分析潜台词、误读风险和怎么回。',
   appleWebApp: { capable: true, title: 'Readlyne', statusBarStyle: 'default' },
   other: {
     'mobile-web-app-capable': 'yes',
