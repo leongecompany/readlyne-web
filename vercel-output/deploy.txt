@@ -1,8 +1,0 @@
-Vercel CLI 54.17.3 (Node.js 26.0.0)
-Retrieving project…
-Deploying leon-ge/readlyne-web
-Uploading [--------------------] (0.0B/89B)
-Uploading [====================] (89.0B/89B)
-  Inspect         https://vercel.com/leon-ge/readlyne-web/8goArR7g6JrfEvjJaxd365pmVBt6
-▲ Production      https://readlyne-58wti8pu2-leon-ge.vercel.app
-https://readlyne-58wti8pu2-leon-ge.vercel.appError: Your deployment failed. Please retry later. More: https://err.sh/vercel/deployment-error

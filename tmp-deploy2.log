@@ -1,0 +1,19 @@
+Vercel CLI 54.17.3 (Node.js 26.0.0)
+
+  Directory       ~/Projects/leon-ai-studio/readlyne-web
+
+Loading team…
+Searching for existing projects…
+
+  Detected Next.js (Build Command: next build, Output Directory: Next.js default)
+
+✓ Created         leon-ge/readlyne-web
+
+> Connecting GitHub repository: https://github.com/leongecompany/readlyne-web
+Error: Failed to connect leongecompany/readlyne-web to project. Make sure there aren't any typos and that you have access to the repository if it's private.
+Deploying leon-ge/readlyne-web
+Uploading [--------------------] (0.0B/583B)
+Uploading [====================] (583.0B/583B)
+  Inspect         https://vercel.com/leon-ge/readlyne-web/GXYNFUHjDvFmTbidz4JQDCKUuTGU
+▲ Production      https://readlyne-4mzb1n9b6-leon-ge.vercel.app
+https://readlyne-4mzb1n9b6-leon-ge.vercel.appNote: Deployment is still processing…
