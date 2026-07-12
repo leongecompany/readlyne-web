@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { getReplySuggestions } from '@/lib/api';
 
 type ReplySuggestion = { style: string; text: string; why_this_works: string; risk_note: string };
 type ReplyResult = {
@@ -34,15 +35,7 @@ export default function ReplyPage() {
     setResult(null);
 
     try {
-      const res = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-installation-id': localStorage.getItem('readlyne_installation_id') || 'web-anonymous',
-        },
-        body: JSON.stringify({ message: input.trim(), context: context.trim() }),
-      });
-      const data = await res.json();
+      const data = await getReplySuggestions(input, context);
       if (!data.ok) {
         setError(data.error || '请求失败，请稍后重试');
         return;

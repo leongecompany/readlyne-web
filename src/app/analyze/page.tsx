@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { analyzeMessage } from '@/lib/api';
 
 type Intention = { label: string; explanation: string; confidence: number; evidence_refs?: string[] };
 type Risk = { risk: string; suggestion: string; severity: string };
@@ -37,15 +38,7 @@ export default function AnalyzePage() {
     setAnalysis(null);
 
     try {
-      const res = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-installation-id': localStorage.getItem('readlyne_installation_id') || 'web-anonymous',
-        },
-        body: JSON.stringify({ message: message.trim(), context: context.trim() }),
-      });
-      const data = await res.json();
+      const data = await analyzeMessage(message, context);
       if (!data.ok) {
         setError(data.error || '分析失败，请稍后重试');
         return;

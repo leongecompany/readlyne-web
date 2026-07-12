@@ -1,4 +1,5 @@
-// Frontend API calls — always goes through our own API routes
+// Frontend API calls — goes through Render backend
+const API_BASE = process.env.NEXT_PUBLIC_WEB_API_BASE_URL || 'http://localhost:16888';
 
 function getInstallationId(): string {
   if (typeof window === 'undefined') return 'web-anonymous';
@@ -10,27 +11,46 @@ function getInstallationId(): string {
   return id;
 }
 
+const headers = () => ({
+  'Content-Type': 'application/json',
+  'x-installation-id': getInstallationId(),
+});
+
 export async function analyzeMessage(message: string, context = '') {
-  const res = await fetch('/api/analyze', {
+  const res = await fetch(`${API_BASE}/web/analyze`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-installation-id': getInstallationId() },
+    headers: headers(),
     body: JSON.stringify({ message: message.trim(), context: context.trim() }),
   });
   return res.json();
 }
 
-export async function getReport(reportId: string) {
-  const res = await fetch(`/api/report/${reportId}`, {
-    headers: { 'x-installation-id': getInstallationId() },
+export async function getReplySuggestions(message: string, context = '') {
+  const res = await fetch(`${API_BASE}/web/reply`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ message: message.trim(), context: context.trim() }),
   });
   return res.json();
 }
 
 export async function createCheckout(reportId: string) {
-  const res = await fetch('/api/create-checkout', {
+  const res = await fetch(`${API_BASE}/web/create-checkout`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-installation-id': getInstallationId() },
+    headers: headers(),
     body: JSON.stringify({ report_id: reportId }),
   });
+  return res.json();
+}
+
+export async function getReport(reportId: string) {
+  const res = await fetch(`${API_BASE}/web/report/${reportId}`, {
+    headers: headers(),
+  });
+  return res.json();
+}
+
+export async function healthCheck() {
+  const res = await fetch(`${API_BASE}/api/v1/health`);
   return res.json();
 }
