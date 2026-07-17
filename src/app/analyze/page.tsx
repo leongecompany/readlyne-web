@@ -320,7 +320,7 @@ export default function AnalyzePage() {
       {/* Hero */}
       <div style={{ padding: '20px 16px 0' }}>
         <h1 className="hero-title">看不懂 TA 的话？</h1>
-        <p className="hero-sub">一句话，看懂 TA 真正想表达什么。</p>
+        <p className="hero-sub">粘贴聊天内容，AI 分析潜台词、误读风险和怎么回。</p>
       </div>
 
       {/* Input */}
@@ -350,13 +350,13 @@ export default function AnalyzePage() {
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim()}>
-          {loading ? '分析中…' : '分析什么意思'}
+          {loading ? '分析中…' : '🔍 免费分析'}
         </button>
       </div>
 
       {/* Privacy trust */}
       <div className="privacy-line">
-        <p>🔒 默认不长期保存原始聊天内容</p>
+        <p>🔒 聊天内容不会保存到服务器 · 分析后即忘</p>
       </div>
 
       {/* Error */}
@@ -369,10 +369,12 @@ export default function AnalyzePage() {
       {/* Loading */}
       {loading && (
         <div className="card">
-          <div className="skeleton" style={{ width: '40%' }} />
+          <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
+            🧠 AI 正在分析聊天内容…
+          </p>
+          <div className="skeleton" style={{ width: '40%', marginTop: 16 }} />
           <div className="skeleton" style={{ width: '85%' }} />
           <div className="skeleton" style={{ width: '60%' }} />
-          <div className="skeleton" style={{ width: '30%' }} />
         </div>
       )}
 
@@ -680,6 +682,9 @@ export default function AnalyzePage() {
                   {feedbackStatus === 'sending' ? '…' : feedbackStatus === 'sent' ? '✓' : '提交'}
                 </button>
               </div>
+              {feedbackStatus === 'sent' && (
+                <p style={{ fontSize: 12, color: '#34c759', margin: '4px 0 0', textAlign: 'center' }}>感谢反馈！</p>
+              )}
             </div>
           </div>
         </div>

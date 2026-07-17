@@ -94,7 +94,7 @@ export default function ReplyPage() {
       {/* Hero */}
       <div style={{ padding: '20px 16px 0' }}>
         <h1 className="hero-title">不知道怎么回？</h1>
-        <p className="hero-sub">描述场景，AI 给你不同风格的回复参考。</p>
+        <p className="hero-sub">描述场景，AI 给你保守、自然、主动三种风格的回复参考。</p>
       </div>
 
       {/* Input */}
@@ -124,13 +124,13 @@ export default function ReplyPage() {
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !input.trim()}>
-          {loading ? '生成中…' : '生成回复建议'}
+          {loading ? '生成中…' : '💬 获取回复建议'}
         </button>
       </div>
 
       {/* Privacy trust */}
       <div className="privacy-line">
-        <p>🔒 默认不长期保存原始聊天内容</p>
+        <p>🔒 聊天内容不会保存到服务器 · 分析后即忘</p>
       </div>
 
       {/* Error */}
@@ -143,10 +143,12 @@ export default function ReplyPage() {
       {/* Loading */}
       {loading && (
         <div className="card">
-          <div className="skeleton" style={{ width: '40%' }} />
+          <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
+            💡 AI 正在生成回复建议…
+          </p>
+          <div className="skeleton" style={{ width: '40%', marginTop: 16 }} />
           <div className="skeleton" style={{ width: '85%' }} />
           <div className="skeleton" style={{ width: '60%' }} />
-          <div className="skeleton" style={{ width: '30%' }} />
         </div>
       )}
 
