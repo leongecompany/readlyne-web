@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { getReplySuggestions, submitFeedback } from '@/lib/api';
+import BetaSignup from '@/components/BetaSignup';
 
 type ReplySuggestion = { style: string; text: string; why_this_works: string; risk_note: string };
 type ReplyResult = {
@@ -300,6 +301,9 @@ export default function ReplyPage() {
             <span className="trust-icon">🌱</span>
             <span>关系成长</span>
           </div>
+        </div>
+        <div style={{ textAlign: 'center', padding: '0 16px' }}>
+          <BetaSignup />
         </div>
       )}
     </div>
