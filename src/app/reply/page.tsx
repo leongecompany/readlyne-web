@@ -93,7 +93,7 @@ export default function ReplyPage() {
 
       {/* Hero */}
       <div style={{ padding: '20px 16px 0' }}>
-        <h1 className="hero-title">不知道怎么回？</h1>
+        <h1 className="hero-title">不知道怎么回 TA？</h1>
         <p className="hero-sub">描述场景，AI 给你保守、自然、主动三种风格的回复参考。</p>
       </div>
 
@@ -131,8 +131,8 @@ export default function ReplyPage() {
             className="btn-secondary"
             style={{ marginTop: 8 }}
             onClick={() => {
-              setInput('TA：最近工作好累，感觉每天都在重复。');
-              setContext('同事关系，认识半年');
+              setInput('TA：你今天怎么不理我了？');
+              setContext('暧昧期，认识三个月，最近对方回复变慢');
             }}
           >
             💡 试用示例

@@ -206,7 +206,7 @@ export default function AnalyzePage() {
 
   const GOAL_CHIPS = [
     '确认对方态度', '推进关系', '缓和矛盾', '重新开启话题',
-    '建立边界', '推进合作', '自然结束关系',
+    '试探对方心意', '走出暧昧期', '自然表达好感',
   ];
 
   const handleGoalChip = (chip: string) => {
@@ -443,8 +443,8 @@ export default function AnalyzePage() {
             className="btn-secondary"
             style={{ marginTop: 8 }}
             onClick={() => {
-              setMessage('我：最近工作好累，感觉每天都在重复。\nTA：那你有没有想过换个环境？\n我：换环境也不一定能解决问题吧。\nTA：至少比什么都不做强啊。');
-              setContext('同事关系，认识半年，平时聊得还行');
+              setMessage('我：你今天怎么不理我了？\nTA：没有啊，你想多了。\n我：我只是感觉最近你有点冷淡。\nTA：最近确实比较忙，不是针对你。');
+              setContext('暧昧期，认识三个月，上周末一起吃过饭，最近一周对方回复变慢');
             }}
           >
             💡 试用示例
@@ -630,7 +630,7 @@ export default function AnalyzePage() {
                     ref={goalRef}
                     rows={2}
                     maxLength={300}
-                    placeholder="例如：我想推进合作，但不希望显得太急。"
+                    placeholder="例如：我喜欢TA但不知道怎么表达，怕被拒绝。"
                     value={userGoal}
                     onChange={(e) => setUserGoal(e.target.value)}
                     style={{ marginBottom: 12, fontSize: 14 }}
