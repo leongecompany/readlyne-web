@@ -635,7 +635,7 @@ export default function AnalyzePage() {
               </button>
               <button
                 className="btn-secondary"
-                onClick={() => window.open('https://github.com/leongecompany/readlyne-web/issues', '_blank')}
+                onClick={() => { window.location.href = 'mailto:leongecompany@gmail.com?subject=Readlyne%20反馈'; }}
               >
                 反馈建议
               </button>

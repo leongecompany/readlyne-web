@@ -231,7 +231,7 @@ export default function ReplyPage() {
               <button className="btn-primary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                 回到顶部
               </button>
-              <button className="btn-secondary" onClick={() => window.open('https://github.com/leongecompany/readlyne-web/issues', '_blank')}>
+              <button className="btn-secondary" onClick={() => { window.location.href = 'mailto:leongecompany@gmail.com?subject=Readlyne%20反馈'; }}>
                 反馈建议
               </button>
             </div>
