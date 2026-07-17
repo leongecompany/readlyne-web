@@ -37,6 +37,60 @@ const LABEL_MAP: Record<string, string> = {
   '大概率': '大概率', '有可能': '有可能', '小概率': '小概率',
 };
 
+// 静态示例报告 — 展示深度策略分析输出格式
+function SampleReportPreview() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--separator)' }}>
+      <button
+        onClick={() => setOpen(!open)}
+        style={{
+          background: 'none', border: 'none', color: 'var(--text-secondary)',
+          fontSize: 13, cursor: 'pointer', padding: '4px 0', width: '100%', textAlign: 'center',
+        }}
+      >
+        {open ? '收起示例 ↑' : '📋 查看完整报告示例'}
+      </button>
+      {open && (
+        <div style={{ marginTop: 8, fontSize: 12, lineHeight: 1.7, color: 'var(--text-tertiary)', textAlign: 'left' }}>
+          <div style={sampleSectionStyle}>
+            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>A. 目标可行性</div>
+            <p style={{ margin: 0 }}>基于 Social Penetration Theory（社会渗透理论），当前对话处于表层互动阶段。对方回复简短且未主动展开话题，目标在现有基础上推进关系是可能的，但需要温和节奏。</p>
+          </div>
+          <div style={sampleSectionStyle}>
+            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>B. 对方可能的沟通状态</div>
+            <p style={{ margin: 0 }}>根据 Self-Verification Theory，对方倾向于保持现有的轻松互动模式。目前的沟通信号为中性偏积极，没有拒绝信号但也没有主动推进迹象。</p>
+          </div>
+          <div style={sampleSectionStyle}>
+            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>C. 时间线与互动节奏</div>
+            <p style={{ margin: 0 }}>回复间隔较长（平均 &gt;3h），双方均未在一小时内连续回复。符合 Mere Exposure Effect 的渐进模式——持续温和曝光比密集互动更有效。</p>
+          </div>
+          <div style={sampleSectionStyle}>
+            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>D. 建议策略（5条）</div>
+            <p style={{ margin: 0 }}>基于 Reciprocity（互惠原则）+ Attachment Theory 安全型沟通模式的策略建议，每条附带可操作的具体话术方向。</p>
+          </div>
+          <div style={sampleSectionStyle}>
+            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>E. 三种可直接使用的回复</div>
+            <p style={{ margin: 0 }}>稳妥版 / 自然推进版 / 明确确认版，每种附为何有效的心理学依据。</p>
+          </div>
+          <div style={sampleSectionStyle}>
+            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>F-G. 观察信号 + 风险提醒</div>
+            <p style={{ margin: 0 }}>发送后如何判断对方反应（积极/中性/后退信号），以及过度解读的边界提醒。</p>
+          </div>
+          <p style={{ marginTop: 8, fontSize: 12, color: 'var(--text)', textAlign: 'center', fontWeight: 500 }}>
+            ¥9.9 解锁真实分析报告
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const sampleSectionStyle: React.CSSProperties = {
+  padding: '6px 0',
+  borderTop: '1px solid var(--separator)',
+};
+
 export default function AnalyzePage() {
   const [message, setMessage] = useState('');
   const [context, setContext] = useState('');
@@ -160,34 +214,6 @@ export default function AnalyzePage() {
       setPremiumError('网络异常，请稍后重试');
       setPremiumLoading(false);
       setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN);
-    }
-  }, [message, context, userGoal, premiumLoading]);
-
-  const handlePreview = useCallback(async () => {
-    setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN);
-    setPremiumLoading(true);
-    setPremiumReport(null);
-    setPremiumError('');
-
-    try {
-      // 预览模式 — pass preview flag, server skips credit check
-      const data = await deepStrategy({
-        message,
-        context,
-        userGoal: userGoal.trim(),
-        preview: true,
-      });
-      if (!data.ok) {
-        setPremiumError(data.error || '分析失败，请重试');
-        setPremiumLoading(false);
-        return;
-      }
-      setPremiumReport(data.report);
-      setPremiumUnlocked(true);
-    } catch (e) {
-      setPremiumError('网络异常，请稍后重试');
-    } finally {
-      setPremiumLoading(false);
     }
   }, [message, context, userGoal, premiumLoading]);
 
@@ -483,21 +509,15 @@ export default function AnalyzePage() {
                           微信支付（即将上线）
                         </button>
                         <button
-                          className="btn-secondary"
-                          onClick={() => {
-                            setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN);
-                            handlePreview();
-                          }}
-                        >
-                          预览模式（免费体验）
-                        </button>
-                        <button
                           style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', fontSize: 13, cursor: 'pointer', padding: 8 }}
                           onClick={() => setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN)}
                         >
                           取消
                         </button>
                       </div>
+                      
+                      {/* 示例报告预览 */}
+                      <SampleReportPreview />
                     </div>
                   )}
                   {paymentStep === PAYMENT_MODAL_STEPS.PROCESSING && (
