@@ -96,6 +96,79 @@ const sampleSectionStyle: React.CSSProperties = {
   borderTop: '1px solid var(--separator)',
 };
 
+// 使用统计
+function UsageCounter() {
+  const [count] = useState(() => {
+    try { return parseInt(localStorage.getItem('readlyne_usage_count') || '0', 10); }
+    catch { return 0; }
+  });
+  if (count < 1) return null;
+  return (
+    <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-tertiary)', margin: '0 0 16px' }}>
+      已在本设备完成 {count} 次分析
+    </p>
+  );
+}
+
+// 最近分析历史
+const HISTORY_KEY = 'readlyne_history';
+const MAX_HISTORY = 4;
+
+type HistoryItem = { message: string; context: string; time: string; preview: string };
+
+function getHistory(): HistoryItem[] {
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function saveHistory(item: HistoryItem) {
+  const h = getHistory();
+  h.unshift(item);
+  if (h.length > MAX_HISTORY) h.pop();
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(h));
+}
+
+function AnalysisHistory({ onSelect }: { onSelect: (msg: string, ctx: string) => void }) {
+  const [items] = useState<HistoryItem[]>(getHistory);
+  if (items.length === 0) return null;
+  return (
+    <div style={{ padding: '0 16px', marginBottom: 16 }}>
+      <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-tertiary)', marginBottom: 8, textAlign: 'center' }}>
+        最近分析
+      </p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {items.map((item, i) => (
+          <button
+            key={i}
+            onClick={() => onSelect(item.message, item.context)}
+            style={{
+              textAlign: 'left',
+              background: 'var(--bg-secondary)',
+              border: '1px solid var(--card-border)',
+              borderRadius: 10,
+              padding: '10px 14px',
+              cursor: 'pointer',
+              fontSize: 13,
+              color: 'var(--text)',
+              lineHeight: 1.4,
+            }}
+          >
+            <div style={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              marginBottom: 2,
+            }}>
+              {item.preview}
+            </div>
+            <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{item.time}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function AnalyzePage() {
   const [message, setMessage] = useState('');
   const [context, setContext] = useState('');
@@ -301,6 +374,19 @@ export default function AnalyzePage() {
         return;
       }
       setAnalysis(data.analysis);
+
+      // 保存历史 + 计数
+      try {
+        const count = parseInt(localStorage.getItem('readlyne_usage_count') || '0', 10) + 1;
+        localStorage.setItem('readlyne_usage_count', String(count));
+        const preview = data.analysis?.relationship_signal?.summary || message.slice(0, 40);
+        saveHistory({
+          message,
+          context,
+          time: new Date().toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+          preview,
+        });
+      } catch {}
     } catch {
       setError('网络连接异常，请检查后重试');
     } finally {
@@ -393,6 +479,38 @@ export default function AnalyzePage() {
       {/* Results */}
       {analysis && !loading && (
         <div style={{ marginTop: 4 }}>
+          {/* 分享按钮 */}
+          {analysis && (
+            <div style={{ padding: '0 16px 12px' }}>
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  const text = [
+                    '📊 Readlyne 聊天分析结果',
+                    '',
+                    analysis.relationship_signal && `🔮 直观判断: ${analysis.relationship_signal.summary}`,
+                    ...(analysis.possible_intentions || []).map((item, i) =>
+                      `${i + 1}. ${item.label} (${Math.round(item.confidence * 100)}%) — ${item.explanation}`
+                    ),
+                    ...(analysis.communication_risks || []).map((item) =>
+                      `⚠️ ${item.risk}: ${item.suggestion}`
+                    ),
+                    '',
+                    '——',
+                    '免费分析 · 深度策略 ¥9.9 解锁',
+                  ].filter(Boolean).join('\n');
+                  navigator.clipboard.writeText(text).then(() => {
+                    const btn = document.activeElement as HTMLElement;
+                    if (btn) btn.textContent = '✅ 已复制';
+                    setTimeout(() => { if (btn) btn.textContent = '📋 复制结果'; }, 2000);
+                  });
+                }}
+              >
+                📋 复制结果
+              </button>
+            </div>
+          )}
+
           {/* 直观判断 */}
           {analysis.relationship_signal && (
             <div className="card">
@@ -737,7 +855,13 @@ export default function AnalyzePage() {
             </div>
           </div>
 
-          {/* App promo */}
+          {/* Social proof counter */}
+          <UsageCounter />
+
+          {/* Recent history */}
+          <AnalysisHistory onSelect={(msg, ctx) => { setMessage(msg); setContext(ctx); }} />
+
+          {/* Beta signup */}
           <div className="app-promo">
             <div className="app-name">Readlyne</div>
             <BetaSignup />
