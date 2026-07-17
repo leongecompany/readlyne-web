@@ -228,11 +228,11 @@ export default function ReplyPage() {
               让后续分析越来越贴合你们的互动。
             </p>
             <div className="cta-buttons">
-              <button className="btn-primary" onClick={() => {}}>
-                下载 iOS App
+              <button className="btn-primary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                回到顶部
               </button>
-              <button className="btn-secondary" onClick={() => {}}>
-                加入内测
+              <button className="btn-secondary" onClick={() => window.open('https://github.com/leongecompany/readlyne-web/issues', '_blank')}>
+                反馈建议
               </button>
             </div>
           </div>

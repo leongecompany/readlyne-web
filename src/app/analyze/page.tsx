@@ -489,7 +489,7 @@ export default function AnalyzePage() {
                     onClick={handleDeepStrategy}
                     disabled={premiumLoading || userGoal.trim().length < 2}
                   >
-                    {premiumLoading ? '分析中…' : `深度策略分析（剩余 ${serverCredits} 次）`}
+                    {premiumLoading ? '分析中…' : serverCredits > 0 ? `深度策略分析（剩余 ${serverCredits} 次）` : '深度策略分析 ¥9.9 / 3次 →'}
                   </button>
                   {premiumError && (
                     <p style={{ color: '#d70015', fontSize: 13, marginTop: 8, textAlign: 'center' }}>{premiumError}</p>
@@ -627,11 +627,17 @@ export default function AnalyzePage() {
               让后续分析越来越贴合你们的互动。
             </p>
             <div className="cta-buttons">
-              <button className="btn-primary" onClick={() => {}}>
-                下载 iOS App
+              <button
+                className="btn-primary"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                回到顶部开始分析
               </button>
-              <button className="btn-secondary" onClick={() => {}}>
-                加入内测
+              <button
+                className="btn-secondary"
+                onClick={() => window.open('https://github.com/leongecompany/readlyne-web/issues', '_blank')}
+              >
+                反馈建议
               </button>
             </div>
           </div>
@@ -661,7 +667,7 @@ export default function AnalyzePage() {
           <div className="app-promo">
             <p>更多功能在 App 中</p>
             <div className="app-name">Readlyne</div>
-            <button className="btn-primary" style={{ marginTop: 8 }}>下载 Readlyne</button>
+            <button className="btn-primary" style={{ marginTop: 8 }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>开始分析 →</button>
             <p className="text-tertiary" style={{ fontSize: 12, marginTop: 8 }}>加入内测</p>
           </div>
         </>
