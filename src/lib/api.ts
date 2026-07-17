@@ -85,6 +85,16 @@ export async function claimCredits(sessionId: string) {
   return res.json();
 }
 
+// 提交用户反馈
+export async function submitFeedback(text: string) {
+  const res = await fetch(`${API_BASE}/web/feedback`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ text }),
+  });
+  return res.json();
+}
+
 export async function healthCheck() {
   const res = await fetch(`${API_BASE}/api/v1/health`);
   return res.json();

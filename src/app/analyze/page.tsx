@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { analyzeMessage, deepStrategy, createCheckout, getCredits as fetchServerCredits, claimCredits } from '@/lib/api';
+import { analyzeMessage, deepStrategy, createCheckout, getCredits as fetchServerCredits, claimCredits, submitFeedback } from '@/lib/api';
 
 const PAYMENT_MODAL_STEPS = { HIDDEN: 'hidden', CHOOSE: 'choose', PROCESSING: 'processing', SUCCESS: 'success' } as const;
 
@@ -113,6 +113,22 @@ export default function AnalyzePage() {
   const [premiumError, setPremiumError] = useState('');
   const [paymentStep, setPaymentStep] = useState<string>(PAYMENT_MODAL_STEPS.HIDDEN);
   const goalRef = useRef<HTMLTextAreaElement>(null);
+
+  // 反馈表单
+  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackStatus, setFeedbackStatus] = useState<'idle'|'sending'|'sent'>('idle');
+  const handleFeedback = useCallback(async () => {
+    if (feedbackStatus !== 'idle' || !feedbackText.trim()) return;
+    setFeedbackStatus('sending');
+    try {
+      await submitFeedback(feedbackText.trim());
+      setFeedbackStatus('sent');
+      setFeedbackText('');
+      setTimeout(() => setFeedbackStatus('idle'), 3000);
+    } catch {
+      setFeedbackStatus('idle');
+    }
+  }, [feedbackText, feedbackStatus]);
 
   const GOAL_CHIPS = [
     '确认对方态度', '推进关系', '缓和矛盾', '重新开启话题',
@@ -633,12 +649,36 @@ export default function AnalyzePage() {
               >
                 回到顶部开始分析
               </button>
-              <button
-                className="btn-secondary"
-                onClick={() => { window.location.href = 'mailto:leongecompany@gmail.com?subject=Readlyne%20反馈'; }}
-              >
-                反馈建议
-              </button>
+              <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                <input
+                  className="text-input"
+                  style={{ flex: 1, marginBottom: 0, fontSize: 14, padding: '10px 14px' }}
+                  placeholder="反馈建议…"
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleFeedback()}
+                  maxLength={500}
+                />
+                <button
+                  onClick={handleFeedback}
+                  disabled={feedbackStatus !== 'idle' || !feedbackText.trim()}
+                  style={{
+                    padding: '10px 16px',
+                    background: feedbackStatus === 'sent' ? '#34c759' : 'var(--accent)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 10,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: feedbackStatus !== 'idle' || !feedbackText.trim() ? 'not-allowed' : 'pointer',
+                    opacity: feedbackStatus !== 'idle' || !feedbackText.trim() ? 0.5 : 1,
+                    whiteSpace: 'nowrap',
+                    minWidth: 56,
+                  }}
+                >
+                  {feedbackStatus === 'sending' ? '…' : feedbackStatus === 'sent' ? '✓' : '提交'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

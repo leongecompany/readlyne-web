@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { getReplySuggestions } from '@/lib/api';
+import { getReplySuggestions, submitFeedback } from '@/lib/api';
 
 type ReplySuggestion = { style: string; text: string; why_this_works: string; risk_note: string };
 type ReplyResult = {
@@ -36,6 +36,10 @@ export default function ReplyPage() {
   const [submitting, setSubmitting] = useState(false);
   const msgRef = useRef<HTMLTextAreaElement>(null);
   const ctxRef = useRef<HTMLTextAreaElement>(null);
+
+  // 反馈
+  const [feedbackText, setFeedbackText] = useState('');
+  const [feedbackStatus, setFeedbackStatus] = useState<'idle'|'sending'|'sent'>('idle');
 
   useEffect(() => {
     if (msgRef.current) {
@@ -231,9 +235,51 @@ export default function ReplyPage() {
               <button className="btn-primary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                 回到顶部
               </button>
-              <button className="btn-secondary" onClick={() => { window.location.href = 'mailto:leongecompany@gmail.com?subject=Readlyne%20反馈'; }}>
-                反馈建议
-              </button>
+              <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                <input
+                  className="text-input"
+                  style={{ flex: 1, marginBottom: 0, fontSize: 14, padding: '10px 14px' }}
+                  placeholder="反馈建议…"
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                  onKeyDown={async (e) => {
+                    if (e.key === 'Enter' && feedbackStatus === 'idle' && feedbackText.trim()) {
+                      setFeedbackStatus('sending');
+                      await submitFeedback(feedbackText.trim());
+                      setFeedbackStatus('sent');
+                      setFeedbackText('');
+                      setTimeout(() => setFeedbackStatus('idle'), 3000);
+                    }
+                  }}
+                  maxLength={500}
+                />
+                <button
+                  onClick={async () => {
+                    if (feedbackStatus !== 'idle' || !feedbackText.trim()) return;
+                    setFeedbackStatus('sending');
+                    await submitFeedback(feedbackText.trim());
+                    setFeedbackStatus('sent');
+                    setFeedbackText('');
+                    setTimeout(() => setFeedbackStatus('idle'), 3000);
+                  }}
+                  disabled={feedbackStatus !== 'idle' || !feedbackText.trim()}
+                  style={{
+                    padding: '10px 16px',
+                    background: feedbackStatus === 'sent' ? '#34c759' : 'var(--accent)',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 10,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: feedbackStatus !== 'idle' || !feedbackText.trim() ? 'not-allowed' : 'pointer',
+                    opacity: feedbackStatus !== 'idle' || !feedbackText.trim() ? 0.5 : 1,
+                    whiteSpace: 'nowrap',
+                    minWidth: 56,
+                  }}
+                >
+                  {feedbackStatus === 'sending' ? '…' : feedbackStatus === 'sent' ? '✓' : '提交'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
