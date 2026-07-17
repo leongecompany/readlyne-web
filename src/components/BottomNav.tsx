@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 
 const NAV_ITEMS = [
   { href: '/analyze', icon: '🔍', label: '分析' },
@@ -16,14 +17,14 @@ export default function BottomNav() {
         {NAV_ITEMS.map((item) => {
           const active = pathname.startsWith(item.href);
           return (
-            <a
+            <Link
               key={item.href}
               href={item.href}
               className={`nav-item${active ? ' active' : ''}`}
             >
               <span className="nav-icon">{item.icon}</span>
               <span>{item.label}</span>
-            </a>
+            </Link>
           );
         })}
       </div>

@@ -171,6 +171,134 @@ body {
   padding: 0 16px;
 }
 
+/* ─── Brand header ─── */
+.brand-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 0;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.brand-header .brand-name {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.brand-header .brand-tag {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+/* ─── Privacy trust line ─── */
+.privacy-line {
+  text-align: center;
+  padding: 6px 20px 0;
+  margin-bottom: 4px;
+}
+.privacy-line p {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ─── Intention item ─── */
+.intention-item {
+  padding: 12px 0;
+}
+.intention-item + .intention-item {
+  border-top: 1px solid var(--separator);
+}
+.intention-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.intention-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.intention-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.intention-confidence {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-left: auto;
+}
+.intention-explanation {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ─── Risk item ─── */
+.risk-item {
+  padding: 12px 0;
+}
+.risk-item + .risk-item {
+  border-top: 1px solid var(--separator);
+}
+.risk-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.risk-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  margin: 0;
+}
+.risk-suggestion {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* ─── Web → App CTA ─── */
+.app-cta {
+  background: var(--bg-secondary);
+  border-radius: 14px;
+  padding: 24px 20px;
+  margin: 0 16px 16px;
+  text-align: center;
+}
+.app-cta .cta-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 6px;
+}
+.app-cta .cta-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+.app-cta .cta-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 /* ─── Label ─── */
 .input-label {
   font-size: 13px;
@@ -293,6 +421,98 @@ body {
 .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
 .empty-state h3 { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
 .empty-state p { color: var(--text-secondary); font-size: 14px; margin: 0; }
+
+/* ─── Premium card ─── */
+.premium-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 20px;
+  margin: 0 16px 12px;
+}
+.premium-card .premium-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.premium-card .premium-header .premium-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.premium-card .premium-header .pro-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--text);
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+}
+.premium-card .premium-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
+/* ─── Goal chips ─── */
+.goal-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.goal-chip {
+  padding: 8px 14px;
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--card);
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.goal-chip:active { opacity: 0.7; }
+.goal-chip.selected {
+  background: var(--text);
+  color: #fff;
+  border-color: var(--text);
+}
+
+/* ─── Premium report sections ─── */
+.premium-report-section {
+  padding: 14px 0;
+}
+.premium-report-section + .premium-report-section {
+  border-top: 1px solid var(--separator);
+}
+.premium-report-section .report-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+.premium-report-section .report-section-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.premium-report-section .report-subsection-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 10px 0 6px;
+}
 
 /* ─── Utilities ─── */
 .text-secondary { color: var(--text-secondary); }

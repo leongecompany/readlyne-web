@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { getReplySuggestions } from '@/lib/api';
 
 type ReplySuggestion = { style: string; text: string; why_this_works: string; risk_note: string };
@@ -11,9 +11,9 @@ type ReplyResult = {
 };
 
 const LABEL_MAP: Record<string, string> = {
-  conservative: '保守回复',
-  natural: '自然回复',
-  active: '主动回复',
+  conservative: '保守风格',
+  natural: '自然风格',
+  active: '主动风格',
 };
 const STYLE_COLORS: Record<string, { bg: string; color: string }> = {
   conservative: { bg: '#e8f5e9', color: '#248a3d' },
@@ -21,15 +21,39 @@ const STYLE_COLORS: Record<string, { bg: string; color: string }> = {
   active: { bg: '#fde8f5', color: '#a1138a' },
 };
 
+function severityTag(s: string) {
+  const cls = s === 'high' ? 'tag-high' : s === 'medium' ? 'tag-medium' : 'tag-low';
+  const label = s === 'high' ? '高风险' : s === 'medium' ? '中风险' : '低风险';
+  return <span className={`tag ${cls}`}>{label}</span>;
+}
+
 export default function ReplyPage() {
   const [input, setInput] = useState('');
   const [context, setContext] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [result, setResult] = useState<ReplyResult | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const msgRef = useRef<HTMLTextAreaElement>(null);
+  const ctxRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (msgRef.current) {
+      msgRef.current.style.height = 'auto';
+      msgRef.current.style.height = msgRef.current.scrollHeight + 'px';
+    }
+  }, [input]);
+
+  useEffect(() => {
+    if (ctxRef.current) {
+      ctxRef.current.style.height = 'auto';
+      ctxRef.current.style.height = ctxRef.current.scrollHeight + 'px';
+    }
+  }, [context]);
 
   const handleSubmit = useCallback(async () => {
-    if (loading || !input.trim()) return;
+    if (submitting || !input.trim()) return;
+    setSubmitting(true);
     setLoading(true);
     setError('');
     setResult(null);
@@ -50,14 +74,22 @@ export default function ReplyPage() {
       setError('网络连接异常，请检查后重试');
     } finally {
       setLoading(false);
+      setSubmitting(false);
     }
-  }, [input, context, loading]);
+  }, [input, context, submitting]);
 
   return (
     <div>
-      <div style={{ padding: '40px 16px 0' }}>
+      {/* Brand header */}
+      <div className="brand-header">
+        <span className="brand-name">Readlyne</span>
+        <span className="brand-tag">聊天洞察 AI</span>
+      </div>
+
+      {/* Hero */}
+      <div style={{ padding: '20px 16px 0' }}>
         <h1 className="hero-title">不知道怎么回？</h1>
-        <p className="hero-sub">描述场景，AI 给你 3 种不同风格的回复。</p>
+        <p className="hero-sub">描述场景，AI 给你不同风格的回复参考。</p>
       </div>
 
       {/* Input */}
@@ -65,7 +97,8 @@ export default function ReplyPage() {
         <label className="input-label">想回应的内容</label>
         <textarea
           className="text-input"
-          rows={4}
+          ref={msgRef}
+          rows={3}
           placeholder="对方说了什么？或者描述一下你现在的情况…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -77,6 +110,7 @@ export default function ReplyPage() {
         </label>
         <textarea
           className="text-input"
+          ref={ctxRef}
           rows={2}
           placeholder="例如：暧昧期，前天因为小事吵了一架…"
           value={context}
@@ -85,8 +119,13 @@ export default function ReplyPage() {
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !input.trim()}>
-          {loading ? '生成中…' : '怎么回比较好'}
+          {loading ? '生成中…' : '生成回复建议'}
         </button>
+      </div>
+
+      {/* Privacy trust */}
+      <div className="privacy-line">
+        <p>🔒 默认不长期保存原始聊天内容</p>
       </div>
 
       {/* Error */}
@@ -99,16 +138,17 @@ export default function ReplyPage() {
       {/* Loading */}
       {loading && (
         <div className="card">
+          <div className="skeleton" style={{ width: '40%' }} />
+          <div className="skeleton" style={{ width: '85%' }} />
+          <div className="skeleton" style={{ width: '60%' }} />
           <div className="skeleton" style={{ width: '30%' }} />
-          <div className="skeleton" style={{ width: '90%', height: 60 }} />
-          <div className="skeleton" style={{ width: '50%' }} />
-          <div className="skeleton" style={{ width: '80%', height: 60 }} />
         </div>
       )}
 
       {/* Results */}
       {result && !loading && (
         <div style={{ marginTop: 4 }}>
+          {/* Reply suggestions */}
           {result.reply_suggestions && result.reply_suggestions.length > 0 && (
             <div className="card">
               <div className="section-title">回复建议</div>
@@ -144,6 +184,7 @@ export default function ReplyPage() {
             </div>
           )}
 
+          {/* Communication risks */}
           {result.communication_risks && result.communication_risks.length > 0 && (
             <div className="card">
               <div className="section-title">沟通提醒</div>
@@ -153,28 +194,52 @@ export default function ReplyPage() {
                   borderTop: i > 0 ? '1px solid var(--separator)' : 'none',
                 }}>
                   <div className="flex items-center gap-6" style={{ marginBottom: 4 }}>
-                    <span className={`tag ${item.severity === 'high' ? 'tag-high' : item.severity === 'medium' ? 'tag-medium' : 'tag-low'}`}>
-                      {item.severity === 'high' ? '高风险' : item.severity === 'medium' ? '中风险' : '低风险'}
-                    </span>
+                    {severityTag(item.severity)}
                     <span style={{ fontSize: 14, fontWeight: 500 }}>{item.risk}</span>
                   </div>
-                  <p className="text-secondary" style={{ fontSize: 13, margin: 0 }}>{item.suggestion}</p>
+                  <p className="text-secondary" style={{ fontSize: 13, margin: 0 }}>
+                    {item.suggestion}
+                  </p>
                 </div>
               ))}
             </div>
           )}
 
+          {/* Next step */}
           {result.next_step && (
             <div className="card">
               <div className="section-title">下一步</div>
-              <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 4 }}>{result.next_step.action}</p>
-              <p className="text-secondary" style={{ fontSize: 13, margin: 0 }}>{result.next_step.reason}</p>
+              <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 4, color: 'var(--text)' }}>
+                {result.next_step.action}
+              </p>
+              {result.next_step.reason && (
+                <p className="text-secondary" style={{ fontSize: 13, margin: 0 }}>
+                  {result.next_step.reason}
+                </p>
+              )}
             </div>
           )}
+
+          {/* App CTA */}
+          <div className="app-cta">
+            <p className="cta-title">想让 Readlyne 记住这个人？</p>
+            <p className="cta-desc">
+              下载 App 建立关系档案，<br />
+              让后续分析越来越贴合你们的互动。
+            </p>
+            <div className="cta-buttons">
+              <button className="btn-primary" onClick={() => {}}>
+                下载 iOS App
+              </button>
+              <button className="btn-secondary" onClick={() => {}}>
+                加入内测
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* Empty */}
+      {/* Empty state */}
       {!result && !loading && !error && (
         <div className="trust-bar">
           <div className="trust-item">

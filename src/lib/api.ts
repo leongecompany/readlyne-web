@@ -50,6 +50,41 @@ export async function getReport(reportId: string) {
   return res.json();
 }
 
+export async function deepStrategy(data: {
+  message: string;
+  context: string;
+  userGoal: string;
+  preview?: boolean;
+}) {
+  const res = await fetch(`${API_BASE}/web/deep-strategy`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify(data),
+  });
+  return res.json();
+}
+
+// 查询服务端剩余 credits
+export async function getCredits(): Promise<number> {
+  try {
+    const res = await fetch(`${API_BASE}/web/credits`, {
+      headers: headers(),
+    });
+    const data = await res.json();
+    return data.ok ? data.credits : 0;
+  } catch { return 0; }
+}
+
+// 手动验证 Stripe session 并恢复 credits（webhook fallback）
+export async function claimCredits(sessionId: string) {
+  const res = await fetch(`${API_BASE}/web/claim-credits`, {
+    method: 'POST',
+    headers: headers(),
+    body: JSON.stringify({ session_id: sessionId }),
+  });
+  return res.json();
+}
+
 export async function healthCheck() {
   const res = await fetch(`${API_BASE}/api/v1/health`);
   return res.json();
