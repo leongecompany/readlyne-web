@@ -126,6 +126,18 @@ export default function ReplyPage() {
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !input.trim()}>
           {loading ? '生成中…' : '💬 获取回复建议'}
         </button>
+        {!input.trim() && !loading && (
+          <button
+            className="btn-secondary"
+            style={{ marginTop: 8 }}
+            onClick={() => {
+              setInput('TA：最近工作好累，感觉每天都在重复。');
+              setContext('同事关系，认识半年');
+            }}
+          >
+            💡 试用示例
+          </button>
+        )}
       </div>
 
       {/* Privacy trust */}

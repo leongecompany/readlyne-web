@@ -352,6 +352,18 @@ export default function AnalyzePage() {
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim()}>
           {loading ? '分析中…' : '🔍 免费分析'}
         </button>
+        {!message.trim() && !loading && (
+          <button
+            className="btn-secondary"
+            style={{ marginTop: 8 }}
+            onClick={() => {
+              setMessage('我：最近工作好累，感觉每天都在重复。\nTA：那你有没有想过换个环境？\n我：换环境也不一定能解决问题吧。\nTA：至少比什么都不做强啊。');
+              setContext('同事关系，认识半年，平时聊得还行');
+            }}
+          >
+            💡 试用示例
+          </button>
+        )}
       </div>
 
       {/* Privacy trust */}
@@ -470,6 +482,19 @@ export default function AnalyzePage() {
 
           {/* Premium: 深度心理学策略分析 */}
           {analysis && (
+            <div style={{ padding: '0 16px', marginBottom: 8 }}>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
+                以上是免费分析 · ¥9.9 解锁 <strong>7 节完整报告</strong>：
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 6, fontSize: 11, color: 'var(--text-tertiary)', flexWrap: 'wrap' }}>
+                <span>🧠 心理学框架</span>
+                <span>📋 5 条策略</span>
+                <span>💬 3 种定制回复</span>
+                <span>📶 信号预判</span>
+              </div>
+            </div>
+          )}
+          {analysis && (
             <div className="premium-card">
               <div className="premium-header">
                 <span className="premium-title">深度心理学策略分析</span>
@@ -517,13 +542,16 @@ export default function AnalyzePage() {
                   {/* 支付选择弹窗 */}
                   {paymentStep === PAYMENT_MODAL_STEPS.CHOOSE && (
                     <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--separator)' }}>
-                      <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 12px', textAlign: 'center' }}>选择支付方式</p>
+                      <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px', textAlign: 'center' }}>深度心理学策略分析</p>
+                      <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '0 0 12px', textAlign: 'center' }}>
+                        ¥9.9 = 3 次完整报告 · 每次含 7 节分析 · 永久有效
+                      </p>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         <button
                           className="btn-primary"
                           onClick={() => handlePaymentChoice('alipay')}
                         >
-                          3次套餐 ¥9.9 · 支付宝
+                          ¥9.9 支付宝支付
                         </button>
                         <button
                           className="btn-secondary"
