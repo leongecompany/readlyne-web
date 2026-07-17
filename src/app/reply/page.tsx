@@ -288,6 +288,7 @@ export default function ReplyPage() {
 
       {/* Empty state */}
       {!result && !loading && !error && (
+        <>
         <div className="trust-bar">
           <div className="trust-item">
             <span className="trust-icon">🔒</span>
@@ -305,6 +306,7 @@ export default function ReplyPage() {
         <div style={{ textAlign: 'center', padding: '0 16px' }}>
           <BetaSignup />
         </div>
+        </>
       )}
     </div>
   );
