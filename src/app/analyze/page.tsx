@@ -11,13 +11,17 @@ type Signal = { summary: string; confidence: string; evidence_refs?: string[] };
 type ReplySuggestion = { style: string; text: string; why_this_works: string; risk_note: string };
 type NextStep = { action: string; reason: string; boundary_note?: string };
 type DeepStrategyReport = {
-  goal_feasibility: string;
-  target_comm_state: string;
-  timeline_analysis: string;
-  strategies: string[];
-  replies: { style: string; text: string }[];
-  signals: { positive: string[]; neutral: string[]; step_back: string[] };
-  risk_reminder: string;
+  goal_feasibility: { assessment: string; psychology_basis: string };
+  target_comm_state: { observation: string; psychology_basis: string };
+  timeline_analysis: { pattern: string; psychology_basis: string };
+  strategies: { principle: string; psychology: string; mechanism: string; application: string }[];
+  replies: { style: string; text: string; psychology: string; expected_effect: string }[];
+  signals: {
+    positive: { signal: string; psychology: string }[];
+    neutral: { signal: string; psychology: string }[];
+    step_back: { signal: string; psychology: string }[];
+  };
+  risk_reminder: { blind_spots: string; missing_evidence: string; principle_reminder: string };
 };
 type Analysis = {
   relationship_signal?: Signal;
@@ -530,51 +534,85 @@ export default function AnalyzePage() {
 
               {premiumReport && (
                 <div style={{ marginTop: premiumUnlocked ? 16 : 0 }}>
+                  {/* A. 目标可行性 */}
                   <div className="premium-report-section">
                     <div className="report-section-title">A. 目标可行性</div>
-                    <p className="report-section-content">{premiumReport.goal_feasibility}</p>
+                    <p className="report-section-content">{premiumReport.goal_feasibility.assessment}</p>
+                    <p className="psychology-note">🧠 {premiumReport.goal_feasibility.psychology_basis}</p>
                   </div>
+                  {/* B. 沟通状态 */}
                   <div className="premium-report-section">
                     <div className="report-section-title">B. 对方可能的沟通状态</div>
-                    <p className="report-section-content">{premiumReport.target_comm_state}</p>
+                    <p className="report-section-content">{premiumReport.target_comm_state.observation}</p>
+                    <p className="psychology-note">🧠 {premiumReport.target_comm_state.psychology_basis}</p>
                   </div>
+                  {/* C. 时间线 */}
                   <div className="premium-report-section">
                     <div className="report-section-title">C. 时间线与互动节奏</div>
-                    <p className="report-section-content">{premiumReport.timeline_analysis}</p>
+                    <p className="report-section-content">{premiumReport.timeline_analysis.pattern}</p>
+                    <p className="psychology-note">🧠 {premiumReport.timeline_analysis.psychology_basis}</p>
                   </div>
+                  {/* D. 策略 */}
                   <div className="premium-report-section">
                     <div className="report-section-title">D. 建议策略</div>
                     {premiumReport.strategies.map((s, i) => (
-                      <p key={i} className="report-section-content" style={{ marginBottom: 8 }}>{i + 1}. {s}</p>
-                    ))}
-                  </div>
-                  <div className="premium-report-section">
-                    <div className="report-section-title">E. 三种可直接使用的回复</div>
-                    {premiumReport.replies.map((r, i) => (
-                      <div key={i} style={{ marginBottom: 12 }}>
-                        <span className="tag" style={{ background: '#e8f0fe', color: '#0060df', display: 'inline-block', marginBottom: 4 }}>{r.style}</span>
-                        <div className="suggestion-card" style={{ margin: 0 }}>{r.text}</div>
+                      <div key={i} style={{ marginBottom: 14 }}>
+                        <p className="report-section-content" style={{ fontWeight: 600, marginBottom: 2 }}>
+                          {i + 1}. {s.principle}
+                        </p>
+                        <p className="psychology-note" style={{ marginBottom: 2 }}>🧠 {s.psychology}</p>
+                        <p className="report-section-content" style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '2px 0' }}>
+                          💡 {s.application}
+                        </p>
                       </div>
                     ))}
                   </div>
+                  {/* E. 回复 */}
+                  <div className="premium-report-section">
+                    <div className="report-section-title">E. 三种可直接使用的回复</div>
+                    {premiumReport.replies.map((r, i) => (
+                      <div key={i} style={{ marginBottom: 14 }}>
+                        <span className="tag" style={{ background: '#e8f0fe', color: '#0060df', display: 'inline-block', marginBottom: 4 }}>{r.style}</span>
+                        <div className="suggestion-card" style={{ margin: 0 }}>{r.text}</div>
+                        <p className="psychology-note">🧠 {r.psychology}</p>
+                        <p style={{ fontSize: 12, color: 'var(--text-tertiary)', margin: '2px 0 0' }}>
+                          预期反应: {r.expected_effect}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  {/* F. 信号 */}
                   <div className="premium-report-section">
                     <div className="report-section-title">F. 发送后观察信号</div>
                     <div className="report-subsection-title">积极信号</div>
                     {premiumReport.signals.positive.map((s, i) => (
-                      <p key={i} className="report-section-content" style={{ marginBottom: 4 }}>✅ {s}</p>
+                      <p key={i} className="report-section-content" style={{ marginBottom: 4 }}>
+                        ✅ {s.signal} <span className="psychology-note">({s.psychology})</span>
+                      </p>
                     ))}
                     <div className="report-subsection-title">中性信号</div>
                     {premiumReport.signals.neutral.map((s, i) => (
-                      <p key={i} className="report-section-content" style={{ marginBottom: 4 }}>➖ {s}</p>
+                      <p key={i} className="report-section-content" style={{ marginBottom: 4 }}>
+                        ➖ {s.signal} <span className="psychology-note">({s.psychology})</span>
+                      </p>
                     ))}
                     <div className="report-subsection-title">建议后退信号</div>
                     {premiumReport.signals.step_back.map((s, i) => (
-                      <p key={i} className="report-section-content" style={{ marginBottom: 4 }}>⚠️ {s}</p>
+                      <p key={i} className="report-section-content" style={{ marginBottom: 4 }}>
+                        ⚠️ {s.signal} <span className="psychology-note">({s.psychology})</span>
+                      </p>
                     ))}
                   </div>
+                  {/* G. 风险 */}
                   <div className="premium-report-section">
                     <div className="report-section-title">G. 风险提醒</div>
-                    <p className="report-section-content" style={{ color: 'var(--text-secondary)', fontSize: 13 }}>{premiumReport.risk_reminder}</p>
+                    <p className="report-section-content" style={{ fontSize: 13, marginBottom: 6 }}>
+                      ⚠️ 盲区: {premiumReport.risk_reminder.blind_spots}
+                    </p>
+                    <p className="report-section-content" style={{ fontSize: 13, marginBottom: 6, color: 'var(--text-secondary)' }}>
+                      📋 缺乏证据: {premiumReport.risk_reminder.missing_evidence}
+                    </p>
+                    <p className="psychology-note">{premiumReport.risk_reminder.principle_reminder}</p>
                   </div>
                 </div>
               )}

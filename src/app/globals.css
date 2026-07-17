@@ -514,6 +514,18 @@ body {
   margin: 10px 0 6px;
 }
 
+/* ─── Psychology note ─── */
+.psychology-note {
+  font-size: 12px;
+  color: #9b6b9e;
+  line-height: 1.5;
+  padding: 4px 8px;
+  background: #f9f5fa;
+  border-radius: 6px;
+  margin: 4px 0;
+  display: inline-block;
+}
+
 /* ─── Utilities ─── */
 .text-secondary { color: var(--text-secondary); }
 .text-tertiary { color: var(--text-tertiary); }
