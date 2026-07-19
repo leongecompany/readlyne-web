@@ -3,11 +3,52 @@ const API_BASE = process.env.NEXT_PUBLIC_WEB_API_BASE_URL || 'http://localhost:1
 
 function getInstallationId(): string {
   if (typeof window === 'undefined') return 'web-anonymous';
+  // Try localStorage first (fast)
   let id = localStorage.getItem('readlyne_installation_id');
-  if (!id) {
-    id = 'web-' + crypto.randomUUID().slice(0, 12);
-    localStorage.setItem('readlyne_installation_id', id);
-  }
+  if (id) return id;
+  // Try IndexedDB (survives cache clear)
+  try {
+    const request = indexedDB.open('readlyne_store', 1);
+    request.onsuccess = () => {
+      const db = request.result;
+      if (db.objectStoreNames.contains('state')) {
+        const tx = db.transaction('state', 'readonly');
+        const store = tx.objectStore('state');
+        const getReq = store.get('installation_id');
+        getReq.onsuccess = () => {
+          if (getReq.result) localStorage.setItem('readlyne_installation_id', getReq.result);
+        };
+      }
+    };
+    request.onupgradeneeded = () => {
+      request.result.createObjectStore('state');
+    };
+  } catch {}
+  // Fallback: create new persistent ID
+  id = 'web-' + crypto.randomUUID().slice(0, 12);
+  localStorage.setItem('readlyne_installation_id', id);
+  // Also store in IndexedDB
+  try {
+    const request = indexedDB.open('readlyne_store', 1);
+    request.onsuccess = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains('state')) {
+        db.close();
+        const reopen = indexedDB.open('readlyne_store', 2);
+        reopen.onupgradeneeded = () => { reopen.result.createObjectStore('state'); };
+        reopen.onsuccess = () => {
+          const tx = reopen.result.transaction('state', 'readwrite');
+          tx.objectStore('state').put(id, 'installation_id');
+        };
+      } else {
+        const tx = db.transaction('state', 'readwrite');
+        tx.objectStore('state').put(id, 'installation_id');
+      }
+    };
+    request.onupgradeneeded = () => {
+      request.result.createObjectStore('state');
+    };
+  } catch {}
   return id;
 }
 
