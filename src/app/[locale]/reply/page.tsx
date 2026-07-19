@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { getReplySuggestions, submitFeedback } from '@/lib/api';
 import BetaSignup from '@/components/BetaSignup';
+import { useLocale } from '@/lib/locale';
 
 type ReplySuggestion = { style: string; text: string; why_this_works: string; risk_note: string };
 type ReplyResult = {
@@ -29,6 +30,8 @@ function severityTag(s: string) {
 }
 
 export default function ReplyPage() {
+  const { locale } = useLocale();
+  const cn = locale === 'cn';
   const [input, setInput] = useState('');
   const [context, setContext] = useState('');
   const [loading, setLoading] = useState(false);
@@ -93,8 +96,8 @@ export default function ReplyPage() {
 
       {/* Hero */}
       <div style={{ padding: '20px 16px 0' }}>
-        <h1 className="hero-title">不知道怎么回 TA？</h1>
-        <p className="hero-sub">描述场景，AI 给你保守、自然、主动三种风格的回复参考。</p>
+        <h1 className="hero-title">{cn ? "不知道怎么回 TA？" : "Don't know how to reply?"}</h1>
+        <p className="hero-sub">{cn ? "描述场景，AI 给你保守、自然、主动三种风格的回复参考。" : "AI suggests conservative, natural, and bold replies."}</p>
       </div>
 
       {/* Input */}
@@ -124,7 +127,7 @@ export default function ReplyPage() {
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !input.trim()}>
-          {loading ? '生成中…' : '💬 获取回复建议'}
+          {loading ? '生成中…' : '💬 获取{cn ? "回复建议" : "Reply Suggestions"}'}
         </button>
         {!input.trim() && !loading && (
           <button
@@ -156,7 +159,7 @@ export default function ReplyPage() {
       {loading && (
         <div className="card">
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
-            💡 AI 正在生成回复建议…
+            💡 {cn ? "AI 正在生成回复建议…" : "AI generating suggestions…"}
           </p>
           <div className="skeleton" style={{ width: '40%', marginTop: 16 }} />
           <div className="skeleton" style={{ width: '85%' }} />
@@ -206,7 +209,7 @@ export default function ReplyPage() {
           {/* Communication risks */}
           {result.communication_risks && result.communication_risks.length > 0 && (
             <div className="card">
-              <div className="section-title">沟通提醒</div>
+              <div className="section-title">{cn ? "沟通提醒" : "Alerts"}</div>
               {result.communication_risks.map((item, i) => (
                 <div key={i} style={{
                   padding: '10px 0',
@@ -227,7 +230,7 @@ export default function ReplyPage() {
           {/* Next step */}
           {result.next_step && (
             <div className="card">
-              <div className="section-title">下一步</div>
+              <div className="section-title">{cn ? "下一步" : "Next Step"}</div>
               <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 4, color: 'var(--text)' }}>
                 {result.next_step.action}
               </p>
@@ -241,10 +244,10 @@ export default function ReplyPage() {
 
           {/* App CTA */}
           <div className="app-cta">
-            <p className="cta-title">想让 Readlyne 记住这个人？</p>
+            <p className="cta-title">{cn ? "想让 Readlyne 记住这个人？" : "Want Readlyne to remember them?"}</p>
             <p className="cta-desc">
-              下载 App 建立关系档案，<br />
-              让后续分析越来越贴合你们的互动。
+              {cn ? "下载 App 建立关系档案，" : "Download app for profiles,"}<br />
+              {cn ? "让后续分析越来越贴合你们的互动。" : "for better personalization."}
             </p>
             <div className="cta-buttons">
               <button className="btn-primary" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
@@ -306,15 +309,15 @@ export default function ReplyPage() {
         <div className="trust-bar">
           <div className="trust-item">
             <span className="trust-icon">🔒</span>
-            <span>隐私保护</span>
+            <span>{cn ? "隐私保护" : "Private"}</span>
           </div>
           <div className="trust-item">
             <span className="trust-icon">🤖</span>
-            <span>AI 分析</span>
+            <span>{cn ? "AI 分析" : "AI Analyzed"}</span>
           </div>
           <div className="trust-item">
             <span className="trust-icon">🌱</span>
-            <span>关系成长</span>
+            <span>{cn ? "关系成长" : "Growth"}</span>
           </div>
         </div>
         <div style={{ textAlign: 'center', padding: '0 16px' }}>
