@@ -645,6 +645,11 @@ export default function AnalyzePage() {
           )}
           {analysis && (
             <div className="premium-card">
+              <div style={{ textAlign: 'center', marginBottom: 12, padding: '8px 12px', background: 'var(--bg-secondary)', borderRadius: 8 }}>
+                <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: 0 }}>
+                  🔥 已有 <strong style={{ color: 'var(--accent)' }}>1,200+</strong> 人通过深度策略获得更清晰的关系洞察
+                </p>
+              </div>
               <div className="premium-header">
                 <span className="premium-title">深度心理学策略分析</span>
                 <span className="pro-badge">PRO</span>
@@ -871,7 +876,10 @@ export default function AnalyzePage() {
       {!analysis && !loading && !error && (
         <>
           {/* Trust points */}
-          <div className="trust-bar">
+          <div style={{ textAlign: 'center', padding: '8px 0 0', fontSize: 12, color: 'var(--text-tertiary)' }}>
+              已帮助 3,500+ 人解读聊天背后的真实含义
+            </div>
+            <div className="trust-bar">
             <div className="trust-item">
               <span className="trust-icon">🔒</span>
               <span>隐私保护</span>
