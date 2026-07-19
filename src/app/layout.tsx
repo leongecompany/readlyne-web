@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import BottomNav from '@/components/BottomNav';
+import SiteFooter from '@/components/SiteFooter';
 
 export const metadata: Metadata = {
   title: 'Readlyne — 看不懂 TA 的话？AI 分析潜台词和回复建议',
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="app-container">
           {children}
         </div>
+        <SiteFooter />
         <BottomNav />
       </body>
     </html>
