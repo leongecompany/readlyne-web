@@ -52,7 +52,8 @@ export default function PrivacyPage() {
           <li><strong>Stripe</strong> — payment processing</li>
           <li><strong>DeepSeek</strong> — AI analysis</li>
           <li><strong>Supabase</strong> — data storage (for registered users)</li>
-          <li><strong>Vercel</strong> — hosting</li>
+          <li><strong>GitHub Pages</strong> — static hosting</li>
+          <li><strong>Cloudflare</strong> — DNS, CDN & SSL</li>
         </ul>
 
         <h2>7. Your Rights</h2>
