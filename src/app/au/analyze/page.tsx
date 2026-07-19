@@ -466,7 +466,7 @@ export default function AnalyzePage() {
       {loading && (
         <div className="card">
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
-            🧠 AI 正在AnalysisChat Content…
+            🧠 AI is analyzing your chat…
           </p>
           <div className="skeleton" style={{ width: '40%', marginTop: 16 }} />
           <div className="skeleton" style={{ width: '85%' }} />
@@ -689,7 +689,7 @@ export default function AnalyzePage() {
                   )}
                   {paymentStep === PAYMENT_MODAL_STEPS.PROCESSING && (
                     <p style={{ fontSize: 13, textAlign: 'center', color: 'var(--text-secondary)', marginTop: 12 }}>
-                      正在跳转支付页面…
+                      Redirecting to payment…
                     </p>
                   )}
                 </>
