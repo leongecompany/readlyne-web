@@ -441,7 +441,7 @@ export default function AnalyzePage() {
             className="btn-secondary"
             style={{ marginTop: 8 }}
             onClick={() => {
-              setMessage('我：你今天怎么不理我了？\nTA：没有啊，你想多了。\n我：我只是感觉最近你有点冷淡。\nTA：最近确实比较忙，不是针对你。');
+              setMessage('You: Why are you being distant?\nThem: You\'re overthinking it.\nYou: I just feel like things have been cold lately.\nThem: Just been really busy, it\'s not about you.');
               setContext('Situationship, 3 months, they\'ve been replying slower lately');
             }}
           >

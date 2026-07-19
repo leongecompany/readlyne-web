@@ -131,8 +131,8 @@ export default function ReplyPage() {
             className="btn-secondary"
             style={{ marginTop: 8 }}
             onClick={() => {
-              setInput('TA：你今天怎么不理我了？');
-              setContext('暧昧期，认识三个月，最近对方回复变慢');
+              setInput('Them: Why are you being distant?');
+              setContext('Situationship, 3 months, replying slower lately');
             }}
           >
             💡 Try Example
