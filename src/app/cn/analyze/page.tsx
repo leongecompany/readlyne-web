@@ -540,6 +540,7 @@ export default function AnalyzePage() {
                 📋 复制结果
               </button>
             </div>
+          )}
 
           {/* 直观判断 */}
           {analysis.relationship_signal && (
@@ -549,6 +550,7 @@ export default function AnalyzePage() {
                 {analysis.relationship_signal.summary}
               </p>
             </div>
+          )}
 
           {/* 可能含义 */}
           {analysis.possible_intentions && analysis.possible_intentions.length > 0 && (
@@ -578,6 +580,7 @@ export default function AnalyzePage() {
                 </div>
               ))}
             </div>
+          )}
 
           {/* 误读风险 */}
           {analysis.communication_risks && analysis.communication_risks.length > 0 && (
@@ -598,6 +601,7 @@ export default function AnalyzePage() {
                 </div>
               ))}
             </div>
+          )}
 
           {/* 回复参考 */}
           {analysis.reply_suggestions && analysis.reply_suggestions.length > 0 && (
@@ -608,6 +612,7 @@ export default function AnalyzePage() {
                 {analysis.reply_suggestions[0].why_this_works}
               </p>
             </div>
+          )}
 
           {/* 下一步 */}
           {analysis.next_step && (
@@ -622,27 +627,24 @@ export default function AnalyzePage() {
                 </p>
               )}
             </div>
+          )}
 
           {/* Premium: 深度心理学策略分析 */}
           {analysis && (
-            <div style={{ padding: '0 16px 12px', background: 'var(--bg-secondary)', borderRadius: 14, margin: '0 16px 12px', textAlign: 'center' }}>
-              <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--text)', margin: '12px 0 6px' }}>
-                想知道她/他为什么这么说？
+            <div style={{ padding: '0 16px', marginBottom: 8 }}>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
+                想知道深层原因？· ¥9.99 解锁 <strong>完整心理学策略报告</strong>：
               </p>
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '0 0 10px', lineHeight: 1.5 }}>
-                上面的分析只是表面 · 深度策略用<strong>心理学框架</strong>告诉你背后的原因和行动方案
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginTop: 6, fontSize: 12, color: 'var(--text-secondary)', flexWrap: 'wrap' }}>
-                <span>🧠 心理学依据</span>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 6, fontSize: 11, color: 'var(--text-tertiary)', flexWrap: 'wrap' }}>
+                <span>🧠 心理学框架</span>
                 <span>📋 5 条策略</span>
-                <span>💬 3 条定制回复</span>
+                <span>💬 3 种定制回复</span>
                 <span>📶 信号预判</span>
               </div>
-              <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)', marginTop: 10 }}>
-                ¥9.99 · 5 次完整报告 ↑
-              </p>
             </div>
-          <div className="premium-card" style={analysis ? {} : { opacity: 0.85 }}>
+          )}
+          {analysis && (
+            <div className="premium-card">
               <div className="premium-header">
                 <span className="premium-title">深度心理学策略分析</span>
                 <span className="pro-badge">PRO</span>
@@ -811,6 +813,7 @@ export default function AnalyzePage() {
                 </div>
               )}
             </div>
+          )}
 
           {/* App CTA */}
           <div className="app-cta">
