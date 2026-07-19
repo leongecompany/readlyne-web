@@ -3,7 +3,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { analyzeMessage, deepStrategy, createCheckout, getCredits as fetchServerCredits, claimCredits, submitFeedback } from '@/lib/api';
 import BetaSignup from '@/components/BetaSignup';
-import { useLocale } from '@/lib/locale';
 
 const PAYMENT_MODAL_STEPS = { HIDDEN: 'hidden', CHOOSE: 'choose', PROCESSING: 'processing', SUCCESS: 'success' } as const;
 
@@ -171,8 +170,6 @@ function AnalysisHistory({ onSelect }: { onSelect: (msg: string, ctx: string) =>
 }
 
 export default function AnalyzePage() {
-  const { locale } = useLocale();
-  const cn = locale === 'cn';
   const [message, setMessage] = useState('');
   const [context, setContext] = useState('');
   const [loading, setLoading] = useState(false);
@@ -408,13 +405,13 @@ export default function AnalyzePage() {
 
       {/* Hero */}
       <div style={{ padding: '20px 16px 0' }}>
-        <h1 className="hero-title">{cn ? '不懂 TA 的话？' : "Don't understand them?"}</h1>
-        <p className="hero-sub">{cn ? '粘贴聊天内容，AI 分析潜台词、误读风险和怎么回。' : 'Paste your chat. AI analyzes subtext, risks, and best replies.'}</p>
+        <h1 className="hero-title">看不懂 TA 的话？</h1>
+        <p className="hero-sub">粘贴聊天内容，AI 分析潜台词、误读风险和怎么回。</p>
       </div>
 
       {/* Input */}
       <div className="card">
-        <label className="input-label">{cn ? '聊天内容' : 'Chat content'}</label>
+        <label className="input-label">聊天内容</label>
         <textarea
           className="text-input"
           ref={msgRef}
@@ -457,7 +454,7 @@ export default function AnalyzePage() {
 
       {/* Privacy trust */}
       <div className="privacy-line">
-        <p>🔒 {cn ? '聊天内容不会保存到服务器 · 分析后即忘' : 'Chat data not stored on server · Ephemeral analysis'}</p>
+        <p>🔒 聊天内容不会保存到服务器 · 分析后即忘</p>
       </div>
 
       {/* Error */}
@@ -601,7 +598,7 @@ export default function AnalyzePage() {
             </div>
           )}
 
-          {/* Premium: {cn ? '深度心理学策略分析' : 'Deep Psychological Strategy'} */}
+          {/* Premium: 深度心理学策略分析 */}
           {analysis && (
             <div style={{ padding: '0 16px', marginBottom: 8 }}>
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
@@ -789,17 +786,17 @@ export default function AnalyzePage() {
 
           {/* App CTA */}
           <div className="app-cta">
-            <p className="cta-title">{cn ? '想让 Readlyne 记住这个人？' : 'Want Readlyne to remember them?'}</p>
+            <p className="cta-title">想让 Readlyne 记住这个人？</p>
             <p className="cta-desc">
-              {cn ? '下载 App 建立关系档案，' : 'Download app for profiles,'}<br />
-              {cn ? '让后续分析越来越贴合你们的互动。' : 'for personalized insights.'}
+              下载 App 建立关系档案，<br />
+              让后续分析越来越贴合你们的互动。
             </p>
             <div className="cta-buttons">
               <button
                 className="btn-primary"
                 onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               >
-                {cn ? '回到顶部开始分析' : 'Back to top'}
+                回到顶部开始分析
               </button>
               <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                 <input
@@ -846,7 +843,7 @@ export default function AnalyzePage() {
           <div className="trust-bar">
             <div className="trust-item">
               <span className="trust-icon">🔒</span>
-              <span>{cn ? '隐私保护' : 'Privacy'}</span>
+              <span>隐私保护</span>
             </div>
             <div className="trust-item">
               <span className="trust-icon">🤖</span>
@@ -854,7 +851,7 @@ export default function AnalyzePage() {
             </div>
             <div className="trust-item">
               <span className="trust-icon">🌱</span>
-              <span>{cn ? '关系成长' : 'Growth'}</span>
+              <span>关系成长</span>
             </div>
           </div>
 
