@@ -3,16 +3,14 @@
 import { useState } from 'react';
 
 const FAQS = [
-  { q: 'What is Readlyne?', a: 'Readlyne is an AI-powered relationship communication assistant. Paste your chat messages and get insights on tone, intentions, risks, and reply suggestions — plus deep psychological strategy analysis.' },
-  { q: 'Is Readlyne free?', a: 'Basic chat analysis is free. For deep psychological strategy reports, you can purchase analysis packs (¥9.9 / 5 analyses) or subscribe to Pro ($29.99/month) for unlimited access.' },
-  { q: 'How does the payment work?', a: 'Payments are processed through Stripe. You can pay with credit cards or Alipay (for the ¥9.9 pack). Your card details are never stored on our servers.' },
-  { q: 'Is my chat data private?', a: 'Yes. Chat content you paste is analyzed in real-time and not permanently stored on our servers. Your privacy is our priority.' },
-  { q: 'Is this a replacement for therapy?', a: 'No. Readlyne provides AI-generated insights for informational purposes. It is not a substitute for professional relationship counseling or therapy.' },
-  { q: 'Which platforms are supported?', a: 'Readlyne is available as a web app and on iOS (App Store). Android support is planned.' },
-  { q: 'Can I get a refund?', a: 'Purchased credits are non-refundable. If a technical error prevents you from using your credits, contact us and we will resolve it.' },
-  { q: 'How accurate is the AI analysis?', a: 'Readlyne uses advanced AI (DeepSeek) to analyze text based on psychological frameworks. Accuracy depends on the quality of input. Always use your own judgment alongside AI insights.' },
-  { q: 'How do I contact support?', a: 'Email us at support@readlyne.com. We aim to respond within 24 hours.' },
-  { q: 'Can I delete my data?', a: 'Yes. Contact us at privacy@readlyne.com with your account email and we will delete your data within 14 days.' },
+  { q: 'Readlyne 是什么？', a: 'AI 聊天洞察助手。粘贴聊天内容，分析信号、意图、风险和回复技巧，还有深度心理学策略报告。' },
+  { q: '收费吗？', a: '前 10 次基础分析免费。之后可购买标准包（$9.99/11次）或深度策略包（$9.99/5次）。' },
+  { q: '怎么付款？', a: '通过 Stripe 安全处理，支持信用卡和支付宝。价格是美元，按实时汇率换算。' },
+  { q: '聊天内容安全吗？', a: '内容实时分析后不保存。你粘贴的内容不会被用于训练 AI 模型。' },
+  { q: '能替代心理咨询吗？', a: '不能。Readlyne 提供 AI 生成的参考建议，不替代专业心理咨询或情感治疗。' },
+  { q: '支持哪些平台？', a: '网页版和 iOS App。Android 暂不支持。' },
+  { q: '可以退款吗？', a: '原则上不支持退款。因系统故障导致次数无法使用，联系 support@readlyne.com 处理。' },
+  { q: '如何删除数据？', a: '发邮件到 privacy@readlyne.com，14 天内处理。' },
 ];
 
 function FaqItem({ q, a }: { q: string; a: string }) {
@@ -32,11 +30,12 @@ export default function FaqPage() {
   return (
     <div className="legal-page">
       <div className="legal-card">
-        <h1>Frequently Asked Questions</h1>
+        <p style={{ fontSize: 13, color: 'var(--text-tertiary)', textAlign: 'right', margin: 0 }}>
+          <a href="/en/faq" style={{ color: 'var(--text-tertiary)', textDecoration: 'none' }}>EN</a>
+        </p>
+        <h1>常见问题</h1>
         <div className="faq-list">
-          {FAQS.map((faq, i) => (
-            <FaqItem key={i} q={faq.q} a={faq.a} />
-          ))}
+          {FAQS.map((f, i) => <FaqItem key={i} q={f.q} a={f.a} />)}
         </div>
       </div>
     </div>
