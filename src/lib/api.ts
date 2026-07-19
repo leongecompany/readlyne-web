@@ -100,3 +100,12 @@ export async function healthCheck() {
   const res = await fetch(`${API_BASE}/api/v1/health`);
   return res.json();
 }
+
+export async function createStandardCheckout() {
+  const res = await fetch(API_BASE + "/web/create-standard-checkout", {
+    method: "POST",
+    headers: headers(),
+    body: JSON.stringify({}),
+  });
+  return res.json();
+}
