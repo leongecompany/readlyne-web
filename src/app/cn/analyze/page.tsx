@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { analyzeMessage, deepStrategy, createCheckout, getCredits as fetchServerCredits, claimCredits, submitFeedback } from '@/lib/api';
+import { analyzeMessage, deepStrategy, createCheckout, createStandardCheckout, getCredits as fetchServerCredits, claimCredits, submitFeedback } from '@/lib/api';
 import BetaSignup from '@/components/BetaSignup';
 
 const PAYMENT_MODAL_STEPS = { HIDDEN: 'hidden', CHOOSE: 'choose', PROCESSING: 'processing', SUCCESS: 'success' } as const;
@@ -236,11 +236,20 @@ export default function AnalyzePage() {
 
   // 服务端 credit 状态
   const [serverCredits, setServerCredits] = useState(0);
+  const [freeRemaining, setFreeRemaining] = useState(10);
   const [creditsLoaded, setCreditsLoaded] = useState(false);
 
   const loadServerCredits = useCallback(async () => {
-    const c = await fetchServerCredits();
-    setServerCredits(c);
+    try {
+      const res = await fetch('https://readlyne-proxy.onrender.com/web/credits', {
+        headers: { 'x-installation-id': localStorage.getItem('readlyne_installation_id') || 'web-anon' },
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setServerCredits(data.credits || 0);
+        setFreeRemaining(data.free_remaining ?? 10);
+      }
+    } catch {}
     setCreditsLoaded(true);
   }, []);
 
@@ -277,6 +286,13 @@ export default function AnalyzePage() {
       setPaymentStep(PAYMENT_MODAL_STEPS.CHOOSE);
     }
   }, [message, context, userGoal, premiumLoading, serverCredits, loadServerCredits]);
+
+  const handleStandardCheckout = useCallback(async () => {
+    try {
+      const checkout = await createStandardCheckout();
+      if (checkout.ok) { window.location.href = checkout.url; }
+    } catch {}
+  }, []);
 
   const handlePaymentChoice = useCallback(async (method: string) => {
     setPaymentStep(PAYMENT_MODAL_STEPS.PROCESSING);
@@ -436,8 +452,13 @@ export default function AnalyzePage() {
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim()}>
-          {loading ? '分析中…' : '🔍 免费分析'}
+          {loading ? '分析中…' : freeRemaining > 0 ? `🔍 免费分析（剩余${freeRemaining}次）` : serverCredits > 0 ? `🔍 分析（剩余${serverCredits}次）` : '🔍 免费次数已用完'}
         </button>
+        {freeRemaining <= 0 && serverCredits <= 0 && creditsLoaded && (
+          <button className="btn-secondary" style={{ marginTop: 8 }} onClick={handleStandardCheckout}>
+            💳 购买标准包 — $4.99 / 10次
+          </button>
+        )}
         {!message.trim() && !loading && (
           <button
             className="btn-secondary"
