@@ -1,8 +1,6 @@
 import { ReactNode, use } from 'react';
 import { Metadata, Viewport } from 'next';
 import { LocaleProvider, Locale } from '@/lib/locale';
-import LocaleFooter from '@/components/LocaleFooter';
-import LocaleBottomNav from '@/components/LocaleBottomNav';
 
 export async function generateStaticParams() {
   return [{ locale: 'cn' }, { locale: 'au' }];
@@ -27,8 +25,7 @@ export default function LocaleLayout({ children, params }: { children: ReactNode
   return (
     <LocaleProvider locale={locale}>
       <div className="app-container">{children}</div>
-      <LocaleFooter />
-      <LocaleBottomNav />
+
     </LocaleProvider>
   );
 }
