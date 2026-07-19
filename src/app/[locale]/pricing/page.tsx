@@ -82,7 +82,40 @@ export default function PricingPage() {
           </div>
         </div>
 
-        <h2>{cn ? '支付方式' : 'Payment'}</h2>
+        <div style={{ margin: '24px 0', overflow: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, textAlign: 'center' }}>
+          <thead>
+            <tr style={{ borderBottom: '2px solid var(--separator)' }}>
+              <th style={{ padding: '8px 6px', textAlign: 'left' }}>功能</th>
+              <th style={{ padding: '8px 6px' }}>{t.free}</th>
+              <th style={{ padding: '8px 6px', color: 'var(--accent)' }}>{t.std_name}</th>
+              <th style={{ padding: '8px 6px' }}>{t.deep_name}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              [cn?'价格':'Price', '$0', '$4.99', '$9.99'],
+              [cn?'次数':'Analyses', '10', '10', '5'],
+              [cn?'信号检测':'Signal Detection', '✅', '✅', '✅'],
+              [cn?'意图解读':'Intention Analysis', '✅', '✅', '✅'],
+              [cn?'风险评估':'Risk Assessment', '✅', '✅', '✅'],
+              [cn?'回复建议':'Reply Suggestions', '❌', '✅', '✅'],
+              [cn?'心理学策略':'Psychology Strategies', '❌', '❌', '✅'],
+              [cn?'定制回复':'Custom Replies', '❌', '❌', '✅'],
+              [cn?'信号追踪':'Signal Tracking', '❌', '❌', '✅'],
+            ].map((row, i) => (
+              <tr key={i} style={{ borderBottom: '1px solid var(--separator)' }}>
+                <td style={{ padding: '8px 6px', textAlign: 'left', color: 'var(--text-secondary)', fontWeight: i < 2 ? 600 : 400 }}>{row[0]}</td>
+                <td style={{ padding: '8px 6px' }}>{row[1]}</td>
+                <td style={{ padding: '8px 6px', background: i === 0 ? 'var(--bg-secondary)' : 'transparent' }}>{row[2]}</td>
+                <td style={{ padding: '8px 6px' }}>{row[3]}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2>{cn ? '支付方式' : 'Payment'}</h2>
         <p>{t.payment}</p>
 
         <h2>FAQ</h2>
