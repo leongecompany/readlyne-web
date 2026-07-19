@@ -864,7 +864,7 @@ export default function AnalyzePage() {
           {/* Beta signup */}
           <div className="app-promo">
             <div className="app-name">Readlyne</div>
-            <BetaSignup />
+            <BetaSignup locale="cn" />
           </div>
         </>
       )}

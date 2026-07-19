@@ -34,15 +34,13 @@ type Analysis = {
 
 function severityTag(s: string) {
   const cls = s === 'high' ? 'tag-high' : s === 'medium' ? 'tag-medium' : 'tag-low';
-  const label = s === 'high' ? '高风险' : s === 'medium' ? '中风险' : '低风险';
+  const label = s === 'high' ? 'High Risk' : s === 'medium' ? 'Medium Risk' : 'Low Risk';
   return <span className={`tag ${cls}`}>{label}</span>;
 }
 
-const LABEL_MAP: Record<string, string> = {
-  '大概率': '大概率', '有可能': '有可能', '小概率': '小概率',
-};
+const LABEL_MAP: Record<string, string> = { 'Likely': 'Likely', 'Possible': 'Possible', 'Unlikely': 'Unlikely' };
 
-// 静态示例报告 — 展示Deep Strategy分析输出格式
+// Sample Report Preview — shows Deep Strategy analysis output format
 function SampleReportPreview() {
   const [open, setOpen] = useState(false);
   return (
@@ -54,13 +52,13 @@ function SampleReportPreview() {
           fontSize: 13, cursor: 'pointer', padding: '4px 0', width: '100%', textAlign: 'center',
         }}
       >
-        {open ? '收起示例 ↑' : '📋 查看完整报告示例'}
+        {open ? 'Hide ↑' : '📋 Full Sample Report'}
       </button>
       {open && (
         <div style={{ marginTop: 8, fontSize: 12, lineHeight: 1.7, color: 'var(--text-tertiary)', textAlign: 'left' }}>
           <div style={sampleSectionStyle}>
             <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>A. Goal Feasibility</div>
-            <p style={{ margin: 0 }}>基于 Social Penetration Theory（社会渗透理论），当前对话处于表层互动阶段。对方回复简短且未主动展开话题，目标在现有基础上Move forward是可能的，但需要温和节奏。</p>
+            <p style={{ margin: 0 }}>Based on Social Penetration Theory, the conversation is at surface level. Short, passive replies suggest progress is possible but requires a gentle, gradual approach.</p>
           </div>
           <div style={sampleSectionStyle}>
             <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>B. Communication State</div>
@@ -68,7 +66,7 @@ function SampleReportPreview() {
           </div>
           <div style={sampleSectionStyle}>
             <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>C. Timeline & Rhythm</div>
-            <p style={{ margin: 0 }}>回复间隔较长（平均 &gt;3h），双方均未在一小时内连续回复。符合 Mere Exposure Effect 的渐进模式——持续温和曝光比密集互动更有效。</p>
+            <p style={{ margin: 0 }}>Reply gaps are wide (avg &gt;3h). Consistent with the Mere Exposure Effect — gradual, warm exposure works better than intense bursts.</p>
           </div>
           <div style={sampleSectionStyle}>
             <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>D. Strategies (5)</div>
@@ -83,7 +81,7 @@ function SampleReportPreview() {
             <p style={{ margin: 0 }}>How to read their reaction after sending (positive/neutral/step-back signals), with over-interpretation warnings.</p>
           </div>
           <p style={{ marginTop: 8, fontSize: 12, color: 'var(--text)', textAlign: 'center', fontWeight: 500 }}>
-            ¥9.9 unlock真实分析报告
+            $9.99 to unlock real analysis reports
           </p>
         </div>
       )}
@@ -96,7 +94,7 @@ const sampleSectionStyle: React.CSSProperties = {
   borderTop: '1px solid var(--separator)',
 };
 
-// 使用统计
+// Usage Counter
 function UsageCounter() {
   const [count] = useState(() => {
     try { return parseInt(localStorage.getItem('readlyne_usage_count') || '0', 10); }
@@ -110,7 +108,7 @@ function UsageCounter() {
   );
 }
 
-// Recent Analyses历史
+// Recent AnalysesHistory
 const HISTORY_KEY = 'readlyne_history';
 const MAX_HISTORY = 4;
 
@@ -188,7 +186,7 @@ export default function AnalyzePage() {
   const [paymentStep, setPaymentStep] = useState<string>(PAYMENT_MODAL_STEPS.HIDDEN);
   const goalRef = useRef<HTMLTextAreaElement>(null);
 
-  // 反馈表单
+  // Feedback
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackStatus, setFeedbackStatus] = useState<'idle'|'sending'|'sent'>('idle');
   const handleFeedback = useCallback(async () => {
@@ -234,7 +232,7 @@ export default function AnalyzePage() {
     }
   }, [userGoal]);
 
-  // 服务端 credit 状态
+  // Server credit State
   const [serverCredits, setServerCredits] = useState(0);
   const [creditsLoaded, setCreditsLoaded] = useState(false);
 
@@ -249,7 +247,7 @@ export default function AnalyzePage() {
   const handleDeepStrategy = useCallback(async () => {
     if (premiumLoading || !userGoal.trim() || userGoal.trim().length < 2) return;
     if (serverCredits > 0) {
-      // 有剩余次数，服务端校验消耗
+      // Has remaining credits，Server校验消耗
       setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN);
       setPremiumLoading(true);
       setPremiumReport(null);
@@ -258,7 +256,7 @@ export default function AnalyzePage() {
         const data = await deepStrategy({ message, context, userGoal: userGoal.trim(), locale: 'au' });
         if (!data.ok) {
           if (data.error === 'NO_CREDITS') {
-            // 服务端拒绝 — refresh credits
+            // Server拒绝 — refresh credits
             loadServerCredits();
             setPaymentStep(PAYMENT_MODAL_STEPS.CHOOSE);
           } else {
@@ -273,7 +271,7 @@ export default function AnalyzePage() {
       } catch { setPremiumError('Network error'); }
       finally { setPremiumLoading(false); }
     } else {
-      // 没有剩余次数，显示支付
+      // 没Has remaining credits，Show payment
       setPaymentStep(PAYMENT_MODAL_STEPS.CHOOSE);
     }
   }, [message, context, userGoal, premiumLoading, serverCredits, loadServerCredits]);
@@ -295,7 +293,7 @@ export default function AnalyzePage() {
         if (checkout.error === 'STRIPE_NOT_CONFIGURED') {
           setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN);
           setPremiumLoading(false);
-          setPremiumError('支付功能尚未配置，请设置 Stripe 密钥');
+          setPremiumError('Payment not configured，Please configure Stripe 密钥');
           return;
         }
         setPremiumError(checkout.message || 'Payment service unavailable');
@@ -305,13 +303,13 @@ export default function AnalyzePage() {
       // 跳转到 Stripe Checkout（支付宝扫码/跳转）
       window.location.href = checkout.url;
     } catch (e) {
-      setPremiumError('Network error，请稍后重试');
+      setPremiumError('Network error，try again later');
       setPremiumLoading(false);
       setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN);
     }
   }, [message, context, userGoal, premiumLoading]);
 
-  // Stripe 支付返回处理 — 用 session_id 向服务端验证
+  // Stripe 支付返回处理 — 用 session_id 向Server验证
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const sessionId = params.get('session_id');
@@ -319,11 +317,11 @@ export default function AnalyzePage() {
       // 清除 URL 参数
       window.history.replaceState({}, '', window.location.pathname);
 
-      // 向服务端验证支付状态并获取 credits
+      // 向Server验证支付State并获取 credits
       claimCredits(sessionId).then((result) => {
         if (result.ok) {
           setServerCredits(result.credits);
-          // 恢复待处理的分析
+          // 恢复待处理的Analysis
           const savedGoal = localStorage.getItem('readlyne_pending_goal');
           const savedMessage = localStorage.getItem('readlyne_pending_message');
           const savedContext = localStorage.getItem('readlyne_pending_context');
@@ -370,12 +368,12 @@ export default function AnalyzePage() {
     try {
       const data = await analyzeMessage(message, context, 'au');
       if (!data.ok) {
-        setError(data.error || 'Analysis failed，请稍后重试');
+        setError(data.error || 'Analysis failed，try again later');
         return;
       }
       setAnalysis(data.analysis);
 
-      // 保存历史 + 计数
+      // 保存History + 计数
       try {
         const count = parseInt(localStorage.getItem('readlyne_usage_count') || '0', 10) + 1;
         localStorage.setItem('readlyne_usage_count', String(count));
@@ -454,7 +452,7 @@ export default function AnalyzePage() {
 
       {/* Privacy trust */}
       <div className="privacy-line">
-        <p>🔒 Chat Content不会保存到服务器 · 分析后即忘</p>
+        <p>🔒 Chat Contentnot saved · Ephemeral analysis</p>
       </div>
 
       {/* Error */}
@@ -468,7 +466,7 @@ export default function AnalyzePage() {
       {loading && (
         <div className="card">
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
-            🧠 AI 正在分析Chat Content…
+            🧠 AI 正在AnalysisChat Content…
           </p>
           <div className="skeleton" style={{ width: '40%', marginTop: 16 }} />
           <div className="skeleton" style={{ width: '85%' }} />
@@ -497,11 +495,11 @@ export default function AnalyzePage() {
                     ),
                     '',
                     '——',
-                    '免费分析 · Deep Strategy ¥9.9 unlock',
+                    '免费Analysis · Deep Strategy ¥9.9 unlock',
                   ].filter(Boolean).join('\n');
                   navigator.clipboard.writeText(text).then(() => {
                     const btn = document.activeElement as HTMLElement;
-                    if (btn) btn.textContent = '✅ 已复制';
+                    if (btn) btn.textContent = '✅ has复制';
                     setTimeout(() => { if (btn) btn.textContent = '📋 Copy Results'; }, 2000);
                   });
                 }}
@@ -651,13 +649,13 @@ export default function AnalyzePage() {
                     onClick={handleDeepStrategy}
                     disabled={premiumLoading || userGoal.trim().length < 2}
                   >
-                    {premiumLoading ? 'Analyzing…' : serverCredits > 0 ? `Deep Strategy分析（剩余 ${serverCredits} 次）` : 'Deep Strategy分析 ¥9.9 / 3次 →'}
+                    {premiumLoading ? 'Analyzing…' : serverCredits > 0 ? `Deep StrategyAnalysis（remaining ${serverCredits} times）` : 'Deep StrategyAnalysis ¥9.9 / 3times →'}
                   </button>
                   {premiumError && (
                     <p style={{ color: '#d70015', fontSize: 13, marginTop: 8, textAlign: 'center' }}>{premiumError}</p>
                   )}
 
-                  {/* 支付选择弹窗 */}
+                  {/* Payment modal */}
                   {paymentStep === PAYMENT_MODAL_STEPS.CHOOSE && (
                     <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--separator)' }}>
                       <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px', textAlign: 'center' }}>Deep Psychological Strategy</p>
@@ -705,7 +703,7 @@ export default function AnalyzePage() {
                     <p className="report-section-content">{premiumReport.goal_feasibility.assessment}</p>
                     <p className="psychology-note">🧠 {premiumReport.goal_feasibility.psychology_basis}</p>
                   </div>
-                  {/* B. 沟通状态 */}
+                  {/* B. 沟通State */}
                   <div className="premium-report-section">
                     <div className="report-section-title">B. Communication State</div>
                     <p className="report-section-content">{premiumReport.target_comm_state.observation}</p>
@@ -864,7 +862,7 @@ export default function AnalyzePage() {
           {/* Beta signup */}
           <div className="app-promo">
             <div className="app-name">Readlyne</div>
-            <BetaSignup />
+            <BetaSignup locale="au" />
           </div>
         </>
       )}

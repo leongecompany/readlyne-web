@@ -318,7 +318,7 @@ export default function ReplyPage() {
           </div>
         </div>
         <div style={{ textAlign: 'center', padding: '0 16px' }}>
-          <BetaSignup />
+          <BetaSignup locale="cn" />
         </div>
         </>
       )}
