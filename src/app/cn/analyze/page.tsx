@@ -331,6 +331,16 @@ export default function AnalyzePage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const sessionId = params.get('session_id');
+    // Restore installation_id from URL (for cross-device credit recovery)
+    const urlId = params.get('id');
+    if (urlId && urlId.startsWith('web-')) {
+      localStorage.setItem('readlyne_installation_id', urlId);
+      try {
+        const req = indexedDB.open('readlyne_store', 1);
+        req.onsuccess = () => { const tx = req.result.transaction('state','readwrite'); tx?.objectStore('state')?.put(urlId, 'installation_id'); };
+      } catch {}
+      window.history.replaceState({}, '', '/cn/analyze');
+    }
     if (sessionId) {
       // 清除 URL 参数
       window.history.replaceState({}, '', window.location.pathname);
