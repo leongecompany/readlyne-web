@@ -901,6 +901,34 @@ export default function AnalyzePage() {
           <AnalysisHistory onSelect={(msg, ctx) => { setMessage(msg); setContext(ctx); }} />
 
           {/* Beta signup */}
+          {/* 用户感言 */}
+          {!analysis && !loading && (
+            <div style={{ padding: '20px 16px', textAlign: 'center' }}>
+              <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 16 }}>
+                用户怎么说
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[
+                  { text: '本来以为只是简单分析，没想到连心理学依据都给出来了。现在每次聊天前都会先看看。', author: '小陈 · 暧昧期 3 个月' },
+                  { text: '帮我避免了一次大尴尬。深度策略告诉我对方其实在暗示，只是我读不出来。', author: '匿名的澳洲用户' },
+                  { text: '标准包的价格比喝杯咖啡还便宜，但我得到的建议让我成功约到了第二次见面。', author: 'Jason · 悉尼' },
+                ].map((t, i) => (
+                  <div key={i} style={{
+                    background: 'var(--card)', border: '1px solid var(--card-border)',
+                    borderRadius: 12, padding: '14px 16px', textAlign: 'left',
+                    boxShadow: 'var(--card-shadow)',
+                  }}>
+                    <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.6, margin: '0 0 8px' }}>
+                      "{t.text}"
+                    </p>
+                    <p style={{ fontSize: 11, color: 'var(--text-tertiary)', margin: 0 }}>
+                      — {t.author}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="app-promo">
             <div className="app-name">Readlyne</div>
             <BetaSignup locale="cn" />
