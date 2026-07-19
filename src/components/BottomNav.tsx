@@ -3,18 +3,22 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
-const NAV_ITEMS = [
-  { href: '/analyze', icon: '🔍', label: '分析' },
-  { href: '/reply', icon: '💬', label: '怎么回' },
-];
-
 export default function BottomNav() {
   const pathname = usePathname();
+
+  // Detect locale from pathname (/cn/... or /au/...)
+  const locale = pathname.startsWith('/au') ? 'au' : 'cn';
+  const cn = locale === 'cn';
+
+  const items = [
+    { href: `/${locale}/analyze`, icon: '🔍', label: cn ? '分析' : 'Analyze' },
+    { href: `/${locale}/reply`, icon: '💬', label: cn ? '怎么回' : 'Reply' },
+  ];
 
   return (
     <nav className="bottom-nav">
       <div className="bottom-nav-inner">
-        {NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const active = pathname.startsWith(item.href);
           return (
             <Link

@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
+import { Suspense } from 'react';
 import './globals.css';
+import AppShell from '@/components/AppShell';
 
 export const metadata: Metadata = {
   title: 'Readlyne — AI Relationship Insights',
@@ -15,7 +17,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head><link rel="apple-touch-icon" href="/icon.png" /></head>
-      <body>{children}</body>
+      <body>
+        <Suspense fallback={null}>
+          <AppShell>{children}</AppShell>
+        </Suspense>
+      </body>
     </html>
   );
 }
