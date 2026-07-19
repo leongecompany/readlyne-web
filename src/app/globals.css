@@ -24,15 +24,63 @@
 }
 
 
+/* Dark mode — triggered by html.dark class */
+html.dark {
+  --bg: #1c1c1e;
+  --bg-secondary: #2c2c2e;
+  --card: #2c2c2e;
+  --card-border: #3a3a3c;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  --text: #f5f5f7;
+  --text-secondary: #98989d;
+  --text-tertiary: #636366;
+  --accent: #f5f5f7;
+  --accent-hover: #fff;
+  --btn-secondary-border: #48484a;
+  --separator: #3a3a3c;
+  --input-bg: #3a3a3c;
+  --trust-bg: #2c2c2e;
+  --danger: #ff453a;
+  --success: #30d158;
+  --warning: #ff9f0a;
+}
+html.dark body { background: var(--bg); }
+html.dark .btn-primary { color: #1c1c1e; background: #f5f5f7; }
+html.dark .bottom-nav { background: rgba(28,28,30,0.95); border-top-color: var(--separator); }
+html.dark .pricing-card.featured { border-color: var(--accent); }
+html.dark .pricing-badge { background: var(--accent); color: #1c1c1e; }
+html.dark .tag-high { background: #3a1010; color: #ff6961; }
+html.dark .tag-medium { background: #3a2a10; color: #ffb347; }
+html.dark .tag-low { background: #103a10; color: #77dd77; }
+html.dark .psychology-note { background: #2a1a3a; color: #c9a0dc; }
+html.dark .home-bg-alt { background: var(--bg-secondary); }
+html.dark .site-footer { border-top-color: var(--separator); }
+html.dark .legal-card { background: var(--card); }
+html.dark .pricing-card { background: var(--card); }
+html.dark .home-feature { background: var(--card); }
+html.dark .error-banner { background: #3a1010; border-color: #5a2020; }
+html.dark .error-banner p { color: #ff6961; }
+
+/* Also support system preference auto-detection */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1c1c1e; --bg-secondary: #2c2c2e; --card: #2c2c2e;
-    --card-border: #3a3a3c; --text: #f5f5f7; --text-secondary: #98989d;
-    --text-tertiary: #636366; --accent: #f5f5f7; --separator: #3a3a3c;
-    --input-bg: #3a3a3c; --btn-secondary-border: #48484a;
+  html:not(.light) {
+    --bg: #1c1c1e;
+    --bg-secondary: #2c2c2e;
+    --card: #2c2c2e;
+    --card-border: #3a3a3c;
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    --text: #f5f5f7;
+    --text-secondary: #98989d;
+    --text-tertiary: #636366;
+    --accent: #f5f5f7;
+    --btn-secondary-border: #48484a;
+    --separator: #3a3a3c;
+    --input-bg: #3a3a3c;
+    --trust-bg: #2c2c2e;
   }
-  .btn-primary { color: #1c1c1e; }
-  .bottom-nav { background: rgba(28,28,30,0.92); }
+  html:not(.light) body { background: var(--bg); }
+  html:not(.light) .btn-primary { color: #1c1c1e; background: #f5f5f7; }
+  html:not(.light) .bottom-nav { background: rgba(28,28,30,0.95); }
 }
 
 * { box-sizing: border-box; }

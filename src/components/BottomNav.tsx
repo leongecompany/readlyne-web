@@ -1,21 +1,46 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+
+function useTheme() {
+  const [theme, setTheme] = useState<'dark'|'light'>('dark');
+
+  useEffect(() => {
+    const saved = localStorage.getItem('readlyne_theme');
+    if (saved === 'light') {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+      setTheme('light');
+    } else {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+      setTheme('dark');
+    }
+  }, []);
+
+  const toggle = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('readlyne_theme', next);
+    if (next === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    }
+    setTheme(next);
+  };
+
+  return { theme, toggle };
+}
 
 export default function BottomNav() {
   const pathname = usePathname();
   const locale = pathname.startsWith('/au') ? 'au' : 'cn';
   const cn = locale === 'cn';
-
-  const [theme, setTheme] = useState<'auto'|'dark'|'light'>('auto');
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : theme === 'light' ? 'auto' : 'dark';
-    localStorage.setItem('readlyne_theme', next);
-    setTheme(next);
-  };
-  const themeIcon = theme === 'dark' ? '☀️' : theme === 'light' ? '🌙' : '🌗';
+  const { theme, toggle } = useTheme();
 
   const items = [
     { href: `/${locale}/analyze`, icon: '🔍', label: cn ? '分析' : 'Analyze' },
@@ -25,7 +50,7 @@ export default function BottomNav() {
   return (
     <>
       <button
-        onClick={toggleTheme}
+        onClick={toggle}
         aria-label="Toggle theme"
         style={{
           position: 'fixed', bottom: 72, right: 16,
@@ -33,9 +58,10 @@ export default function BottomNav() {
           background: 'var(--bg-secondary)',
           border: '1px solid var(--card-border)',
           fontSize: 16, cursor: 'pointer', zIndex: 101,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}
       >
-        {themeIcon}
+        {theme === 'dark' ? '☀️' : '🌙'}
       </button>
       <nav className="bottom-nav">
         <div className="bottom-nav-inner">
