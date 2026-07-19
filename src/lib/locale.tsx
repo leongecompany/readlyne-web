@@ -1,0 +1,128 @@
+'use client';
+
+import { createContext, useContext, ReactNode } from 'react';
+
+export type Locale = 'cn' | 'au';
+
+interface LocaleContextType {
+  locale: Locale;
+  t: Record<string, string>;
+}
+
+const cn: Record<string, string> = {
+  // Nav
+  'nav.analyze': '分析',
+  'nav.reply': '怎么回',
+  'nav.dashboard': '管理',
+  // Footer
+  'footer.features': '功能',
+  'footer.pricing': '定价',
+  'footer.faq': '问答',
+  'footer.contact': '联系',
+  'footer.privacy': '隐私政策',
+  'footer.terms': '服务条款',
+  'footer.disclaimer': 'Readlyne 提供 AI 关系洞察，仅供参考。不可替代专业心理咨询。',
+  'footer.tag': 'AI 聊天洞察',
+  // Analyze
+  'analyze.hero': '看不懂 TA 的话？',
+  'analyze.sub': '粘贴聊天内容，AI 分析潜台词、误读风险和怎么回。',
+  'analyze.label': '聊天内容',
+  'analyze.placeholder': '我：你今天怎么不理我了？\nTA：没有啊，最近工作比较忙。',
+  'analyze.context_label': '背景信息',
+  'analyze.context_placeholder': '例如：认识两个月，最近感觉有点冷淡…',
+  'analyze.context_optional': '选填',
+  'analyze.submit_free': '🔍 免费分析',
+  'analyze.try_example': '💡 试用示例',
+  'analyze.privacy': '🔒 聊天内容不会保存到服务器 · 分析后即忘',
+  'analyze.privacy_title': '隐私保护',
+  'analyze.ai_title': 'AI 分析',
+  'analyze.growth_title': '关系成长',
+  'analyze.app_title': '想让 Readlyne 记住这个人？',
+  'analyze.app_desc': '下载 App 建立关系档案，\n让后续分析越来越贴合你们的互动。',
+  'analyze.back_top': '回到顶部开始分析',
+  'analyze.feedback_placeholder': '反馈建议…',
+  'analyze.subscribe': '加入内测，第一时间获取新功能',
+  'analyze.email_placeholder': 'your@email.com',
+  'analyze.join': '加入',
+  // Reply
+  'reply.hero': '不知道怎么回 TA？',
+  'reply.sub': '描述场景，AI 给你保守、自然、主动三种风格的回复参考。',
+  'reply.label': '想回应的内容',
+  'reply.placeholder': '对方说了什么？或者描述一下你现在的情况…',
+  // Suggestion
+  'suggestion.conservative': '保守风格',
+  'suggestion.natural': '自然风格',
+  'suggestion.active': '主动风格',
+  // Pricing
+  'pricing.free': '免费版',
+  'pricing.free_desc': '前 10 次分析',
+  'pricing.standard': '标准包',
+  'pricing.standard_desc': '11 次分析',
+  'pricing.deep': '深度策略包',
+  'pricing.deep_desc': '5 次完整报告',
+  'pricing.popular': '推荐',
+};
+
+const au: Record<string, string> = {
+  'nav.analyze': 'Analyze',
+  'nav.reply': 'Reply',
+  'nav.dashboard': 'Dashboard',
+  'footer.features': 'Features',
+  'footer.pricing': 'Pricing',
+  'footer.faq': 'FAQ',
+  'footer.contact': 'Contact',
+  'footer.privacy': 'Privacy Policy',
+  'footer.terms': 'Terms of Service',
+  'footer.disclaimer': 'Readlyne provides AI relationship insights for reference only. Not a substitute for professional counseling.',
+  'footer.tag': 'AI Chat Insights',
+  'analyze.hero': 'Don\'t understand them?',
+  'analyze.sub': 'Paste your chat, AI analyzes subtext, risks, and best replies.',
+  'analyze.label': 'Chat content',
+  'analyze.placeholder': 'You: Why are you ignoring me today?\nThem: Not ignoring, just busy with work.',
+  'analyze.context_label': 'Context',
+  'analyze.context_placeholder': 'e.g. known each other 2 months, feeling distant lately…',
+  'analyze.context_optional': 'Optional',
+  'analyze.submit_free': '🔍 Free Analysis',
+  'analyze.try_example': '💡 Try Example',
+  'analyze.privacy': '🔒 Chat content not saved on server · Deleted after analysis',
+  'analyze.privacy_title': 'Privacy Protected',
+  'analyze.ai_title': 'AI Analysis',
+  'analyze.growth_title': 'Relationship Growth',
+  'analyze.app_title': 'Want Readlyne to remember this person?',
+  'analyze.app_desc': 'Download the app to build relationship profiles\nfor increasingly personalized insights.',
+  'analyze.back_top': 'Back to top',
+  'analyze.feedback_placeholder': 'Feedback…',
+  'analyze.subscribe': 'Join beta for early access',
+  'analyze.email_placeholder': 'your@email.com',
+  'analyze.join': 'Join',
+  'reply.hero': 'Don\'t know how to reply?',
+  'reply.sub': 'Describe the situation, AI suggests conservative, natural, and bold replies.',
+  'reply.label': 'What to respond to',
+  'reply.placeholder': 'What did they say? Describe your situation…',
+  'suggestion.conservative': 'Conservative',
+  'suggestion.natural': 'Natural',
+  'suggestion.active': 'Bold',
+  'pricing.free': 'Free',
+  'pricing.free_desc': 'First 10 analyses',
+  'pricing.standard': 'Standard Pack',
+  'pricing.standard_desc': '11 analyses',
+  'pricing.deep': 'Deep Strategy',
+  'pricing.deep_desc': '5 full reports',
+  'pricing.popular': 'POPULAR',
+};
+
+const translations = { cn, au };
+
+const LocaleContext = createContext<LocaleContextType>({ locale: 'cn', t: cn });
+
+export function LocaleProvider({ children, locale }: { children: ReactNode; locale: Locale }) {
+  return (
+    <LocaleContext.Provider value={{ locale, t: translations[locale] }}>
+      {children}
+    </LocaleContext.Provider>
+  );
+}
+
+export function useLocale() {
+  return useContext(LocaleContext);
+}

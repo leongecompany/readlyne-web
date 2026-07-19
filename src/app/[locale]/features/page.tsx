@@ -1,0 +1,42 @@
+'use client';
+
+import { useLocale } from '@/lib/locale';
+
+export default function FeaturesPage() {
+  const { locale } = useLocale();
+  const cn = locale === 'cn';
+
+  const features = cn ? [
+    { icon: '🔮', title: '信号检测', desc: 'AI 分析聊天中的语气、互动模式和参与度，判断积极、中性还是危险信号。' },
+    { icon: '🎯', title: '意图解读', desc: '揭示消息背后的可能潜台词，附可信度评估和原文引用依据。' },
+    { icon: '⚠️', title: '风险评估', desc: '及时发现沟通误读风险、情绪触发点和对话陷阱，防患于未然。' },
+    { icon: '💬', title: '回复建议', desc: '三种风格可选——保守、自然、主动——每一条都附为什么有效和潜在风险。' },
+    { icon: '🧠', title: '深度策略', desc: '7 维心理学策略报告：目标可行性、沟通状态、时间线分析、5条策略、3条定制回复、信号追踪。' },
+    { icon: '📱', title: '关系追踪（App）', desc: '在 iOS App 中建立关系档案，让 AI 分析越来越贴合你们的独家互动模式。' },
+    { icon: '🔒', title: '隐私优先', desc: '聊天内容实时分析后不留存。不需要的权限不索要。随时可请求删除数据。' },
+  ] : [
+    { icon: '🔮', title: 'Signal Detection', desc: 'AI analyzes tone, engagement, and interaction patterns to identify positive, neutral, or warning signals.' },
+    { icon: '🎯', title: 'Intention Analysis', desc: 'Uncover hidden meanings behind messages with confidence ratings and evidence references.' },
+    { icon: '⚠️', title: 'Risk Assessment', desc: 'Spot communication risks, emotional triggers, and conversational pitfalls before they escalate.' },
+    { icon: '💬', title: 'Reply Suggestions', desc: 'Three styles — conservative, natural, bold — each with why it works and risk notes.' },
+    { icon: '🧠', title: 'Deep Strategy', desc: '7-section psychological report: goal feasibility, communication state, timeline analysis, 5 strategies, 3 custom replies, signal tracking.' },
+    { icon: '📱', title: 'Relationship Tracking (App)', desc: 'Build relationship profiles in the iOS app for increasingly personalized AI insights.' },
+    { icon: '🔒', title: 'Privacy First', desc: 'Chat content analyzed in real-time and not stored. No unnecessary permissions. Full data deletion on request.' },
+  ];
+
+  return (
+    <div className="legal-page">
+      <div className="legal-card">
+        <h1>{cn ? '功能介绍' : 'Features'}</h1>
+        <div className="features-list">
+          {features.map((f, i) => (
+            <div className="feature-item" key={i}>
+              <div className="feature-icon">{f.icon}</div>
+              <div><h3>{f.title}</h3><p>{f.desc}</p></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
