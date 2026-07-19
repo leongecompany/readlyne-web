@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { getReplySuggestions, submitFeedback } from '@/lib/api';
 import BetaSignup from '@/components/BetaSignup';
+import { createStandardCheckout } from '@/lib/api';
 
 type ReplySuggestion = { style: string; text: string; why_this_works: string; risk_note: string };
 type ReplyResult = {
@@ -29,6 +30,26 @@ function severityTag(s: string) {
 }
 
 export default function ReplyPage() {
+  const [replyFreeRemaining, setReplyFreeRemaining] = useState(10);
+  const [replyCredits, setReplyCredits] = useState(0);
+  const [usageLoaded, setUsageLoaded] = useState(false);
+  
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const id = localStorage.getItem('readlyne_installation_id') || 'web-anon';
+        const res = await fetch('https://readlyne-proxy.onrender.com/web/credits', { headers: { 'x-installation-id': id } });
+        const data = await res.json();
+        if (data.ok) {
+          setReplyFreeRemaining(data.reply_free_remaining ?? 10);
+          setReplyCredits(data.credits || 0);
+        }
+      } catch {}
+      setUsageLoaded(true);
+    };
+    load();
+  }, []);
+
   const [input, setInput] = useState('');
   const [context, setContext] = useState('');
   const [loading, setLoading] = useState(false);
@@ -124,7 +145,7 @@ export default function ReplyPage() {
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !input.trim()}>
-          {loading ? '生成中…' : '💬 获取回复建议'}
+          {loading ? 'Generating…' : replyFreeRemaining > 0 ? `💬 获取回复建议（剩余${replyFreeRemaining}次）` : replyCredits > 0 ? `💬 获取回复建议（剩余${replyCredits}次）` : '💬 免费次数已用完'}
         </button>
         {!input.trim() && !loading && (
           <button
