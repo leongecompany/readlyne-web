@@ -64,7 +64,7 @@ export default function ReplyPage() {
     setResult(null);
 
     try {
-      const data = await getReplySuggestions(input, context);
+      const data = await getReplySuggestions(input, context, 'au');
       if (!data.ok) {
         setError(data.error || 'Request failed. Try again later.');
         return;

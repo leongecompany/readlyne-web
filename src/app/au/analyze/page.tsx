@@ -255,7 +255,7 @@ export default function AnalyzePage() {
       setPremiumReport(null);
       setPremiumError('');
       try {
-        const data = await deepStrategy({ message, context, userGoal: userGoal.trim() });
+        const data = await deepStrategy({ message, context, userGoal: userGoal.trim(), locale: 'au' });
         if (!data.ok) {
           if (data.error === 'NO_CREDITS') {
             // 服务端拒绝 — refresh credits
@@ -368,7 +368,7 @@ export default function AnalyzePage() {
     setAnalysis(null);
 
     try {
-      const data = await analyzeMessage(message, context);
+      const data = await analyzeMessage(message, context, 'au');
       if (!data.ok) {
         setError(data.error || 'Analysis failed，请稍后重试');
         return;

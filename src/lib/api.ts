@@ -16,16 +16,16 @@ const headers = () => ({
   'x-installation-id': getInstallationId(),
 });
 
-export async function analyzeMessage(message: string, context = '') {
+export async function analyzeMessage(message: string, context = '', locale = 'cn') {
   const res = await fetch(`${API_BASE}/web/analyze`, {
     method: 'POST',
     headers: headers(),
-    body: JSON.stringify({ message: message.trim(), context: context.trim() }),
+    body: JSON.stringify({ message: message.trim(), context: context.trim(), locale }),
   });
   return res.json();
 }
 
-export async function getReplySuggestions(message: string, context = '') {
+export async function getReplySuggestions(message: string, context = '', locale = 'cn') {
   const res = await fetch(`${API_BASE}/web/reply`, {
     method: 'POST',
     headers: headers(),
@@ -55,11 +55,12 @@ export async function deepStrategy(data: {
   context: string;
   userGoal: string;
   preview?: boolean;
+  locale?: string;
 }) {
   const res = await fetch(`${API_BASE}/web/deep-strategy`, {
     method: 'POST',
     headers: headers(),
-    body: JSON.stringify(data),
+    body: JSON.stringify({ ...data, locale: data.locale || 'cn' }),
   });
   return res.json();
 }
