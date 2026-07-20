@@ -304,9 +304,11 @@ export default function AnalyzePage() {
   }, [loadServerCredits]);
 
   const submitRef = useRef<string | null>(null);
+  const inFlightRef = useRef(false);
 
   const handleSubmit = useCallback(async () => {
-    if (submitting || !message.trim()) return;
+    if (inFlightRef.current || submitting || !message.trim()) return;
+    inFlightRef.current = true;
     // Generate NEW operation UUID per active click.
     // Retries within the same operation (e.g. network timeout) reuse the same UUID.
     const operationId = crypto.randomUUID?.() || 'op-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
@@ -333,6 +335,7 @@ export default function AnalyzePage() {
     } finally {
       setLoading(false);
       setSubmitting(false);
+      inFlightRef.current = false;
     }
   }, [message, context, submitting]);
 
