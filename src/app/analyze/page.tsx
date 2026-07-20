@@ -303,22 +303,27 @@ export default function AnalyzePage() {
     }
   }, [loadServerCredits]);
 
+  const submitRef = useRef<string | null>(null);
+
   const handleSubmit = useCallback(async () => {
     if (submitting || !message.trim()) return;
+    // Generate stable operation UUID (same for retries)
+    if (!submitRef.current) {
+      submitRef.current = crypto.randomUUID?.() || 'op-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+    }
     setSubmitting(true);
     setLoading(true);
     setError('');
     setAnalysis(null);
 
     try {
-      const data = await analyzeMessage(message, context);
+      const data = await analyzeMessage(message, context, 'cn', submitRef.current);
       if (!data.ok) {
         setError(data.error || '分析失败，请稍后重试');
         return;
       }
       setAnalysis(data.analysis);
 
-      // 保存历史 + 计数
       try {
         const count = parseInt(localStorage.getItem('readlyne_usage_count') || '0', 10) + 1;
         localStorage.setItem('readlyne_usage_count', String(count));

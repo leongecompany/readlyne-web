@@ -52,25 +52,46 @@ function getInstallationId(): string {
   return id;
 }
 
-const headers = () => ({
-  'Content-Type': 'application/json',
-  'x-installation-id': getInstallationId(),
-});
+// Generate stable operation UUID for retry idempotency
+function makeRequestId(): string {
+  if (typeof window === 'undefined' || !window.crypto?.randomUUID) {
+    return 'web-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+  }
+  return window.crypto.randomUUID();
+}
 
-export async function analyzeMessage(message: string, context = '', locale = 'cn') {
+const headers = (requestId?: string) => {
+  const h: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'x-installation-id': getInstallationId(),
+  };
+  if (requestId) h['x-request-id'] = requestId;
+  return h;
+};
+
+export async function analyzeMessage(message: string, context = '', locale = 'cn', operationId?: string) {
   const res = await fetch(`${API_BASE}/web/analyze`, {
     method: 'POST',
-    headers: headers(),
-    body: JSON.stringify({ message: message.trim(), context: context.trim(), locale }),
+    headers: headers(operationId),
+    body: JSON.stringify({
+      message: message.trim(),
+      context: context.trim(),
+      locale,
+      operation_id: operationId,
+    }),
   });
   return res.json();
 }
 
-export async function getReplySuggestions(message: string, context = '', locale = 'cn') {
+export async function getReplySuggestions(message: string, context = '', locale = 'cn', operationId?: string) {
   const res = await fetch(`${API_BASE}/web/reply`, {
     method: 'POST',
-    headers: headers(),
-    body: JSON.stringify({ message: message.trim(), context: context.trim() }),
+    headers: headers(operationId),
+    body: JSON.stringify({
+      message: message.trim(),
+      context: context.trim(),
+      operation_id: operationId,
+    }),
   });
   return res.json();
 }
@@ -97,11 +118,13 @@ export async function deepStrategy(data: {
   userGoal: string;
   preview?: boolean;
   locale?: string;
+  operation_id?: string;
 }) {
+  const opId = data.operation_id || makeRequestId();
   const res = await fetch(`${API_BASE}/web/deep-strategy`, {
     method: 'POST',
-    headers: headers(),
-    body: JSON.stringify({ ...data, locale: data.locale || 'cn' }),
+    headers: headers(opId),
+    body: JSON.stringify({ ...data, locale: data.locale || 'cn', operation_id: opId }),
   });
   return res.json();
 }
