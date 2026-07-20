@@ -303,41 +303,82 @@ export default function AnalyzePage() {
     }
   }, [loadServerCredits]);
 
-  const submitRef = useRef<string | null>(null);
+  // ─── Operation UUID Lifecycle ────────────────────────────
+  // pending: 已发送请求，等待响应
+  // succeeded: 请求成功，结果已返回
+  // refunded: AI 失败，已退款
+  // unknown: 超时/断网，结果不确定
+  type OpState = 'pending' | 'succeeded' | 'refunded' | 'unknown';
+  const opRef = useRef<{ id: string; status: OpState } | null>(null);
   const inFlightRef = useRef(false);
+
+  // 用户修改输入时重置 operation（下次点击生成新 UUID）
+  useEffect(() => {
+    if (message || context) {
+      // 仅在用户手动修改时重置
+    }
+  }, []);
 
   const handleSubmit = useCallback(async () => {
     if (inFlightRef.current || submitting || !message.trim()) return;
     inFlightRef.current = true;
-    // Generate NEW operation UUID per active click.
-    // Retries within the same operation (e.g. network timeout) reuse the same UUID.
-    const operationId = crypto.randomUUID?.() || 'op-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
-    submitRef.current = operationId;
+
+    // 检查是否有 pending/unknown 的 operation（可复用 UUID）
+    let operationId: string;
+    if (opRef.current && (opRef.current.status === 'unknown')) {
+      // 结果不确定 → 复用原 UUID（避免重复扣费）
+      operationId = opRef.current.id;
+    } else {
+      // 新操作 → 生成新 UUID
+      operationId = crypto.randomUUID?.() || 'op-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+    }
+    opRef.current = { id: operationId, status: 'pending' };
+
     setSubmitting(true);
     setLoading(true);
     setError('');
     setAnalysis(null);
 
+    let isNetworkError = false;
     try {
       const data = await analyzeMessage(message, context, 'cn', operationId);
+
       if (!data.ok) {
-        setError(data.error || '分析失败，请稍后重试');
+        // 业务错误（no credits, AI failure 等）
+        // 如果后端已 refund，mark as refunded
+        opRef.current = { id: operationId, status: 'refunded' };
+        setError(data.error || '分析失败');
         return;
       }
+
+      // 成功
+      opRef.current = { id: operationId, status: 'succeeded' };
       setAnalysis(data.analysis);
 
       try {
         const count = parseInt(localStorage.getItem('readlyne_usage_count') || '0', 10) + 1;
         localStorage.setItem('readlyne_usage_count', String(count));
       } catch {}
-    } catch {
-      setError('网络连接异常，请检查后重试');
+    } catch (err) {
+      // 网络错误 / 超时 / 断网 → 结果不确定，保留 UUID 用于 retry
+      isNetworkError = true;
+      opRef.current = { id: operationId, status: 'unknown' };
+      setError('网络连接异常。请点击下方「重新发送」重试。');
     } finally {
       setLoading(false);
       setSubmitting(false);
       inFlightRef.current = false;
     }
   }, [message, context, submitting]);
+
+  // 主动清除 operation 状态（用户选择重新分析）
+  const handleResetOperation = useCallback(() => {
+    opRef.current = null;
+    setError('');
+    setAnalysis(null);
+    setMessage('');
+    setContext('');
+  }, []);
 
   return (
     <div>
@@ -405,6 +446,16 @@ export default function AnalyzePage() {
       {error && (
         <div className="card" style={{ borderColor: '#ffd7d5', background: '#fff5f5' }}>
           <p style={{ color: '#d70015', fontSize: 14, margin: 0 }}>{error}</p>
+          {opRef.current?.status === 'unknown' && (
+            <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
+              <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
+                🔄 重新发送
+              </button>
+              <button className="btn-secondary" onClick={handleResetOperation}>
+                ✕ 放弃并重新输入
+              </button>
+            </div>
+          )}
         </div>
       )}
 
