@@ -303,7 +303,7 @@ export default function AnalyzePage() {
             setMessage(savedMessage);
             setContext(savedContext || '');
             setUserGoal(savedGoal);
-            deepStrategy({ message: savedMessage, context: savedContext || '', userGoal: savedGoal, operation_id: dsOpId })
+            deepStrategy({ message: savedMessage, context: savedContext || '', userGoal: savedGoal, operation_id: 'sv-' + (crypto.randomUUID?.() || Date.now() + '-' + Math.random().toString(36).slice(2, 10)) })
               .then((data) => {
                 if (data.ok && data.report) {
                   setServerCredits(data.credits_remaining ?? 2);
