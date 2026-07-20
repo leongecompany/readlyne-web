@@ -205,7 +205,8 @@ export default function AnalyzePage() {
       setPremiumReport(null);
       setPremiumError('');
       try {
-        const data = await deepStrategy({ message, context, userGoal: userGoal.trim() });
+        const dsOpId = crypto.randomUUID?.() || 'ds-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);
+        const data = await deepStrategy({ message, context, userGoal: userGoal.trim(), operation_id: dsOpId });
         if (!data.ok) {
           if (data.error === 'NO_CREDITS') {
             // 服务端拒绝 — refresh credits
@@ -302,7 +303,7 @@ export default function AnalyzePage() {
             setMessage(savedMessage);
             setContext(savedContext || '');
             setUserGoal(savedGoal);
-            deepStrategy({ message: savedMessage, context: savedContext || '', userGoal: savedGoal })
+            deepStrategy({ message: savedMessage, context: savedContext || '', userGoal: savedGoal, operation_id: dsOpId })
               .then((data) => {
                 if (data.ok && data.report) {
                   setServerCredits(data.credits_remaining ?? 2);
@@ -335,7 +336,8 @@ export default function AnalyzePage() {
     setAnalysis(null);
 
     try {
-      const data = await analyzeMessage(message, context);
+      const opId = crypto.randomUUID?.() || 'op-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);
+      const data = await analyzeMessage(message, context, 'cn', opId);
       if (!data.ok) {
         setError(data.error || '分析失败，请稍后重试');
         return;

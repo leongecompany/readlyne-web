@@ -307,17 +307,17 @@ export default function AnalyzePage() {
 
   const handleSubmit = useCallback(async () => {
     if (submitting || !message.trim()) return;
-    // Generate stable operation UUID (same for retries)
-    if (!submitRef.current) {
-      submitRef.current = crypto.randomUUID?.() || 'op-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
-    }
+    // Generate NEW operation UUID per active click.
+    // Retries within the same operation (e.g. network timeout) reuse the same UUID.
+    const operationId = crypto.randomUUID?.() || 'op-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+    submitRef.current = operationId;
     setSubmitting(true);
     setLoading(true);
     setError('');
     setAnalysis(null);
 
     try {
-      const data = await analyzeMessage(message, context, 'cn', submitRef.current);
+      const data = await analyzeMessage(message, context, 'cn', operationId);
       if (!data.ok) {
         setError(data.error || '分析失败，请稍后重试');
         return;

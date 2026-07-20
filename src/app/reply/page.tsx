@@ -64,7 +64,8 @@ export default function ReplyPage() {
     setResult(null);
 
     try {
-      const data = await getReplySuggestions(input, context);
+      const rpOpId = crypto.randomUUID?.() || 'rp-'+Date.now()+'-'+Math.random().toString(36).slice(2,10);
+      const data = await getReplySuggestions(input, context, 'cn', rpOpId);
       if (!data.ok) {
         setError(data.error || '请求失败，请稍后重试');
         return;
