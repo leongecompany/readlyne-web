@@ -14,11 +14,11 @@ export default function RootPage() {
         <Link href="/cn" style={{
           padding: '16px', background: '#1d1d1f', color: '#fff', borderRadius: 12,
           textDecoration: 'none', fontSize: 17, fontWeight: 600,
-        }}>🇨🇳 中文</Link>
+        }}>中文</Link>
         <Link href="/au" style={{
           padding: '16px', background: '#1d1d1f', color: '#fff', borderRadius: 12,
           textDecoration: 'none', fontSize: 17, fontWeight: 600,
-        }}>🇦🇺 English</Link>
+        }}>English</Link>
       </div>
     </div>
   );

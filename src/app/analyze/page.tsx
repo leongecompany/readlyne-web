@@ -54,7 +54,7 @@ function SampleReportPreview() {
           fontSize: 13, cursor: 'pointer', padding: '4px 0', width: '100%', textAlign: 'center',
         }}
       >
-        {open ? '收起示例 ↑' : '📋 查看完整报告示例'}
+        {open ? '收起示例 ↑' : '查看完整报告示例'}
       </button>
       {open && (
         <div style={{ marginTop: 8, fontSize: 12, lineHeight: 1.7, color: 'var(--text-tertiary)', textAlign: 'left' }}>
@@ -421,7 +421,7 @@ export default function AnalyzePage() {
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim()}>
-          {loading ? '分析中…' : '🔍 免费分析'}
+          {loading ? '分析中…' : '免费分析'}
         </button>
         {!message.trim() && !loading && (
           <button
@@ -432,14 +432,14 @@ export default function AnalyzePage() {
               setContext('暧昧期，认识三个月，上周末一起吃过饭，最近一周对方回复变慢');
             }}
           >
-            💡 试用示例
+            试用示例
           </button>
         )}
       </div>
 
       {/* Privacy trust */}
       <div className="privacy-line">
-        <p>🔒 聊天内容不会保存到服务器 · 分析后即忘</p>
+        <p>聊天内容不会保存到服务器 · 分析后即忘</p>
       </div>
 
       {/* Error */}
@@ -449,7 +449,7 @@ export default function AnalyzePage() {
           {opRef.current?.status === 'unknown' && (
             <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
               <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
-                🔄 重新发送
+                重新发送
               </button>
               <button className="btn-secondary" onClick={handleResetOperation}>
                 ✕ 放弃并重新输入
@@ -463,7 +463,7 @@ export default function AnalyzePage() {
       {loading && (
         <div className="card">
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
-            🧠 AI 正在分析聊天内容…
+            AI 正在分析聊天内容…
           </p>
           <div className="skeleton" style={{ width: '40%', marginTop: 16 }} />
           <div className="skeleton" style={{ width: '85%' }} />
@@ -481,7 +481,7 @@ export default function AnalyzePage() {
                 className="btn-secondary"
                 onClick={() => {
                   const text = [
-                    '📊 Readlyne 聊天分析结果',
+                    'Readlyne 聊天分析结果',
                     '',
                     analysis.relationship_signal && `🔮 直观判断: ${analysis.relationship_signal.summary}`,
                     ...(analysis.possible_intentions || []).map((item, i) =>
@@ -497,11 +497,11 @@ export default function AnalyzePage() {
                   navigator.clipboard.writeText(text).then(() => {
                     const btn = document.activeElement as HTMLElement;
                     if (btn) btn.textContent = '✅ 已复制';
-                    setTimeout(() => { if (btn) btn.textContent = '📋 复制结果'; }, 2000);
+                    setTimeout(() => { if (btn) btn.textContent = '复制结果'; }, 2000);
                   });
                 }}
               >
-                📋 复制结果
+                复制结果
               </button>
             </div>
           )}
@@ -600,10 +600,10 @@ export default function AnalyzePage() {
                 以上是免费分析 · ¥9.9 解锁 <strong>7 节完整报告</strong>：
               </p>
               <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 6, fontSize: 11, color: 'var(--text-tertiary)', flexWrap: 'wrap' }}>
-                <span>🧠 心理学框架</span>
-                <span>📋 5 条策略</span>
-                <span>💬 3 种定制回复</span>
-                <span>📶 信号预判</span>
+                <span>心理学框架</span>
+                <span>5 条策略</span>
+                <span>3 种定制回复</span>
+                <span>信号预判</span>
               </div>
             </div>
           )}
@@ -698,19 +698,19 @@ export default function AnalyzePage() {
                   <div className="premium-report-section">
                     <div className="report-section-title">A. 目标可行性</div>
                     <p className="report-section-content">{premiumReport.goal_feasibility.assessment}</p>
-                    <p className="psychology-note">🧠 {premiumReport.goal_feasibility.psychology_basis}</p>
+                    <p className="psychology-note">{premiumReport.goal_feasibility.psychology_basis}</p>
                   </div>
                   {/* B. 沟通状态 */}
                   <div className="premium-report-section">
                     <div className="report-section-title">B. 对方可能的沟通状态</div>
                     <p className="report-section-content">{premiumReport.target_comm_state.observation}</p>
-                    <p className="psychology-note">🧠 {premiumReport.target_comm_state.psychology_basis}</p>
+                    <p className="psychology-note">{premiumReport.target_comm_state.psychology_basis}</p>
                   </div>
                   {/* C. 时间线 */}
                   <div className="premium-report-section">
                     <div className="report-section-title">C. 时间线与互动节奏</div>
                     <p className="report-section-content">{premiumReport.timeline_analysis.pattern}</p>
-                    <p className="psychology-note">🧠 {premiumReport.timeline_analysis.psychology_basis}</p>
+                    <p className="psychology-note">{premiumReport.timeline_analysis.psychology_basis}</p>
                   </div>
                   {/* D. 策略 */}
                   <div className="premium-report-section">
@@ -720,9 +720,9 @@ export default function AnalyzePage() {
                         <p className="report-section-content" style={{ fontWeight: 600, marginBottom: 2 }}>
                           {i + 1}. {s.principle}
                         </p>
-                        <p className="psychology-note" style={{ marginBottom: 2 }}>🧠 {s.psychology}</p>
+                        <p className="psychology-note" style={{ marginBottom: 2 }}>{s.psychology}</p>
                         <p className="report-section-content" style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '2px 0' }}>
-                          💡 {s.application}
+                          {s.application}
                         </p>
                       </div>
                     ))}
@@ -734,7 +734,7 @@ export default function AnalyzePage() {
                       <div key={i} style={{ marginBottom: 14 }}>
                         <span className="tag" style={{ background: '#e8f0fe', color: '#0060df', display: 'inline-block', marginBottom: 4 }}>{r.style}</span>
                         <div className="suggestion-card" style={{ margin: 0 }}>{r.text}</div>
-                        <p className="psychology-note">🧠 {r.psychology}</p>
+                        <p className="psychology-note">{r.psychology}</p>
                         <p style={{ fontSize: 12, color: 'var(--text-tertiary)', margin: '2px 0 0' }}>
                           预期反应: {r.expected_effect}
                         </p>
@@ -770,7 +770,7 @@ export default function AnalyzePage() {
                       ⚠️ 盲区: {premiumReport.risk_reminder.blind_spots}
                     </p>
                     <p className="report-section-content" style={{ fontSize: 13, marginBottom: 6, color: 'var(--text-secondary)' }}>
-                      📋 缺乏证据: {premiumReport.risk_reminder.missing_evidence}
+                      缺乏证据: {premiumReport.risk_reminder.missing_evidence}
                     </p>
                     <p className="psychology-note">{premiumReport.risk_reminder.principle_reminder}</p>
                   </div>
@@ -835,20 +835,6 @@ export default function AnalyzePage() {
       {!analysis && !loading && !error && (
         <>
           {/* Trust points */}
-          <div className="trust-bar">
-            <div className="trust-item">
-              <span className="trust-icon">🔒</span>
-              <span>隐私保护</span>
-            </div>
-            <div className="trust-item">
-              <span className="trust-icon">🤖</span>
-              <span>AI 分析</span>
-            </div>
-            <div className="trust-item">
-              <span className="trust-icon">🌱</span>
-              <span>关系成长</span>
-            </div>
-          </div>
 
           {/* Social proof counter */}
           <UsageCounter />

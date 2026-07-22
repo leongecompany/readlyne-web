@@ -46,9 +46,9 @@ export default function SiteFooter() {
         <p className="footer-copy">&copy; {new Date().getFullYear()} Readlyne. All rights reserved.</p>
         <p style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 8 }}>
           {cn ? (
-            <Link href="/au" style={{ color: 'var(--text-tertiary)' }}>🇦🇺 English</Link>
+            <Link href="/au" style={{ color: 'var(--text-tertiary)' }}>English</Link>
           ) : (
-            <Link href="/cn" style={{ color: 'var(--text-tertiary)' }}>🇨🇳 中文</Link>
+            <Link href="/cn" style={{ color: 'var(--text-tertiary)' }}>中文</Link>
           )}
         </p>
       </div>

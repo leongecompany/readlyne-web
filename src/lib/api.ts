@@ -60,19 +60,18 @@ function makeRequestId(): string {
   return window.crypto.randomUUID();
 }
 
-const headers = (requestId?: string) => {
+const headers = () => {
   const h: Record<string, string> = {
     'Content-Type': 'application/json',
     'x-installation-id': getInstallationId(),
   };
-  if (requestId) h['x-request-id'] = requestId;
   return h;
 };
 
 export async function analyzeMessage(message: string, context = '', locale = 'cn', operationId?: string) {
   const res = await fetch(`${API_BASE}/web/analyze`, {
     method: 'POST',
-    headers: headers(operationId),
+    headers: headers(),
     body: JSON.stringify({
       message: message.trim(),
       context: context.trim(),
@@ -86,7 +85,7 @@ export async function analyzeMessage(message: string, context = '', locale = 'cn
 export async function getReplySuggestions(message: string, context = '', locale = 'cn', operationId?: string) {
   const res = await fetch(`${API_BASE}/web/reply`, {
     method: 'POST',
-    headers: headers(operationId),
+    headers: headers(),
     body: JSON.stringify({
       message: message.trim(),
       context: context.trim(),
@@ -123,7 +122,7 @@ export async function deepStrategy(data: {
   const opId = data.operation_id || makeRequestId();
   const res = await fetch(`${API_BASE}/web/deep-strategy`, {
     method: 'POST',
-    headers: headers(opId),
+    headers: headers(),
     body: JSON.stringify({ ...data, locale: data.locale || 'cn', operation_id: opId }),
   });
   return res.json();

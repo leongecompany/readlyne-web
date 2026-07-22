@@ -9,8 +9,8 @@ export default function LocaleBottomNav() {
   const { locale, t } = useLocale();
 
   const items = [
-    { href: `/${locale}/analyze`, icon: '🔍', label: t['nav.analyze'] },
-    { href: `/${locale}/reply`, icon: '💬', label: t['nav.reply'] },
+    { href: `/${locale}/analyze`, label: t['nav.analyze'] },
+    { href: `/${locale}/reply`, label: t['nav.reply'] },
   ];
 
   return (
@@ -20,7 +20,6 @@ export default function LocaleBottomNav() {
           const active = pathname.startsWith(item.href);
           return (
             <Link key={item.href} href={item.href} className={`nav-item${active ? ' active' : ''}`}>
-              <span className="nav-icon">{item.icon}</span>
               <span>{item.label}</span>
             </Link>
           );

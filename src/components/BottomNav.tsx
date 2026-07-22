@@ -43,8 +43,8 @@ export default function BottomNav() {
   const { theme, toggle } = useTheme();
 
   const items = [
-    { href: `/${locale}/analyze`, icon: '🔍', label: cn ? '分析' : 'Analyze' },
-    { href: `/${locale}/reply`, icon: '💬', label: cn ? '怎么回' : 'Reply' },
+    { href: `/${locale}/analyze`, label: cn ? '分析' : 'Analyze' },
+    { href: `/${locale}/reply`, label: cn ? '怎么回' : 'Reply' },
   ];
 
   return (
@@ -69,7 +69,6 @@ export default function BottomNav() {
             const active = pathname.startsWith(item.href);
             return (
               <Link key={item.href} href={item.href} className={`nav-item${active ? ' active' : ''}`}>
-                <span className="nav-icon">{item.icon}</span>
                 <span>{item.label}</span>
               </Link>
             );

@@ -67,7 +67,7 @@ export default function DashboardPage() {
   return (
     <div style={{ maxWidth: 600, margin: '0 auto', padding: '20px 16px 80px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>📊 管理后台</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>管理后台</h2>
         <button
           onClick={() => loadData()}
           disabled={loading}
@@ -76,7 +76,7 @@ export default function DashboardPage() {
             padding: '6px 14px', borderRadius: 8, fontSize: 13, cursor: 'pointer',
           }}
         >
-          {loading ? '刷新中…' : '🔄 刷新'}
+          {loading ? '刷新中…' : '刷新'}
         </button>
       </div>
 
@@ -98,7 +98,7 @@ export default function DashboardPage() {
       </Section>
 
       {/* 功能建议 */}
-      <Section title={`💡 功能建议 (${features.length})`}>
+      <Section title={`功能建议 (${features.length})`}>
         {features.length === 0 && <EmptyText />}
         {features.map((f: any, i: number) => (
           <div key={i} style={itemStyle}>
@@ -110,7 +110,7 @@ export default function DashboardPage() {
 
       {/* 用户反馈 */}
       {other.length > 0 && (
-        <Section title={`💬 用户反馈 (${other.length})`}>
+        <Section title={`用户反馈 (${other.length})`}>
           {other.map((f: any, i: number) => (
             <div key={i} style={itemStyle}>
               <div style={{ fontSize: 14 }}>{f.text}</div>

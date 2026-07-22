@@ -124,7 +124,7 @@ export default function ReplyPage() {
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !input.trim()}>
-          {loading ? 'Generating…' : '💬 Get Reply Ideas'}
+          {loading ? 'Generating…' : 'Get Reply Ideas'}
         </button>
         {!input.trim() && !loading && (
           <button
@@ -135,14 +135,14 @@ export default function ReplyPage() {
               setContext('Situationship, 3 months, replying slower lately');
             }}
           >
-            💡 Try Example
+            Try Example
           </button>
         )}
       </div>
 
       {/* Privacy trust */}
       <div className="privacy-line">
-        <p>🔒 Chat data not saved on server · Ephemeral analysis</p>
+        <p>Chat data not saved on server · Ephemeral analysis</p>
       </div>
 
       {/* Error */}
@@ -156,7 +156,7 @@ export default function ReplyPage() {
       {loading && (
         <div className="card">
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
-            💡 AI 正在生成Reply Suggestions…
+            AI 正在生成Reply Suggestions…
           </p>
           <div className="skeleton" style={{ width: '40%', marginTop: 16 }} />
           <div className="skeleton" style={{ width: '85%' }} />
@@ -195,7 +195,7 @@ export default function ReplyPage() {
                       style={{ border: 'none', cursor: 'pointer' }}
                       onClick={() => navigator.clipboard.writeText(item.text)}
                     >
-                      📋 Copy
+                      Copy
                     </button>
                   </div>
                 );
@@ -303,20 +303,6 @@ export default function ReplyPage() {
       {/* Empty state */}
       {!result && !loading && !error && (
         <>
-        <div className="trust-bar">
-          <div className="trust-item">
-            <span className="trust-icon">🔒</span>
-            <span>Privacy</span>
-          </div>
-          <div className="trust-item">
-            <span className="trust-icon">🤖</span>
-            <span>AI Analyzed</span>
-          </div>
-          <div className="trust-item">
-            <span className="trust-icon">🌱</span>
-            <span>Growth</span>
-          </div>
-        </div>
         <div style={{ textAlign: 'center', padding: '0 16px' }}>
           <BetaSignup locale="au" />
         </div>

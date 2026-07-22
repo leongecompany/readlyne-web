@@ -145,7 +145,7 @@ export default function ReplyPage() {
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !input.trim()}>
-          {loading ? 'Generating…' : replyFreeRemaining > 0 ? `💬 获取回复建议（剩余${replyFreeRemaining}次）` : replyCredits > 0 ? `💬 获取回复建议（剩余${replyCredits}次）` : '💬 免费次数已用完'}
+          {loading ? 'Generating…' : replyFreeRemaining > 0 ? `获取回复建议（剩余${replyFreeRemaining}次）` : replyCredits > 0 ? `获取回复建议（剩余${replyCredits}次）` : '免费次数已用完'}
         </button>
         {!input.trim() && !loading && (
           <button
@@ -156,14 +156,14 @@ export default function ReplyPage() {
               setContext('暧昧期，认识三个月，最近对方回复变慢');
             }}
           >
-            💡 试用示例
+            试用示例
           </button>
         )}
       </div>
 
       {/* Privacy trust */}
       <div className="privacy-line">
-        <p>🔒 聊天内容不会保存到服务器 · 分析后即忘</p>
+        <p>聊天内容不会保存到服务器 · 分析后即忘</p>
       </div>
 
       {/* Error */}
@@ -177,7 +177,7 @@ export default function ReplyPage() {
       {loading && (
         <div className="card">
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
-            💡 AI 正在生成回复建议…
+            AI 正在生成回复建议…
           </p>
           <div className="skeleton" style={{ width: '40%', marginTop: 16 }} />
           <div className="skeleton" style={{ width: '85%' }} />
@@ -216,7 +216,7 @@ export default function ReplyPage() {
                       style={{ border: 'none', cursor: 'pointer' }}
                       onClick={() => navigator.clipboard.writeText(item.text)}
                     >
-                      📋 复制
+                      复制
                     </button>
                   </div>
                 );
@@ -324,20 +324,6 @@ export default function ReplyPage() {
       {/* Empty state */}
       {!result && !loading && !error && (
         <>
-        <div className="trust-bar">
-          <div className="trust-item">
-            <span className="trust-icon">🔒</span>
-            <span>隐私保护</span>
-          </div>
-          <div className="trust-item">
-            <span className="trust-icon">🤖</span>
-            <span>AI 分析</span>
-          </div>
-          <div className="trust-item">
-            <span className="trust-icon">🌱</span>
-            <span>关系成长</span>
-          </div>
-        </div>
         <div style={{ textAlign: 'center', padding: '0 16px' }}>
           <BetaSignup locale="cn" />
         </div>
