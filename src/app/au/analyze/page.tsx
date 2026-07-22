@@ -352,7 +352,7 @@ export default function AnalyzePage() {
           placeholder={"You: Why are you ignoring me?\nThem: Not ignoring, just busy with work."}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 16, height: 160 }}
         />
 
         <label className="input-label">
@@ -365,7 +365,7 @@ export default function AnalyzePage() {
           placeholder="e.g. Known each other 2 months, feeling distant lately…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
-          style={{ marginBottom: 16 }}
+          style={{ marginBottom: 16, height: 80 }}
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim()}>
