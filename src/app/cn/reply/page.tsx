@@ -63,19 +63,7 @@ export default function ReplyPage() {
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackStatus, setFeedbackStatus] = useState<'idle'|'sending'|'sent'>('idle');
 
-  useEffect(() => {
-    if (msgRef.current) {
-      msgRef.current.style.height = 'auto';
-      msgRef.current.style.height = msgRef.current.scrollHeight + 'px';
-    }
-  }, [input]);
 
-  useEffect(() => {
-    if (ctxRef.current) {
-      ctxRef.current.style.height = 'auto';
-      ctxRef.current.style.height = ctxRef.current.scrollHeight + 'px';
-    }
-  }, [context]);
 
   const handleSubmit = useCallback(async () => {
     if (submitting || !input.trim()) return;

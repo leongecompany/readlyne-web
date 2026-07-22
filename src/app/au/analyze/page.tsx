@@ -154,20 +154,6 @@ export default function AnalyzePage() {
   };
 
   useEffect(() => {
-    if (msgRef.current) {
-      msgRef.current.style.height = 'auto';
-      msgRef.current.style.height = msgRef.current.scrollHeight + 'px';
-    }
-  }, [message]);
-
-  useEffect(() => {
-    if (ctxRef.current) {
-      ctxRef.current.style.height = 'auto';
-      ctxRef.current.style.height = ctxRef.current.scrollHeight + 'px';
-    }
-  }, [context]);
-
-  useEffect(() => {
     if (goalRef.current) {
       goalRef.current.style.height = 'auto';
       goalRef.current.style.height = goalRef.current.scrollHeight + 'px';
@@ -343,7 +329,7 @@ export default function AnalyzePage() {
       </div>
 
       {/* Input */}
-      <div className="card">
+      <div className="card glass">
         <label className="input-label">Chat Content</label>
         <textarea
           className="text-input auto-textarea"
@@ -392,14 +378,14 @@ export default function AnalyzePage() {
 
       {/* Error */}
       {error && (
-        <div className="card" style={{ borderColor: '#ffd7d5', background: '#fff5f5' }}>
+        <div className="card glass" style={{ borderColor: '#ffd7d5', background: '#fff5f5' }}>
           <p style={{ color: '#d70015', fontSize: 14, margin: 0 }}>{error}</p>
         </div>
       )}
 
       {/* Loading */}
       {loading && (
-        <div className="card">
+        <div className="card glass">
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
             AI is analyzing your chat…
           </p>
@@ -446,7 +432,7 @@ export default function AnalyzePage() {
 
           {/* Quick Judgment */}
           {analysis.relationship_signal && (
-            <div className="card">
+            <div className="card glass">
               <div className="section-title">Quick Judgment</div>
               <p className="result-text" style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.6 }}>
                 {analysis.relationship_signal.summary}
@@ -456,7 +442,7 @@ export default function AnalyzePage() {
 
           {/* Possible Meanings */}
           {analysis.possible_intentions && analysis.possible_intentions.length > 0 && (
-            <div className="card">
+            <div className="card glass">
               <div className="section-title">Possible Meanings</div>
               {analysis.possible_intentions.map((item, i) => (
                 <div key={i} style={{
@@ -486,7 +472,7 @@ export default function AnalyzePage() {
 
           {/* Misreading Risks */}
           {analysis.communication_risks && analysis.communication_risks.length > 0 && (
-            <div className="card">
+            <div className="card glass">
               <div className="section-title">Misreading Risks</div>
               {analysis.communication_risks.map((item, i) => (
                 <div key={i} style={{
@@ -507,7 +493,7 @@ export default function AnalyzePage() {
 
           {/* Reply Reference */}
           {analysis.reply_suggestions && analysis.reply_suggestions.length > 0 && (
-            <div className="card">
+            <div className="card glass">
               <div className="section-title">Reply Reference</div>
               <div className="suggestion-card">{analysis.reply_suggestions[0].text}</div>
               <p className="text-secondary" style={{ fontSize: 13, marginTop: 4 }}>
@@ -518,7 +504,7 @@ export default function AnalyzePage() {
 
           {/* Next Step */}
           {analysis.next_step && (
-            <div className="card">
+            <div className="card glass">
               <div className="section-title">Next Step</div>
               <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 4, color: 'var(--text)' }}>
                 {analysis.next_step.action}

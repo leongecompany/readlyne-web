@@ -43,32 +43,34 @@ export default function BottomNav() {
   const { theme, toggle } = useTheme();
 
   const items = [
-    { href: `/${locale}/analyze`, label: cn ? '分析' : 'Analyze' },
-    { href: `/${locale}/reply`, label: cn ? '怎么回' : 'Reply' },
+    { href: `/${locale}/analyze`, label: cn ? '分析' : 'Analyze', icon: '🔍' },
+    { href: `/${locale}/reply`, label: cn ? '怎么回' : 'Reply', icon: '💬' },
   ];
 
   return (
     <>
+      {/* Theme toggle — glass */}
       <button
         onClick={toggle}
         aria-label="Toggle theme"
+        className="glass"
         style={{
-          position: 'fixed', bottom: 72, right: 16,
-          width: 36, height: 36, borderRadius: 18,
-          background: 'var(--bg-secondary)',
-          border: '1px solid var(--card-border)',
+          position: 'fixed', bottom: 76, right: 16,
+          width: 38, height: 38, borderRadius: 19,
           fontSize: 16, cursor: 'pointer', zIndex: 101,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: 0,
         }}
       >
         {theme === 'dark' ? '☀️' : '🌙'}
       </button>
-      <nav className="bottom-nav">
+      <nav className="bottom-nav glass-header" style={{ backdropFilter: 'blur(30px) saturate(1.5)', WebkitBackdropFilter: 'blur(30px) saturate(1.5)' }}>
         <div className="bottom-nav-inner">
           {items.map((item) => {
             const active = pathname.startsWith(item.href);
             return (
               <Link key={item.href} href={item.href} className={`nav-item${active ? ' active' : ''}`}>
+                <span className="nav-icon">{item.icon}</span>
                 <span>{item.label}</span>
               </Link>
             );
