@@ -176,10 +176,11 @@ body {
 .text-input:focus { border-color: var(--text); }
 .text-input::placeholder { color: var(--text-tertiary); }
 
-/* Fixed-height scrollable textarea - expand handle in bottom-right */
+/* Fixed-height scrollable textarea - never grows, content scrolls */
 .auto-textarea {
-  min-height: 120px;
-  max-height: 50vh;
+  height: 160px;
+  min-height: 0;
+  max-height: none;
   overflow-y: auto;
   resize: vertical;
 }
