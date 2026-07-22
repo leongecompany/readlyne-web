@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { getReplySuggestions, submitFeedback } from '@/lib/api';
 import BetaSignup from '@/components/BetaSignup';
 
@@ -42,19 +42,15 @@ export default function ReplyPage() {
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackStatus, setFeedbackStatus] = useState<'idle'|'sending'|'sent'>('idle');
 
-  useEffect(() => {
-    if (msgRef.current) {
-      msgRef.current.style.height = 'auto';
-      msgRef.current.style.height = msgRef.current.scrollHeight + 'px';
-    }
-  }, [input]);
+  const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = 'auto';
+    const newH = el.scrollHeight;
+    el.style.height = Math.max(newH, 88) + 'px';
+  }, []);
 
-  useEffect(() => {
-    if (ctxRef.current) {
-      ctxRef.current.style.height = 'auto';
-      ctxRef.current.style.height = ctxRef.current.scrollHeight + 'px';
-    }
-  }, [context]);
+  useEffect(() => { autoResize(msgRef.current); }, [input, autoResize]);
+  useEffect(() => { autoResize(ctxRef.current); }, [context, autoResize]);
 
   const handleSubmit = useCallback(async () => {
     if (submitting || !input.trim()) return;
@@ -102,9 +98,8 @@ export default function ReplyPage() {
       <div className="card">
         <label className="input-label">想回应的内容</label>
         <textarea
-          className="text-input"
+          className="text-input auto-textarea"
           ref={msgRef}
-          rows={3}
           placeholder="对方说了什么？或者描述一下你现在的情况…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -115,9 +110,8 @@ export default function ReplyPage() {
           背景信息 <span className="optional">（选填）</span>
         </label>
         <textarea
-          className="text-input"
+          className="text-input auto-textarea"
           ref={ctxRef}
-          rows={2}
           placeholder="例如：暧昧期，前天因为小事吵了一架…"
           value={context}
           onChange={(e) => setContext(e.target.value)}

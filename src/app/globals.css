@@ -176,6 +176,13 @@ body {
 .text-input:focus { border-color: var(--text); }
 .text-input::placeholder { color: var(--text-tertiary); }
 
+/* Auto-resize textarea - no rows attribute, JS controls height */
+.auto-textarea {
+  min-height: 88px;
+  overflow: hidden;
+  resize: none;
+}
+
 /* ─── Bottom nav — iOS tab bar ─── */
 .bottom-nav {
   position: fixed;

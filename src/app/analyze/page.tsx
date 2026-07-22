@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { analyzeMessage, deepStrategy, createCheckout, getCredits as fetchServerCredits, claimCredits, submitFeedback } from '@/lib/api';
 import BetaSignup from '@/components/BetaSignup';
 
@@ -156,19 +156,15 @@ export default function AnalyzePage() {
     setUserGoal(chip);
   };
 
-  useEffect(() => {
-    if (msgRef.current) {
-      msgRef.current.style.height = 'auto';
-      msgRef.current.style.height = msgRef.current.scrollHeight + 'px';
-    }
-  }, [message]);
+  const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = 'auto';
+    const newH = el.scrollHeight;
+    el.style.height = Math.max(newH, 88) + 'px';
+  }, []);
 
-  useEffect(() => {
-    if (ctxRef.current) {
-      ctxRef.current.style.height = 'auto';
-      ctxRef.current.style.height = ctxRef.current.scrollHeight + 'px';
-    }
-  }, [context]);
+  useEffect(() => { autoResize(msgRef.current); }, [message, autoResize]);
+  useEffect(() => { autoResize(ctxRef.current); }, [context, autoResize]);
 
   useEffect(() => {
     if (goalRef.current) {
@@ -398,9 +394,8 @@ export default function AnalyzePage() {
       <div className="card">
         <label className="input-label">聊天内容</label>
         <textarea
-          className="text-input"
+          className="text-input auto-textarea"
           ref={msgRef}
-          rows={3}
           placeholder={"我：你今天怎么不理我了？\nTA：没有啊，最近工作比较忙。"}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -411,9 +406,8 @@ export default function AnalyzePage() {
           背景信息 <span className="optional">（选填）</span>
         </label>
         <textarea
-          className="text-input"
+          className="text-input auto-textarea"
           ref={ctxRef}
-          rows={2}
           placeholder="例如：认识两个月，最近感觉有点冷淡…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
