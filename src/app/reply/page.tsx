@@ -42,16 +42,6 @@ export default function ReplyPage() {
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackStatus, setFeedbackStatus] = useState<'idle'|'sending'|'sent'>('idle');
 
-  const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
-    if (!el) return;
-    el.style.height = 'auto';
-    const newH = el.scrollHeight;
-    el.style.height = Math.max(newH, 88) + 'px';
-  }, []);
-
-  useEffect(() => { autoResize(msgRef.current); }, [input, autoResize]);
-  useEffect(() => { autoResize(ctxRef.current); }, [context, autoResize]);
-
   const handleSubmit = useCallback(async () => {
     if (submitting || !input.trim()) return;
     setSubmitting(true);

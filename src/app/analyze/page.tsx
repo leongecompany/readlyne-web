@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { analyzeMessage, deepStrategy, createCheckout, getCredits as fetchServerCredits, claimCredits, submitFeedback } from '@/lib/api';
 import BetaSignup from '@/components/BetaSignup';
 
@@ -155,16 +155,6 @@ export default function AnalyzePage() {
   const handleGoalChip = (chip: string) => {
     setUserGoal(chip);
   };
-
-  const autoResize = useCallback((el: HTMLTextAreaElement | null) => {
-    if (!el) return;
-    el.style.height = 'auto';
-    const newH = el.scrollHeight;
-    el.style.height = Math.max(newH, 88) + 'px';
-  }, []);
-
-  useEffect(() => { autoResize(msgRef.current); }, [message, autoResize]);
-  useEffect(() => { autoResize(ctxRef.current); }, [context, autoResize]);
 
   useEffect(() => {
     if (goalRef.current) {
