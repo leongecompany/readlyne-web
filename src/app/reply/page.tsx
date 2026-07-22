@@ -237,7 +237,7 @@ export default function ReplyPage() {
               </button>
               <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                 <input
-                  className="text-input"
+                  className="text-input auto-textarea"
                   style={{ flex: 1, marginBottom: 0, fontSize: 14, padding: '10px 14px' }}
                   placeholder="反馈建议…"
                   value={feedbackText}

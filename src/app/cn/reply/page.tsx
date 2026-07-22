@@ -122,9 +122,9 @@ export default function ReplyPage() {
       <div className="card">
         <label className="input-label">想回应的内容</label>
         <textarea
-          className="text-input"
+          className="text-input auto-textarea"
           ref={msgRef}
-          rows={3}
+         
           placeholder="对方说了什么？或者描述一下你现在的情况…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -135,9 +135,9 @@ export default function ReplyPage() {
           背景信息 <span className="optional">（选填）</span>
         </label>
         <textarea
-          className="text-input"
+          className="text-input auto-textarea"
           ref={ctxRef}
-          rows={2}
+         
           placeholder="例如：暧昧期，前天因为小事吵了一架…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
@@ -273,7 +273,7 @@ export default function ReplyPage() {
               </button>
               <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                 <input
-                  className="text-input"
+                  className="text-input auto-textarea"
                   style={{ flex: 1, marginBottom: 0, fontSize: 14, padding: '10px 14px' }}
                   placeholder="反馈建议…"
                   value={feedbackText}

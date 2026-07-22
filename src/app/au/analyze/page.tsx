@@ -346,9 +346,9 @@ export default function AnalyzePage() {
       <div className="card">
         <label className="input-label">Chat Content</label>
         <textarea
-          className="text-input"
+          className="text-input auto-textarea"
           ref={msgRef}
-          rows={3}
+         
           placeholder={"You: Why are you ignoring me?\nThem: Not ignoring, just busy with work."}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
@@ -359,9 +359,9 @@ export default function AnalyzePage() {
           Context <span className="optional">（Optional）</span>
         </label>
         <textarea
-          className="text-input"
+          className="text-input auto-textarea"
           ref={ctxRef}
-          rows={2}
+         
           placeholder="e.g. Known each other 2 months, feeling distant lately…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
@@ -559,9 +559,9 @@ export default function AnalyzePage() {
                 <>
                   <label className="input-label">你希望达到什么目的？</label>
                   <textarea
-                    className="text-input"
+                    className="text-input auto-textarea"
                     ref={goalRef}
-                    rows={2}
+                   
                     maxLength={300}
                     placeholder="例如：我喜欢TA但不知道怎么表达，怕被拒绝。"
                     value={userGoal}
@@ -733,7 +733,7 @@ export default function AnalyzePage() {
               </button>
               <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                 <input
-                  className="text-input"
+                  className="text-input auto-textarea"
                   style={{ flex: 1, marginBottom: 0, fontSize: 14, padding: '10px 14px' }}
                   placeholder="Feedback…"
                   value={feedbackText}

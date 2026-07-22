@@ -101,9 +101,9 @@ export default function ReplyPage() {
       <div className="card">
         <label className="input-label">What to respond to</label>
         <textarea
-          className="text-input"
+          className="text-input auto-textarea"
           ref={msgRef}
-          rows={3}
+         
           placeholder="What did they say? Describe your situation…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -114,9 +114,9 @@ export default function ReplyPage() {
           Context <span className="optional">（Optional）</span>
         </label>
         <textarea
-          className="text-input"
+          className="text-input auto-textarea"
           ref={ctxRef}
-          rows={2}
+         
           placeholder="e.g. In a situationship, had a small argument yesterday…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
@@ -252,7 +252,7 @@ export default function ReplyPage() {
               </button>
               <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                 <input
-                  className="text-input"
+                  className="text-input auto-textarea"
                   style={{ flex: 1, marginBottom: 0, fontSize: 14, padding: '10px 14px' }}
                   placeholder="Feedback…"
                   value={feedbackText}

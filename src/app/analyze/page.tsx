@@ -605,9 +605,9 @@ export default function AnalyzePage() {
                 <>
                   <label className="input-label">你希望达到什么目的？</label>
                   <textarea
-                    className="text-input"
+                    className="text-input auto-textarea"
                     ref={goalRef}
-                    rows={2}
+                   
                     maxLength={300}
                     placeholder="例如：我喜欢TA但不知道怎么表达，怕被拒绝。"
                     value={userGoal}
@@ -779,7 +779,7 @@ export default function AnalyzePage() {
               </button>
               <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                 <input
-                  className="text-input"
+                  className="text-input auto-textarea"
                   style={{ flex: 1, marginBottom: 0, fontSize: 14, padding: '10px 14px' }}
                   placeholder="反馈建议…"
                   value={feedbackText}
