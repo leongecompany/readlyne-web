@@ -171,7 +171,7 @@ export default function AnalyzePage() {
           placeholder="例如：认识两个月，最近感觉有点冷淡…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
-          style={{ marginBottom: 10, height: 44 }}
+          style={{ marginBottom: 10, height: 110 }}
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim() || (freeRemaining <= 0 && serverCredits <= 0 && creditsLoaded && shareBonusClaimed)}>

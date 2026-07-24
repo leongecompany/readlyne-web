@@ -165,7 +165,7 @@ export default function AnalyzePage() {
           placeholder="e.g. Known each other 2 months, feeling distant lately…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
-          style={{ marginBottom: 10, height: 44 }}
+          style={{ marginBottom: 10, height: 110 }}
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim() || (freeRemaining <= 0 && serverCredits <= 0 && creditsLoaded && shareBonusClaimed)}>

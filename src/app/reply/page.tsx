@@ -105,7 +105,7 @@ export default function ReplyPage() {
           placeholder="例如：暧昧期，前天因为小事吵了一架…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
-          style={{ marginBottom: 10, height: 44 }}
+          style={{ marginBottom: 10, height: 110 }}
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !input.trim()}>
