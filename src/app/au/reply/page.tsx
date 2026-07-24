@@ -24,7 +24,7 @@ const STYLE_COLORS: Record<string, { bg: string; color: string }> = {
 
 function severityTag(s: string) {
   const cls = s === 'high' ? 'tag-high' : s === 'medium' ? 'tag-medium' : 'tag-low';
-  const label = s === 'high' ? '高风险' : s === 'medium' ? '中风险' : '低风险';
+  const label = s === 'high' ? 'High Risk' : s === 'medium' ? 'Medium Risk' : 'Low Risk';
   return <span className={`tag ${cls}`}>{label}</span>;
 }
 
@@ -99,7 +99,7 @@ export default function ReplyPage() {
         />
 
         <label className="input-label">
-          Context <span className="optional">（Optional）</span>
+          Context <span className="optional">(Optional)</span>
         </label>
         <textarea
           className="text-input auto-textarea"
@@ -144,7 +144,7 @@ export default function ReplyPage() {
       {loading && (
         <div className="card">
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
-            AI 正在生成Reply Suggestions…
+            AI generating reply suggestions…
           </p>
           <div className="skeleton" style={{ width: '40%', marginTop: 16 }} />
           <div className="skeleton" style={{ width: '85%' }} />

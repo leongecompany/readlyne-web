@@ -223,7 +223,7 @@ export default function AnalyzePage() {
         if (checkout.error === 'STRIPE_NOT_CONFIGURED') {
           setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN);
           setPremiumLoading(false);
-          setPremiumError('Payment not configured，Please configure Stripe 密钥');
+          setPremiumError('Payment not configured, please try again later');
           return;
         }
         setPremiumError(checkout.message || 'Payment service unavailable');
@@ -233,7 +233,7 @@ export default function AnalyzePage() {
       // 跳转到 Stripe Checkout（支付宝扫码/跳转）
       window.location.href = checkout.url;
     } catch (e) {
-      setPremiumError('Network error，try again later');
+      setPremiumError('Network error, try again later');
       setPremiumLoading(false);
       setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN);
     }
@@ -298,7 +298,7 @@ export default function AnalyzePage() {
     try {
       const data = await analyzeMessage(message, context, 'au');
       if (!data.ok) {
-        setError(data.error || 'Analysis failed，try again later');
+        setError(data.error || 'Analysis failed, try again later');
         return;
       }
       setAnalysis(data.analysis);
@@ -344,7 +344,7 @@ export default function AnalyzePage() {
         />
 
         <label className="input-label">
-          Context <span className="optional">（Optional）</span>
+          Context <span className="optional">(Optional)</span>
         </label>
         <textarea
           className="text-input auto-textarea"
@@ -523,7 +523,7 @@ export default function AnalyzePage() {
           {analysis && (
             <div style={{ padding: '0 16px', marginBottom: 8 }}>
               <p style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
-                Above is the free analysis · $9.99 unlocks <strong>7-section full report</strong>：
+                Above is the free analysis · $9.99 unlocks <strong>7-section full report</strong>:
               </p>
               <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 6, fontSize: 11, color: 'var(--text-tertiary)', flexWrap: 'wrap' }}>
                 <span>Psychology</span>
