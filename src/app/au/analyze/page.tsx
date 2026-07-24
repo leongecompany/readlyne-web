@@ -137,7 +137,7 @@ export default function AnalyzePage() {
       </div>
 
       {/* Hero */}
-      <div style={{ padding: '20px 16px 0' }}>
+      <div style={{ padding: '12px 16px 0' }}>
         <h1 className="hero-title">Don't understand them?</h1>
         <p className="hero-sub">Paste your chat. AI analyzes subtext, risks, and best replies.</p>
       </div>
@@ -152,7 +152,7 @@ export default function AnalyzePage() {
           placeholder={"You: Why are you ignoring me?\nThem: Not ignoring, just busy with work."}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          style={{ marginBottom: 16, height: 160 }}
+          style={{ marginBottom: 10, height: 128 }}
         />
 
         <label className="input-label">
@@ -165,7 +165,7 @@ export default function AnalyzePage() {
           placeholder="e.g. Known each other 2 months, feeling distant lately…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
-          style={{ marginBottom: 16, height: 80 }}
+          style={{ marginBottom: 10, height: 56 }}
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim() || (freeRemaining <= 0 && serverCredits <= 0 && creditsLoaded && shareBonusClaimed)}>

@@ -377,7 +377,7 @@ export default function AnalyzePage() {
       </div>
 
       {/* Hero */}
-      <div className="animate-fade-in" style={{ padding: '20px 16px 0' }}>
+      <div className="animate-fade-in" style={{ padding: '12px 16px 0' }}>
         <h1 className="hero-title">看不懂 TA 的话？</h1>
         <p className="hero-sub">粘贴聊天内容，AI 分析潜台词、误读风险和怎么回。</p>
       </div>
@@ -391,7 +391,7 @@ export default function AnalyzePage() {
           placeholder={"我：你今天怎么不理我了？\nTA：没有啊，最近工作比较忙。"}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          style={{ marginBottom: 16, height: 160 }}
+          style={{ marginBottom: 10, height: 128 }}
         />
 
         <label className="input-label">
@@ -403,7 +403,7 @@ export default function AnalyzePage() {
           placeholder="例如：认识两个月，最近感觉有点冷淡…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
-          style={{ marginBottom: 16, height: 80 }}
+          style={{ marginBottom: 10, height: 56 }}
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim()}>

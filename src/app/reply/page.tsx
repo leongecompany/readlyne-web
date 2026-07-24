@@ -79,7 +79,7 @@ export default function ReplyPage() {
       </div>
 
       {/* Hero */}
-      <div style={{ padding: '20px 16px 0' }}>
+      <div style={{ padding: '12px 16px 0' }}>
         <h1 className="hero-title">不知道怎么回 TA？</h1>
         <p className="hero-sub">描述场景，AI 给你保守、自然、主动三种风格的回复参考。</p>
       </div>
@@ -93,7 +93,7 @@ export default function ReplyPage() {
           placeholder="对方说了什么？或者描述一下你现在的情况…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          style={{ marginBottom: 16, height: 160 }}
+          style={{ marginBottom: 10, height: 128 }}
         />
 
         <label className="input-label">
@@ -105,7 +105,7 @@ export default function ReplyPage() {
           placeholder="例如：暧昧期，前天因为小事吵了一架…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
-          style={{ marginBottom: 16, height: 80 }}
+          style={{ marginBottom: 10, height: 56 }}
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !input.trim()}>

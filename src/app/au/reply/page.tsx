@@ -80,7 +80,7 @@ export default function ReplyPage() {
       </div>
 
       {/* Hero */}
-      <div style={{ padding: '20px 16px 0' }}>
+      <div style={{ padding: '12px 16px 0' }}>
         <h1 className="hero-title">Don't know how to reply?</h1>
         <p className="hero-sub">Describe the situation. AI suggests conservative, natural, and bold replies.</p>
       </div>
@@ -95,7 +95,7 @@ export default function ReplyPage() {
           placeholder="What did they say? Describe your situation…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          style={{ marginBottom: 16, height: 160 }}
+          style={{ marginBottom: 10, height: 128 }}
         />
 
         <label className="input-label">
@@ -108,7 +108,7 @@ export default function ReplyPage() {
           placeholder="e.g. In a situationship, had a small argument yesterday…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
-          style={{ marginBottom: 16, height: 80 }}
+          style={{ marginBottom: 10, height: 56 }}
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !input.trim()}>
