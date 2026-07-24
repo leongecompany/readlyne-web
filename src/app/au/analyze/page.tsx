@@ -1,29 +1,14 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { analyzeMessage, deepStrategy, createCheckout, getCredits as fetchServerCredits, claimCredits, submitFeedback } from '@/lib/api';
+import { analyzeMessage, getCredits as fetchServerCredits, submitFeedback } from '@/lib/api';
 import BetaSignup from '@/components/BetaSignup';
-
-const PAYMENT_MODAL_STEPS = { HIDDEN: 'hidden', CHOOSE: 'choose', PROCESSING: 'processing', SUCCESS: 'success' } as const;
 
 type Intention = { label: string; explanation: string; confidence: number; evidence_refs?: string[] };
 type Risk = { risk: string; suggestion: string; severity: string };
 type Signal = { summary: string; confidence: string; evidence_refs?: string[] };
 type ReplySuggestion = { style: string; text: string; why_this_works: string; risk_note: string };
 type NextStep = { action: string; reason: string; boundary_note?: string };
-type DeepStrategyReport = {
-  goal_feasibility: { assessment: string; psychology_basis: string };
-  target_comm_state: { observation: string; psychology_basis: string };
-  timeline_analysis: { pattern: string; psychology_basis: string };
-  strategies: { principle: string; psychology: string; mechanism: string; application: string }[];
-  replies: { style: string; text: string; psychology: string; expected_effect: string }[];
-  signals: {
-    positive: { signal: string; psychology: string }[];
-    neutral: { signal: string; psychology: string }[];
-    step_back: { signal: string; psychology: string }[];
-  };
-  risk_reminder: { blind_spots: string; missing_evidence: string; principle_reminder: string };
-};
 type Analysis = {
   relationship_signal?: Signal;
   possible_intentions?: Intention[];
@@ -39,60 +24,6 @@ function severityTag(s: string) {
 }
 
 const LABEL_MAP: Record<string, string> = { 'Likely': 'Likely', 'Possible': 'Possible', 'Unlikely': 'Unlikely' };
-
-// Sample Report Preview — shows Deep Strategy analysis output format
-function SampleReportPreview() {
-  const [open, setOpen] = useState(false);
-  return (
-    <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--separator)' }}>
-      <button
-        onClick={() => setOpen(!open)}
-        style={{
-          background: 'none', border: 'none', color: 'var(--text-secondary)',
-          fontSize: 13, cursor: 'pointer', padding: '4px 0', width: '100%', textAlign: 'center',
-        }}
-      >
-        {open ? 'Hide ↑' : 'Full Sample Report'}
-      </button>
-      {open && (
-        <div style={{ marginTop: 8, fontSize: 12, lineHeight: 1.7, color: 'var(--text-tertiary)', textAlign: 'left' }}>
-          <div style={sampleSectionStyle}>
-            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>A. Goal Feasibility</div>
-            <p style={{ margin: 0 }}>Based on Social Penetration Theory, the conversation is at surface level. Short, passive replies suggest progress is possible but requires a gentle, gradual approach.</p>
-          </div>
-          <div style={sampleSectionStyle}>
-            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>B. Communication State</div>
-            <p style={{ margin: 0 }}>Per Self-Verification Theory, they prefer the current casual dynamic. Signals are neutral-to-positive, no rejection but no active progression.</p>
-          </div>
-          <div style={sampleSectionStyle}>
-            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>C. Timeline & Rhythm</div>
-            <p style={{ margin: 0 }}>Reply gaps are wide (avg &gt;3h). Consistent with the Mere Exposure Effect — gradual, warm exposure works better than intense bursts.</p>
-          </div>
-          <div style={sampleSectionStyle}>
-            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>D. Strategies (5)</div>
-            <p style={{ margin: 0 }}>Based on Reciprocity + Attachment Theory secure communication patterns, each with actionable phrasing direction.</p>
-          </div>
-          <div style={sampleSectionStyle}>
-            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>E. Ready-to-Use Replies (3)</div>
-            <p style={{ margin: 0 }}>Safe / Natural progression / Direct confirmation, each with psychological reasoning.</p>
-          </div>
-          <div style={sampleSectionStyle}>
-            <div style={{ fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 4 }}>F-G. Signals & Risk Reminders</div>
-            <p style={{ margin: 0 }}>How to read their reaction after sending (positive/neutral/step-back signals), with over-interpretation warnings.</p>
-          </div>
-          <p style={{ marginTop: 8, fontSize: 12, color: 'var(--text)', textAlign: 'center', fontWeight: 500 }}>
-            $9.99 to unlock real analysis reports
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-const sampleSectionStyle: React.CSSProperties = {
-  padding: '6px 0',
-  borderTop: '1px solid var(--separator)',
-};
 
 // Usage Counter
 function UsageCounter() {
@@ -119,15 +50,6 @@ export default function AnalyzePage() {
   const msgRef = useRef<HTMLTextAreaElement>(null);
   const ctxRef = useRef<HTMLTextAreaElement>(null);
 
-  // Premium deep strategy state
-  const [userGoal, setUserGoal] = useState('');
-  const [premiumLoading, setPremiumLoading] = useState(false);
-  const [premiumReport, setPremiumReport] = useState<DeepStrategyReport | null>(null);
-  const [premiumUnlocked, setPremiumUnlocked] = useState(false);
-  const [premiumError, setPremiumError] = useState('');
-  const [paymentStep, setPaymentStep] = useState<string>(PAYMENT_MODAL_STEPS.HIDDEN);
-  const goalRef = useRef<HTMLTextAreaElement>(null);
-
   // Feedback
   const [feedbackText, setFeedbackText] = useState('');
   const [feedbackStatus, setFeedbackStatus] = useState<'idle'|'sending'|'sent'>('idle');
@@ -144,22 +66,6 @@ export default function AnalyzePage() {
     }
   }, [feedbackText, feedbackStatus]);
 
-  const GOAL_CHIPS = [
-    'Check their feelings', 'Move forward', 'Resolve conflict', 'Restart conversation',
-    'Test their interest', 'End situationship', 'Express interest naturally',
-  ];
-
-  const handleGoalChip = (chip: string) => {
-    setUserGoal(chip);
-  };
-
-  useEffect(() => {
-    if (goalRef.current) {
-      goalRef.current.style.height = 'auto';
-      goalRef.current.style.height = goalRef.current.scrollHeight + 'px';
-    }
-  }, [userGoal]);
-
   // Server credit State
   const [serverCredits, setServerCredits] = useState(0);
   const [freeRemaining, setFreeRemaining] = useState(10);
@@ -173,120 +79,6 @@ export default function AnalyzePage() {
   }, []);
 
   useEffect(() => { loadServerCredits(); }, [loadServerCredits]);
-
-  const handleDeepStrategy = useCallback(async () => {
-    if (premiumLoading || !userGoal.trim() || userGoal.trim().length < 2) return;
-    if (serverCredits > 0) {
-      // Has remaining credits，Server校验消耗
-      setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN);
-      setPremiumLoading(true);
-      setPremiumReport(null);
-      setPremiumError('');
-      try {
-        const data = await deepStrategy({ message, context, userGoal: userGoal.trim(), locale: 'au' });
-        if (!data.ok) {
-          if (data.error === 'NO_CREDITS') {
-            // Server拒绝 — refresh credits
-            loadServerCredits();
-            setPaymentStep(PAYMENT_MODAL_STEPS.CHOOSE);
-          } else {
-            setPremiumError(data.error || 'Analysis failed');
-          }
-          setPremiumLoading(false);
-          return;
-        }
-        setPremiumReport(data.report);
-        setPremiumUnlocked(true);
-        setServerCredits(data.credits_remaining ?? Math.max(0, serverCredits - 1));
-      } catch { setPremiumError('Network error'); }
-      finally { setPremiumLoading(false); }
-    } else {
-      // 没Has remaining credits，Show payment
-      setPaymentStep(PAYMENT_MODAL_STEPS.CHOOSE);
-    }
-  }, [message, context, userGoal, premiumLoading, serverCredits, loadServerCredits]);
-
-  const handlePaymentChoice = useCallback(async (method: string) => {
-    setPaymentStep(PAYMENT_MODAL_STEPS.PROCESSING);
-    setPremiumLoading(true);
-    setPremiumReport(null);
-    setPremiumError('');
-
-    try {
-      // 保存数据到 localStorage，支付成功回来后恢复
-      localStorage.setItem('readlyne_pending_goal', userGoal.trim());
-      localStorage.setItem('readlyne_pending_message', message);
-      localStorage.setItem('readlyne_pending_context', context);
-
-      const checkout = await createCheckout('deep_strategy_' + Date.now());
-      if (!checkout.ok) {
-        if (checkout.error === 'STRIPE_NOT_CONFIGURED') {
-          setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN);
-          setPremiumLoading(false);
-          setPremiumError('Payment not configured, please try again later');
-          return;
-        }
-        setPremiumError(checkout.message || 'Payment service unavailable');
-        setPremiumLoading(false);
-        return;
-      }
-      // 跳转到 Stripe Checkout（支付宝扫码/跳转）
-      window.location.href = checkout.url;
-    } catch (e) {
-      setPremiumError('Network error, try again later');
-      setPremiumLoading(false);
-      setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN);
-    }
-  }, [message, context, userGoal, premiumLoading]);
-
-  // Stripe 支付返回处理 — 用 session_id 向Server验证
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const sessionId = params.get('session_id');
-    if (sessionId) {
-      // 清除 URL 参数
-      window.history.replaceState({}, '', window.location.pathname);
-
-      // 向Server验证支付State并获取 credits
-      claimCredits(sessionId).then((result) => {
-        if (result.ok) {
-          setServerCredits(result.credits);
-          // 恢复待处理的Analysis
-          const savedGoal = localStorage.getItem('readlyne_pending_goal');
-          const savedMessage = localStorage.getItem('readlyne_pending_message');
-          const savedContext = localStorage.getItem('readlyne_pending_context');
-          if (savedGoal && savedMessage) {
-            localStorage.removeItem('readlyne_pending_goal');
-            localStorage.removeItem('readlyne_pending_message');
-            localStorage.removeItem('readlyne_pending_context');
-            setPremiumLoading(true);
-            setMessage(savedMessage);
-            setContext(savedContext || '');
-            setUserGoal(savedGoal);
-            deepStrategy({ message: savedMessage, context: savedContext || '', userGoal: savedGoal })
-              .then((data) => {
-                if (data.ok && data.report) {
-                  setServerCredits(data.credits_remaining ?? 2);
-                  setPremiumReport(data.report);
-                  setPremiumUnlocked(true);
-                }
-              })
-              .catch(() => {})
-              .finally(() => setPremiumLoading(false));
-          }
-        }
-      }).catch(() => {});
-    }
-
-    // 处理取消支付
-    if (params.get('cancelled') === '1') {
-      window.history.replaceState({}, '', window.location.pathname);
-      // 清理 pending 数据
-      localStorage.removeItem('readlyne_pending_goal');
-      localStorage.removeItem('readlyne_pending_message');
-      localStorage.removeItem('readlyne_pending_context');
-    }
-  }, [loadServerCredits]);
 
   const handleSubmit = useCallback(async () => {
     if (submitting || !message.trim()) return;
@@ -418,7 +210,7 @@ export default function AnalyzePage() {
                     ),
                     '',
                     '——',
-                    'Free Analysis · Deep Strategy $9.99 unlock',
+                    'Analyzed by Readlyne',
                   ].filter(Boolean).join('\n');
                   navigator.clipboard.writeText(text).then(() => {
                     const btn = document.activeElement as HTMLElement;
@@ -515,192 +307,6 @@ export default function AnalyzePage() {
                 <p className="text-secondary" style={{ fontSize: 13, margin: 0 }}>
                   {analysis.next_step.reason}
                 </p>
-              )}
-            </div>
-          )}
-
-          {/* Premium: Deep Psychological Strategy */}
-          {analysis && (
-            <div style={{ padding: '0 16px', marginBottom: 8 }}>
-              <p style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
-                Above is the free analysis · $9.99 unlocks <strong>7-section full report</strong>:
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 6, fontSize: 11, color: 'var(--text-tertiary)', flexWrap: 'wrap' }}>
-                <span>Psychology</span>
-                <span>5 strategies</span>
-                <span>3 custom replies</span>
-                <span>Signal tracking</span>
-              </div>
-            </div>
-          )}
-          {analysis && (
-            <div className="premium-card">
-              <div className="premium-header">
-                <span className="premium-title">Deep Psychological Strategy</span>
-                <span className="pro-badge">PRO</span>
-              </div>
-              <p className="premium-sub">
-                Analyzes your chat timeline and goals to decode their communication state and develop psychology-backed strategies.
-              </p>
-
-              {!premiumUnlocked && (
-                <>
-                  <label className="input-label">What's your goal?</label>
-                  <textarea
-                    className="text-input auto-textarea"
-                    ref={goalRef}
-                   
-                    maxLength={300}
-                    placeholder="e.g. I like them but don't know how to express it, afraid of rejection."
-                    value={userGoal}
-                    onChange={(e) => setUserGoal(e.target.value)}
-                    style={{ marginBottom: 12, fontSize: 14 }}
-                  />
-                  <div className="goal-chips">
-                    {GOAL_CHIPS.map((chip) => (
-                      <span
-                        key={chip}
-                        className={`goal-chip${userGoal === chip ? ' selected' : ''}`}
-                        onClick={() => handleGoalChip(chip)}
-                      >
-                        {chip}
-                      </span>
-                    ))}
-                  </div>
-                  <button
-                    className="btn-primary"
-                    onClick={handleDeepStrategy}
-                    disabled={premiumLoading || userGoal.trim().length < 2}
-                  >
-                    {premiumLoading ? 'Analyzing…' : serverCredits > 0 ? `Deep Strategy Analysis (remaining ${serverCredits} times)` : 'Deep Strategy Analysis $9.99 / 3 reports →'}
-                  </button>
-                  {premiumError && (
-                    <p style={{ color: '#d70015', fontSize: 13, marginTop: 8, textAlign: 'center' }}>{premiumError}</p>
-                  )}
-
-                  {/* Payment modal */}
-                  {paymentStep === PAYMENT_MODAL_STEPS.CHOOSE && (
-                    <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--separator)' }}>
-                      <p style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px', textAlign: 'center' }}>Deep Psychological Strategy</p>
-                      <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '0 0 12px', textAlign: 'center' }}>
-                        $9.99 = 3 full reports · Each with 7 sections · No expiry
-                      </p>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        <button
-                          className="btn-primary"
-                          onClick={() => handlePaymentChoice('alipay')}
-                        >
-                          $9.99 Alipay / Card Payment
-                        </button>
-                        <button
-                          className="btn-secondary"
-                          disabled
-                        >
-                          WeChat Pay (coming soon)
-                        </button>
-                        <button
-                          style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', fontSize: 13, cursor: 'pointer', padding: 8 }}
-                          onClick={() => setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN)}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                      
-                      {/* 示例报告预览 */}
-                      <SampleReportPreview />
-                    </div>
-                  )}
-                  {paymentStep === PAYMENT_MODAL_STEPS.PROCESSING && (
-                    <p style={{ fontSize: 13, textAlign: 'center', color: 'var(--text-secondary)', marginTop: 12 }}>
-                      Redirecting to payment…
-                    </p>
-                  )}
-                </>
-              )}
-
-              {premiumReport && (
-                <div style={{ marginTop: premiumUnlocked ? 16 : 0 }}>
-                  {/* A. Goal Feasibility */}
-                  <div className="premium-report-section">
-                    <div className="report-section-title">A. Goal Feasibility</div>
-                    <p className="report-section-content">{premiumReport.goal_feasibility.assessment}</p>
-                    <p className="psychology-note">{premiumReport.goal_feasibility.psychology_basis}</p>
-                  </div>
-                  {/* B. 沟通State */}
-                  <div className="premium-report-section">
-                    <div className="report-section-title">B. Communication State</div>
-                    <p className="report-section-content">{premiumReport.target_comm_state.observation}</p>
-                    <p className="psychology-note">{premiumReport.target_comm_state.psychology_basis}</p>
-                  </div>
-                  {/* C. 时间线 */}
-                  <div className="premium-report-section">
-                    <div className="report-section-title">C. Timeline & Rhythm</div>
-                    <p className="report-section-content">{premiumReport.timeline_analysis.pattern}</p>
-                    <p className="psychology-note">{premiumReport.timeline_analysis.psychology_basis}</p>
-                  </div>
-                  {/* D. 策略 */}
-                  <div className="premium-report-section">
-                    <div className="report-section-title">D. Strategies</div>
-                    {premiumReport.strategies.map((s, i) => (
-                      <div key={i} style={{ marginBottom: 14 }}>
-                        <p className="report-section-content" style={{ fontWeight: 600, marginBottom: 2 }}>
-                          {i + 1}. {s.principle}
-                        </p>
-                        <p className="psychology-note" style={{ marginBottom: 2 }}>{s.psychology}</p>
-                        <p className="report-section-content" style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '2px 0' }}>
-                          {s.application}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                  {/* E. 回复 */}
-                  <div className="premium-report-section">
-                    <div className="report-section-title">E. Ready-to-Use Replies (3)</div>
-                    {premiumReport.replies.map((r, i) => (
-                      <div key={i} style={{ marginBottom: 14 }}>
-                        <span className="tag" style={{ background: '#e8f0fe', color: '#0060df', display: 'inline-block', marginBottom: 4 }}>{r.style}</span>
-                        <div className="suggestion-card" style={{ margin: 0 }}>{r.text}</div>
-                        <p className="psychology-note">{r.psychology}</p>
-                        <p style={{ fontSize: 12, color: 'var(--text-tertiary)', margin: '2px 0 0' }}>
-                          Expected response: {r.expected_effect}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                  {/* F. 信号 */}
-                  <div className="premium-report-section">
-                    <div className="report-section-title">F. Post-send signals</div>
-                    <div className="report-subsection-title">Positive signals</div>
-                    {premiumReport.signals.positive.map((s, i) => (
-                      <p key={i} className="report-section-content" style={{ marginBottom: 4 }}>
-                        ✅ {s.signal} <span className="psychology-note">({s.psychology})</span>
-                      </p>
-                    ))}
-                    <div className="report-subsection-title">Neutral signals</div>
-                    {premiumReport.signals.neutral.map((s, i) => (
-                      <p key={i} className="report-section-content" style={{ marginBottom: 4 }}>
-                        ➖ {s.signal} <span className="psychology-note">({s.psychology})</span>
-                      </p>
-                    ))}
-                    <div className="report-subsection-title">Step-back signals</div>
-                    {premiumReport.signals.step_back.map((s, i) => (
-                      <p key={i} className="report-section-content" style={{ marginBottom: 4 }}>
-                        ⚠️ {s.signal} <span className="psychology-note">({s.psychology})</span>
-                      </p>
-                    ))}
-                  </div>
-                  {/* G. 风险 */}
-                  <div className="premium-report-section">
-                    <div className="report-section-title">G. Risk Alerts</div>
-                    <p className="report-section-content" style={{ fontSize: 13, marginBottom: 6 }}>
-                      ⚠️ Blind spots: {premiumReport.risk_reminder.blind_spots}
-                    </p>
-                    <p className="report-section-content" style={{ fontSize: 13, marginBottom: 6, color: 'var(--text-secondary)' }}>
-                      Missing evidence: {premiumReport.risk_reminder.missing_evidence}
-                    </p>
-                    <p className="psychology-note">{premiumReport.risk_reminder.principle_reminder}</p>
-                  </div>
-                </div>
               )}
             </div>
           )}
