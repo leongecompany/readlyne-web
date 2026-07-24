@@ -114,6 +114,26 @@ export default function AnalyzePage() {
     }
   }, [message, context, submitting]);
 
+  // 分享奖励
+  const [shareBonusClaimed, setShareBonusClaimed] = useState(() => {
+    try { return localStorage.getItem('readlyne_share_bonus') === '1'; }
+    catch { return false; }
+  });
+  const handleShare = useCallback(async () => {
+    const shareText = 'Readlyne — AI 聊天洞察，粘贴对话即可获取潜台词分析';
+    const shareUrl = 'https://readlyne.com';
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Readlyne', text: shareText, url: shareUrl });
+      } else {
+        await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+      }
+    } catch {} // 用户取消
+    setFreeRemaining(10);
+    setShareBonusClaimed(true);
+    try { localStorage.setItem('readlyne_share_bonus', '1'); } catch {}
+  }, []);
+
   return (
     <div>
       {/* Brand header */}
@@ -154,9 +174,18 @@ export default function AnalyzePage() {
           style={{ marginBottom: 16, height: 80 }}
         />
 
-        <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim() || (freeRemaining <= 0 && serverCredits <= 0 && creditsLoaded)}>
+        <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim() || (freeRemaining <= 0 && serverCredits <= 0 && creditsLoaded && shareBonusClaimed)}>
           {loading ? '分析中…' : freeRemaining > 0 ? `免费分析（剩余${freeRemaining}次）` : serverCredits > 0 ? `分析（剩余${serverCredits}次）` : '免费次数已用完'}
         </button>
+        {freeRemaining <= 0 && serverCredits <= 0 && creditsLoaded && !shareBonusClaimed && message.trim() && (
+          <button
+            className="btn-primary"
+            style={{ marginTop: 8, background: '#34c759' }}
+            onClick={handleShare}
+          >
+            ↗ 分享给好友，获得10次免费分析
+          </button>
+        )}
         {!message.trim() && !loading && (
           <button
             className="btn-secondary"

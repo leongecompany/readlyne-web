@@ -108,6 +108,26 @@ export default function AnalyzePage() {
     }
   }, [message, context, submitting]);
 
+  // Share bonus
+  const [shareBonusClaimed, setShareBonusClaimed] = useState(() => {
+    try { return localStorage.getItem('readlyne_share_bonus') === '1'; }
+    catch { return false; }
+  });
+  const handleShare = useCallback(async () => {
+    const shareText = 'Readlyne — AI relationship insights. Paste your chat, get instant analysis.';
+    const shareUrl = 'https://readlyne.com';
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Readlyne', text: shareText, url: shareUrl });
+      } else {
+        await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+      }
+    } catch {} // user cancelled
+    setFreeRemaining(10);
+    setShareBonusClaimed(true);
+    try { localStorage.setItem('readlyne_share_bonus', '1'); } catch {}
+  }, []);
+
   return (
     <div>
       {/* Brand header */}
@@ -148,9 +168,18 @@ export default function AnalyzePage() {
           style={{ marginBottom: 16, height: 80 }}
         />
 
-        <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim() || (freeRemaining <= 0 && serverCredits <= 0 && creditsLoaded)}>
+        <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim() || (freeRemaining <= 0 && serverCredits <= 0 && creditsLoaded && shareBonusClaimed)}>
           {loading ? 'Analyzing…' : freeRemaining > 0 ? `Free Analysis (${freeRemaining} remaining)` : serverCredits > 0 ? `Analyze (${serverCredits} remaining)` : 'Free analyses used up'}
         </button>
+        {freeRemaining <= 0 && serverCredits <= 0 && creditsLoaded && !shareBonusClaimed && message.trim() && (
+          <button
+            className="btn-primary"
+            style={{ marginTop: 8, background: '#34c759' }}
+            onClick={handleShare}
+          >
+            ↗ Share to get 10 free analyses
+          </button>
+        )}
         {!message.trim() && !loading && (
           <button
             className="btn-secondary"
