@@ -165,11 +165,13 @@ export default function AnalyzePage() {
 
   // 服务端 credit 状态
   const [serverCredits, setServerCredits] = useState(0);
+  const [freeRemaining, setFreeRemaining] = useState(10);
   const [creditsLoaded, setCreditsLoaded] = useState(false);
 
   const loadServerCredits = useCallback(async () => {
     const c = await fetchServerCredits();
-    setServerCredits(c);
+    setServerCredits(c.credits);
+    setFreeRemaining(c.free_remaining);
     setCreditsLoaded(true);
   }, []);
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 
-const API_BASE = process.env.NEXT_PUBLIC_WEB_API_BASE_URL || 'http://localhost:16888';
+const API_BASE = process.env.NEXT_PUBLIC_WEB_API_BASE_URL || 'https://readlyne-proxy.onrender.com';
 const ACCESS_CODE = 'rl2026';
 
 export default function DashboardPage() {

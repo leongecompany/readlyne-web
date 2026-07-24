@@ -162,11 +162,13 @@ export default function AnalyzePage() {
 
   // Server credit State
   const [serverCredits, setServerCredits] = useState(0);
+  const [freeRemaining, setFreeRemaining] = useState(10);
   const [creditsLoaded, setCreditsLoaded] = useState(false);
 
   const loadServerCredits = useCallback(async () => {
     const c = await fetchServerCredits();
-    setServerCredits(c);
+    setServerCredits(c.credits);
+    setFreeRemaining(c.free_remaining);
     setCreditsLoaded(true);
   }, []);
 
@@ -324,7 +326,7 @@ export default function AnalyzePage() {
 
       {/* Hero */}
       <div style={{ padding: '20px 16px 0' }}>
-        <h1 className="hero-title">Don\'t understand them?</h1>
+        <h1 className="hero-title">Don't understand them?</h1>
         <p className="hero-sub">Paste your chat. AI analyzes subtext, risks, and best replies.</p>
       </div>
 
@@ -355,7 +357,7 @@ export default function AnalyzePage() {
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim()}>
-          {loading ? 'Analyzing…' : 'Free Analysis'}
+          {loading ? 'Analyzing…' : freeRemaining > 0 ? `Free Analysis (${freeRemaining} remaining)` : serverCredits > 0 ? `Analyze (${serverCredits} remaining)` : 'Free analyses used up'}
         </button>
         {!message.trim() && !loading && (
           <button
@@ -373,7 +375,7 @@ export default function AnalyzePage() {
 
       {/* Privacy trust */}
       <div className="privacy-line">
-        <p>Chat Contentnot saved · Ephemeral analysis</p>
+        <p>Chat Content not saved · Ephemeral analysis</p>
       </div>
 
       {/* Error */}
@@ -416,11 +418,11 @@ export default function AnalyzePage() {
                     ),
                     '',
                     '——',
-                    '免费Analysis · Deep Strategy ¥9.9 unlock',
+                    'Free Analysis · Deep Strategy $9.99 unlock',
                   ].filter(Boolean).join('\n');
                   navigator.clipboard.writeText(text).then(() => {
                     const btn = document.activeElement as HTMLElement;
-                    if (btn) btn.textContent = '✅ has复制';
+                    if (btn) btn.textContent = '✅ Copied';
                     setTimeout(() => { if (btn) btn.textContent = 'Copy Results'; }, 2000);
                   });
                 }}
@@ -524,10 +526,10 @@ export default function AnalyzePage() {
                 Above is the free analysis · $9.99 unlocks <strong>7-section full report</strong>：
               </p>
               <div style={{ display: 'flex', justifyContent: 'center', gap: 12, marginTop: 6, fontSize: 11, color: 'var(--text-tertiary)', flexWrap: 'wrap' }}>
-                <span>心理学框架</span>
-                <span>5 条策略</span>
+                <span>Psychology</span>
+                <span>5 strategies</span>
                 <span>3 custom replies</span>
-                <span>信号预判</span>
+                <span>Signal tracking</span>
               </div>
             </div>
           )}
@@ -543,13 +545,13 @@ export default function AnalyzePage() {
 
               {!premiumUnlocked && (
                 <>
-                  <label className="input-label">你希望达到什么目的？</label>
+                  <label className="input-label">What's your goal?</label>
                   <textarea
                     className="text-input auto-textarea"
                     ref={goalRef}
                    
                     maxLength={300}
-                    placeholder="例如：我喜欢TA但不知道怎么表达，怕被拒绝。"
+                    placeholder="e.g. I like them but don't know how to express it, afraid of rejection."
                     value={userGoal}
                     onChange={(e) => setUserGoal(e.target.value)}
                     style={{ marginBottom: 12, fontSize: 14 }}
@@ -570,7 +572,7 @@ export default function AnalyzePage() {
                     onClick={handleDeepStrategy}
                     disabled={premiumLoading || userGoal.trim().length < 2}
                   >
-                    {premiumLoading ? 'Analyzing…' : serverCredits > 0 ? `Deep StrategyAnalysis（remaining ${serverCredits} times）` : 'Deep StrategyAnalysis ¥9.9 / 3times →'}
+                    {premiumLoading ? 'Analyzing…' : serverCredits > 0 ? `Deep Strategy Analysis (remaining ${serverCredits} times)` : 'Deep Strategy Analysis $9.99 / 3 reports →'}
                   </button>
                   {premiumError && (
                     <p style={{ color: '#d70015', fontSize: 13, marginTop: 8, textAlign: 'center' }}>{premiumError}</p>
@@ -588,19 +590,19 @@ export default function AnalyzePage() {
                           className="btn-primary"
                           onClick={() => handlePaymentChoice('alipay')}
                         >
-                          ¥9.9 支付宝支付
+                          $9.99 Alipay / Card Payment
                         </button>
                         <button
                           className="btn-secondary"
                           disabled
                         >
-                          微信支付（即将上线）
+                          WeChat Pay (coming soon)
                         </button>
                         <button
                           style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', fontSize: 13, cursor: 'pointer', padding: 8 }}
                           onClick={() => setPaymentStep(PAYMENT_MODAL_STEPS.HIDDEN)}
                         >
-                          取消
+                          Cancel
                         </button>
                       </div>
                       
@@ -638,7 +640,7 @@ export default function AnalyzePage() {
                   </div>
                   {/* D. 策略 */}
                   <div className="premium-report-section">
-                    <div className="report-section-title">D. 建议策略</div>
+                    <div className="report-section-title">D. Strategies</div>
                     {premiumReport.strategies.map((s, i) => (
                       <div key={i} style={{ marginBottom: 14 }}>
                         <p className="report-section-content" style={{ fontWeight: 600, marginBottom: 2 }}>
@@ -660,27 +662,27 @@ export default function AnalyzePage() {
                         <div className="suggestion-card" style={{ margin: 0 }}>{r.text}</div>
                         <p className="psychology-note">{r.psychology}</p>
                         <p style={{ fontSize: 12, color: 'var(--text-tertiary)', margin: '2px 0 0' }}>
-                          预期反应: {r.expected_effect}
+                          Expected response: {r.expected_effect}
                         </p>
                       </div>
                     ))}
                   </div>
                   {/* F. 信号 */}
                   <div className="premium-report-section">
-                    <div className="report-section-title">F. 发送后观察信号</div>
-                    <div className="report-subsection-title">积极信号</div>
+                    <div className="report-section-title">F. Post-send signals</div>
+                    <div className="report-subsection-title">Positive signals</div>
                     {premiumReport.signals.positive.map((s, i) => (
                       <p key={i} className="report-section-content" style={{ marginBottom: 4 }}>
                         ✅ {s.signal} <span className="psychology-note">({s.psychology})</span>
                       </p>
                     ))}
-                    <div className="report-subsection-title">中性信号</div>
+                    <div className="report-subsection-title">Neutral signals</div>
                     {premiumReport.signals.neutral.map((s, i) => (
                       <p key={i} className="report-section-content" style={{ marginBottom: 4 }}>
                         ➖ {s.signal} <span className="psychology-note">({s.psychology})</span>
                       </p>
                     ))}
-                    <div className="report-subsection-title">建议后退信号</div>
+                    <div className="report-subsection-title">Step-back signals</div>
                     {premiumReport.signals.step_back.map((s, i) => (
                       <p key={i} className="report-section-content" style={{ marginBottom: 4 }}>
                         ⚠️ {s.signal} <span className="psychology-note">({s.psychology})</span>
@@ -691,10 +693,10 @@ export default function AnalyzePage() {
                   <div className="premium-report-section">
                     <div className="report-section-title">G. Risk Alerts</div>
                     <p className="report-section-content" style={{ fontSize: 13, marginBottom: 6 }}>
-                      ⚠️ 盲区: {premiumReport.risk_reminder.blind_spots}
+                      ⚠️ Blind spots: {premiumReport.risk_reminder.blind_spots}
                     </p>
                     <p className="report-section-content" style={{ fontSize: 13, marginBottom: 6, color: 'var(--text-secondary)' }}>
-                      缺乏证据: {premiumReport.risk_reminder.missing_evidence}
+                      Missing evidence: {premiumReport.risk_reminder.missing_evidence}
                     </p>
                     <p className="psychology-note">{premiumReport.risk_reminder.principle_reminder}</p>
                   </div>

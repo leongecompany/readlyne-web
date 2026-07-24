@@ -1,5 +1,5 @@
 // Frontend API calls — goes through Render backend
-const API_BASE = process.env.NEXT_PUBLIC_WEB_API_BASE_URL || 'http://localhost:16888';
+const API_BASE = process.env.NEXT_PUBLIC_WEB_API_BASE_URL || 'https://readlyne-proxy.onrender.com';
 
 function getInstallationId(): string {
   if (typeof window === 'undefined') return 'web-anonymous';
@@ -129,14 +129,14 @@ export async function deepStrategy(data: {
 }
 
 // 查询服务端剩余 credits
-export async function getCredits(): Promise<number> {
+export async function getCredits(): Promise<{ credits: number; free_remaining: number }> {
   try {
     const res = await fetch(`${API_BASE}/web/credits`, {
       headers: headers(),
     });
     const data = await res.json();
-    return data.ok ? data.credits : 0;
-  } catch { return 0; }
+    return data.ok ? { credits: data.credits || 0, free_remaining: data.free_remaining ?? 10 } : { credits: 0, free_remaining: 0 };
+  } catch { return { credits: 0, free_remaining: 0 }; }
 }
 
 // 手动验证 Stripe session 并恢复 credits（webhook fallback）
