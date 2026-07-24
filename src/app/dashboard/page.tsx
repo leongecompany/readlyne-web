@@ -58,10 +58,12 @@ export default function DashboardPage() {
     );
   }
 
-  const emails = data.feedback.filter((f: any) => f.text?.startsWith('[内测申请]'));
-  const features = data.feedback.filter((f: any) => f.text?.startsWith('[功能建议]'));
+  const BETA_LABELS = ['[内测申请]', '[Beta Signup]'];
+  const FEATURE_LABELS = ['[功能建议]', '[Feature Request]'];
+  const emails = data.feedback.filter((f: any) => BETA_LABELS.some((l) => f.text?.startsWith(l)));
+  const features = data.feedback.filter((f: any) => FEATURE_LABELS.some((l) => f.text?.startsWith(l)));
   const other = data.feedback.filter((f: any) =>
-    !f.text?.startsWith('[内测申请]') && !f.text?.startsWith('[功能建议]')
+    !BETA_LABELS.concat(FEATURE_LABELS).some((l) => f.text?.startsWith(l))
   );
 
   return (
