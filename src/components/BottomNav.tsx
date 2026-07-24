@@ -5,31 +5,35 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 function useTheme() {
-  const [theme, setTheme] = useState<'dark'|'light'>('dark');
+  const [theme, setTheme] = useState<'dark'|'light'>('light');
 
   useEffect(() => {
     const saved = localStorage.getItem('readlyne_theme');
-    if (saved === 'light') {
+    let next: 'dark'|'light';
+    if (saved === 'dark' || saved === 'light') {
+      next = saved;
+    } else {
+      // First visit — respect system preference
+      next = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    applyTheme(next);
+    setTheme(next);
+  }, []);
+
+  const applyTheme = (t: 'dark'|'light') => {
+    if (t === 'light') {
       document.documentElement.classList.add('light');
       document.documentElement.classList.remove('dark');
-      setTheme('light');
     } else {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
-      setTheme('dark');
     }
-  }, []);
+  };
 
   const toggle = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('readlyne_theme', next);
-    if (next === 'dark') {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-    } else {
-      document.documentElement.classList.add('light');
-      document.documentElement.classList.remove('dark');
-    }
+    applyTheme(next);
     setTheme(next);
   };
 

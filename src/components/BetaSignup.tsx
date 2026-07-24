@@ -47,7 +47,7 @@ export default function BetaSignup({ locale = 'cn' }: { locale?: string }) {
 
   return (
     <div style={{ marginTop: 12 }}>
-      <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', margin: '0 0 8px' }}>
+      <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 8px' }}>
         {cn ? '加入内测，第一时间获取新功能' : 'Join the beta for early access'}
       </p>
       <div style={{ display: 'flex', gap: 8 }}>
@@ -63,19 +63,15 @@ export default function BetaSignup({ locale = 'cn' }: { locale?: string }) {
         <button
           onClick={handleSubmit}
           disabled={status !== 'idle' || !email.trim()}
-          style={{
-            padding: '10px 20px', background: status === 'sent' ? '#34c759' : 'var(--accent)',
-            color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600,
-            cursor: status !== 'idle' || !email.trim() ? 'not-allowed' : 'pointer',
-            opacity: status !== 'idle' || !email.trim() ? 0.5 : 1, whiteSpace: 'nowrap',
-          }}
+          className="beta-btn"
+          style={{ background: status === 'sent' ? '#34c759' : undefined }}
         >
           {status === 'sending' ? '…' : status === 'sent' ? (cn ? '✓ 已提交' : '✓ Done') : (cn ? '加入' : 'Join')}
         </button>
       </div>
       {error && <p style={{ fontSize: 12, color: '#d70015', margin: '4px 0 0' }}>{error}</p>}
 
-      <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', margin: '16px 0 8px' }}>
+      <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', margin: '16px 0 8px' }}>
         {cn ? '你希望增加什么功能？' : 'What features would you like?'}
       </p>
       <div style={{ display: 'flex', gap: 8 }}>
@@ -91,12 +87,8 @@ export default function BetaSignup({ locale = 'cn' }: { locale?: string }) {
         <button
           onClick={handleFeatureSubmit}
           disabled={featureStatus !== 'idle' || !featureText.trim()}
-          style={{
-            padding: '10px 20px', background: featureStatus === 'sent' ? '#34c759' : 'var(--accent)',
-            color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600,
-            cursor: featureStatus !== 'idle' || !featureText.trim() ? 'not-allowed' : 'pointer',
-            opacity: featureStatus !== 'idle' || !featureText.trim() ? 0.5 : 1, whiteSpace: 'nowrap',
-          }}
+          className="beta-btn"
+          style={{ background: featureStatus === 'sent' ? '#34c759' : undefined }}
         >
           {featureStatus === 'sending' ? '…' : featureStatus === 'sent' ? '✓' : (cn ? '提交' : 'Submit')}
         </button>
@@ -105,7 +97,7 @@ export default function BetaSignup({ locale = 'cn' }: { locale?: string }) {
       <div style={{ marginTop: 16, textAlign: 'center' }}>
         <button
           onClick={() => setShowAppModal(true)}
-          style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
         >
           📱 {cn ? 'App 下载' : 'Download App'}
         </button>
@@ -113,9 +105,9 @@ export default function BetaSignup({ locale = 'cn' }: { locale?: string }) {
 
       {showAppModal && (
         <div onClick={() => setShowAppModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: '28px 24px', textAlign: 'center', maxWidth: 300, width: '100%' }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: 'var(--surface)', border: '1px solid var(--border-soft)', borderRadius: 12, padding: '28px 24px', textAlign: 'center', maxWidth: 300, width: '100%', boxShadow: 'var(--shadow-md)' }}>
             <p style={{ fontSize: 40, margin: '0 0 12px' }}>🚧</p>
-            <p style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px', color: 'var(--text)' }}>Coming Soon</p>
+            <p style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px', color: 'var(--text-primary)' }}>Coming Soon</p>
             <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: '0 0 16px' }}>
               {cn ? 'iOS App 即将上线，敬请期待' : 'iOS app coming soon. Stay tuned!'}
             </p>

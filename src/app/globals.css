@@ -5,6 +5,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;600&family=Gaegu:wght@400;700&family=Patrick+Hand&display=swap');
 
+/* ─── Design Tokens (Light) ─── */
 :root {
   --background: #faf9f5;
   --surface: #ffffff;
@@ -16,7 +17,7 @@
   --text-secondary: #667085;
   --text-muted: #a0a8b4;
   --border-main: #333;
-  --border-soft: #555;
+  --border-soft: #999;
   --shadow: #e0ddd6;
   --danger: #d70015;
   --success: #34c759;
@@ -27,6 +28,60 @@
   --radius-card: 10px 13px 9px 12px / 12px 10px 13px 11px;
   --radius-btn: 3px 4px;
   --radius-input: 6px 7px 5px 7px;
+  /* Legacy aliases */
+  --accent: var(--text-primary);
+  --text: var(--text-primary);
+  --separator: var(--shadow);
+  --card-border: var(--border-soft);
+  --card: var(--surface);
+  --bg-secondary: var(--surface-soft);
+  --trust-bg: var(--surface-soft);
+  --btn-secondary-border: var(--border-soft);
+  --input-bg: var(--surface);
+}
+
+/* ─── Dark Mode ─── */
+html.dark {
+  --background: #1a1a1a;
+  --surface: #2a2a2a;
+  --surface-soft: #1f1f1f;
+  --surface-blue: #1e2a3a;
+  --surface-purple: #2a1f3a;
+  --surface-yellow: #3a3520;
+  --text-primary: #e8e8e8;
+  --text-secondary: #999;
+  --text-muted: #666;
+  --border-main: #555;
+  --border-soft: #444;
+  --shadow: #111;
+  /* Legacy aliases */
+  --accent: var(--text-primary);
+  --text: var(--text-primary);
+  --separator: var(--shadow);
+  --card-border: var(--border-soft);
+  --card: var(--surface);
+  --bg-secondary: var(--surface-soft);
+  --trust-bg: var(--surface-soft);
+  --btn-secondary-border: var(--border-soft);
+  --input-bg: var(--surface);
+}
+
+/* Also match system preference */
+@media (prefers-color-scheme: dark) {
+  html:not(.light) {
+    --background: #1a1a1a;
+    --surface: #2a2a2a;
+    --surface-soft: #1f1f1f;
+    --surface-blue: #1e2a3a;
+    --surface-purple: #2a1f3a;
+    --surface-yellow: #3a3520;
+    --text-primary: #e8e8e8;
+    --text-secondary: #999;
+    --text-muted: #666;
+    --border-main: #555;
+    --border-soft: #444;
+    --shadow: #111;
+  }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -125,7 +180,7 @@ body {
 }
 .text-input:focus {
   box-shadow: var(--shadow-sm), 0 0 0 2px var(--surface-purple);
-  background: #faf7ff;
+  background: var(--surface);
 }
 .text-input::placeholder { color: var(--text-muted); }
 
@@ -166,7 +221,7 @@ body {
 .hero-sub {
   font-size: 14px; color: var(--text-secondary);
   line-height: 1.45;
-  margin: 0 0 16px; padding: 0 16px;
+  margin: 0 0 32px; padding: 0 16px;
 }
 
 /* ─── Brand header ─── */
@@ -192,7 +247,7 @@ body {
 
 /* ─── Analysis results ─── */
 .intention-item { padding: 12px 0; }
-.intention-item + .intention-item { border-top: 1px solid var(--shadow); }
+.intention-item + .intention-item { border-top: 1px solid var(--separator); }
 .intention-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
 .intention-number {
   display: inline-flex; align-items: center; justify-content: center;
@@ -206,7 +261,7 @@ body {
 .intention-explanation { font-size: 14px; line-height: 1.5; color: var(--text-secondary); margin: 0; }
 
 .risk-item { padding: 10px 0; }
-.risk-item + .risk-item { border-top: 1px solid var(--shadow); }
+.risk-item + .risk-item { border-top: 1px solid var(--separator); }
 .risk-header { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
 .risk-title { font-size: 13px; font-weight: 500; color: var(--text-primary); margin: 0; }
 .risk-suggestion { font-size: 12px; color: var(--text-secondary); margin: 0; line-height: 1.45; }
@@ -277,7 +332,7 @@ body {
 .app-cta .cta-buttons { display: flex; flex-direction: column; gap: 8px; }
 
 /* ─── App promo ─── */
-.app-promo { text-align: center; padding: 24px 20px 12px; margin: 12px 16px 0; }
+.app-promo { text-align: center; padding: 24px 20px 12px; margin: 12px 16px 0; background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-card); box-shadow: var(--shadow-sm); }
 .app-promo p { font-size: 12px; color: var(--text-muted); margin: 0 0 4px; }
 .app-promo .app-name { font-size: 16px; font-weight: 600; font-family: var(--font-display); color: var(--text-primary); margin-bottom: 10px; }
 
@@ -309,7 +364,7 @@ body {
 .goal-chip.selected { background: var(--surface-purple); color: var(--text-primary); }
 
 .premium-report-section { padding: 12px 0; }
-.premium-report-section + .premium-report-section { border-top: 1px solid var(--shadow); }
+.premium-report-section + .premium-report-section { border-top: 1px solid var(--separator); }
 .premium-report-section .report-section-title {
   font-size: 12px; font-weight: 600;
   font-family: var(--font-display);
@@ -342,8 +397,28 @@ body {
   text-align: center;
 }
 
+/* ═══════════ Beta Signup Buttons ═══════════ */
+.beta-btn {
+  padding: 10px 18px;
+  background: var(--surface-purple);
+  color: var(--text-primary);
+  border: 1px solid var(--border-main);
+  border-radius: var(--radius-btn);
+  font-size: 14px; font-weight: 600;
+  font-family: var(--font-display);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: transform 100ms ease, box-shadow 100ms ease;
+  white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 56px;
+}
+.beta-btn:hover { transform: translate(-1px, -1px); box-shadow: 2px 2px 0 var(--shadow); }
+.beta-btn:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--shadow); }
+.beta-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; background: var(--surface-soft); }
+
 /* ═══════════ Site Footer ═══════════ */
-.site-footer { padding: 28px 20px 14px; margin: 20px 16px 0; border-top: 1px solid var(--shadow); text-align: center; }
+.site-footer { padding: 28px 20px 14px; margin: 20px 16px 0; border-top: 1px solid var(--separator); text-align: center; color: var(--text-muted); }
 .footer-inner { max-width: 480px; margin: 0 auto; }
 .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 18px; margin-bottom: 16px; }
 .footer-links a { color: var(--text-secondary); text-decoration: none; font-size: 12px; transition: color 100ms ease; }
@@ -397,12 +472,12 @@ body {
 .pricing-price { font-size: 32px; font-weight: 600; color: var(--text-primary); }
 .pricing-unit { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
 .pricing-card ul { list-style: none; padding: 0; margin: 0; }
-.pricing-card li { font-size: 12px; color: var(--text-secondary); padding: 3px 0; border-top: 1px solid var(--shadow); }
+.pricing-card li { font-size: 12px; color: var(--text-secondary); padding: 3px 0; border-top: 1px solid var(--separator); }
 .pricing-card li:first-child { border-top: none; }
 
 /* ─── Features List ─── */
 .features-list { margin: 20px 0; }
-.feature-item { display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid var(--shadow); }
+.feature-item { display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid var(--separator); }
 .feature-item:first-child { border-top: none; }
 .feature-icon { font-size: 24px; flex-shrink: 0; width: 36px; text-align: center; }
 .feature-item h3 { font-size: 15px; font-weight: 600; font-family: var(--font-display); margin: 0 0 3px; color: var(--text-primary); }
@@ -410,7 +485,7 @@ body {
 
 /* ─── FAQ ─── */
 .faq-list { margin: 20px 0; }
-.faq-item { border-top: 1px solid var(--shadow); }
+.faq-item { border-top: 1px solid var(--separator); }
 .faq-item:first-child { border-top: none; }
 .faq-question {
   display: flex; justify-content: space-between; align-items: center;
@@ -425,7 +500,7 @@ body {
 
 /* ─── Contact ─── */
 .contact-methods { margin: 20px 0; }
-.contact-item { display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid var(--shadow); align-items: center; }
+.contact-item { display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid var(--separator); align-items: center; }
 .contact-item:first-child { border-top: none; }
 .contact-icon { font-size: 22px; flex-shrink: 0; width: 32px; text-align: center; }
 .contact-item h3 { font-size: 13px; font-weight: 600; margin: 0 0 2px; color: var(--text-primary); }
@@ -523,7 +598,7 @@ body {
 .home-pricing-amount { font-size: 32px; font-weight: 600; color: var(--text-primary); margin-bottom: 0; }
 .home-pricing-unit { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
 .home-pricing-card ul { list-style: none; padding: 0; margin: 0 0 16px; }
-.home-pricing-card li { font-size: 12px; color: var(--text-secondary); padding: 3px 0; border-top: 1px solid var(--shadow); }
+.home-pricing-card li { font-size: 12px; color: var(--text-secondary); padding: 3px 0; border-top: 1px solid var(--separator); }
 .home-pricing-card li:first-child { border-top: none; }
 
 .home-app-cta {
