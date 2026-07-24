@@ -37,7 +37,7 @@ export default function TermsPage() {
 
         <h2>5. Payments & Refunds</h2>
         <p>
-          Payments are processed via Stripe. All prices are in USD unless stated otherwise.
+          Payments are processed via Stripe. All prices are in Australian Dollars (A$).
         </p>
         <ul>
           <li>Purchased credits (analysis packs) are non-refundable</li>

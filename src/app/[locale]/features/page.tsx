@@ -11,7 +11,6 @@ export default function FeaturesPage() {
     { title: '意图解读', desc: '揭示消息背后的可能潜台词，附可信度评估和原文引用依据。' },
     { title: '风险评估', desc: '及时发现沟通误读风险、情绪触发点和对话陷阱，防患于未然。' },
     { title: '回复建议', desc: '三种风格可选——保守、自然、主动——每一条都附为什么有效和潜在风险。' },
-    { title: '深度策略', desc: '7 维心理学策略报告：目标可行性、沟通状态、时间线分析、5条策略、3条定制回复、信号追踪。' },
     { title: '关系追踪（App）', desc: '在 iOS App 中建立关系档案，让 AI 分析越来越贴合你们的独家互动模式。' },
     { title: '隐私优先', desc: '聊天内容实时分析后不留存。不需要的权限不索要。随时可请求删除数据。' },
   ] : [
@@ -19,7 +18,6 @@ export default function FeaturesPage() {
     { title: 'Intention Analysis', desc: 'Uncover hidden meanings behind messages with confidence ratings and evidence references.' },
     { title: 'Risk Assessment', desc: 'Spot communication risks, emotional triggers, and conversational pitfalls before they escalate.' },
     { title: 'Reply Suggestions', desc: 'Three styles — conservative, natural, bold — each with why it works and risk notes.' },
-    { title: 'Deep Strategy', desc: '7-section psychological report: goal feasibility, communication state, timeline analysis, 5 strategies, 3 custom replies, signal tracking.' },
     { title: 'Relationship Tracking (App)', desc: 'Build relationship profiles in the iOS app for increasingly personalized AI insights.' },
     { title: 'Privacy First', desc: 'Chat content analyzed in real-time and not stored. No unnecessary permissions. Full data deletion on request.' },
   ];
