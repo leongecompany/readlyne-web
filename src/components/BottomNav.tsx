@@ -66,7 +66,7 @@ export default function BottomNav() {
           padding: 0,
         }}
       >
-        {theme === 'dark' ? '☀️' : '🌙'}
+        {theme === 'dark' ? '☀' : '☽'}
       </button>
       <nav className="bottom-nav">
         <div className="bottom-nav-inner">

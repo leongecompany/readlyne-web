@@ -158,7 +158,7 @@ export default function AnalyzePage() {
           placeholder={"我：你今天怎么不理我了？\nTA：没有啊，最近工作比较忙。"}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          style={{ marginBottom: 10, height: 128 }}
+          style={{ marginBottom: 10, height: 100 }}
         />
 
         <label className="input-label">
@@ -171,7 +171,7 @@ export default function AnalyzePage() {
           placeholder="例如：认识两个月，最近感觉有点冷淡…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
-          style={{ marginBottom: 10, height: 56 }}
+          style={{ marginBottom: 10, height: 44 }}
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim() || (freeRemaining <= 0 && serverCredits <= 0 && creditsLoaded && shareBonusClaimed)}>

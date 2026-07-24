@@ -95,7 +95,7 @@ export default function ReplyPage() {
           placeholder="What did they say? Describe your situation…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          style={{ marginBottom: 10, height: 128 }}
+          style={{ marginBottom: 10, height: 100 }}
         />
 
         <label className="input-label">
@@ -108,7 +108,7 @@ export default function ReplyPage() {
           placeholder="e.g. In a situationship, had a small argument yesterday…"
           value={context}
           onChange={(e) => setContext(e.target.value)}
-          style={{ marginBottom: 10, height: 56 }}
+          style={{ marginBottom: 10, height: 44 }}
         />
 
         <button className="btn-primary" onClick={handleSubmit} disabled={loading || !input.trim()}>
