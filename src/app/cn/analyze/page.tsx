@@ -154,7 +154,7 @@ export default function AnalyzePage() {
           style={{ marginBottom: 16, height: 80 }}
         />
 
-        <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim()}>
+        <button className="btn-primary" onClick={handleSubmit} disabled={loading || !message.trim() || (freeRemaining <= 0 && serverCredits <= 0 && creditsLoaded)}>
           {loading ? '分析中…' : freeRemaining > 0 ? `免费分析（剩余${freeRemaining}次）` : serverCredits > 0 ? `分析（剩余${serverCredits}次）` : '免费次数已用完'}
         </button>
         {!message.trim() && !loading && (
