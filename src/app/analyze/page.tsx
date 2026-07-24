@@ -383,7 +383,7 @@ export default function AnalyzePage() {
       </div>
 
       {/* Input — Liquid Glass */}
-      <div className="card glass">
+      <div className="card">
         <label className="input-label">聊天内容</label>
         <textarea
           className="text-input auto-textarea"
@@ -430,7 +430,7 @@ export default function AnalyzePage() {
 
       {/* Error — Liquid Glass */}
       {error && (
-        <div className="card glass error-banner">
+        <div className="card error-banner">
           <p style={{ color: '#d70015', fontSize: 14, margin: 0 }}>{error}</p>
           {opRef.current?.status === 'unknown' && (
             <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
@@ -447,7 +447,7 @@ export default function AnalyzePage() {
 
       {/* Loading */}
       {loading && (
-        <div className="card glass">
+        <div className="card">
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', textAlign: 'center', margin: 0 }}>
             AI 正在分析聊天内容…
           </p>
@@ -494,7 +494,7 @@ export default function AnalyzePage() {
 
           {/* 直观判断 */}
           {analysis.relationship_signal && (
-            <div className="card glass">
+            <div className="card">
               <div className="section-title">直观判断</div>
               <p className="result-text" style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.6 }}>
                 {analysis.relationship_signal.summary}
@@ -504,7 +504,7 @@ export default function AnalyzePage() {
 
           {/* 可能含义 */}
           {analysis.possible_intentions && analysis.possible_intentions.length > 0 && (
-            <div className="card glass">
+            <div className="card">
               <div className="section-title">可能含义</div>
               {analysis.possible_intentions.map((item, i) => (
                 <div key={i} style={{
@@ -534,7 +534,7 @@ export default function AnalyzePage() {
 
           {/* 误读风险 */}
           {analysis.communication_risks && analysis.communication_risks.length > 0 && (
-            <div className="card glass">
+            <div className="card">
               <div className="section-title">误读风险</div>
               {analysis.communication_risks.map((item, i) => (
                 <div key={i} style={{
@@ -555,7 +555,7 @@ export default function AnalyzePage() {
 
           {/* 回复参考 */}
           {analysis.reply_suggestions && analysis.reply_suggestions.length > 0 && (
-            <div className="card glass">
+            <div className="card">
               <div className="section-title">回复参考</div>
               <div className="suggestion-card">{analysis.reply_suggestions[0].text}</div>
               <p className="text-secondary" style={{ fontSize: 13, marginTop: 4 }}>
@@ -566,7 +566,7 @@ export default function AnalyzePage() {
 
           {/* 下一步 */}
           {analysis.next_step && (
-            <div className="card glass">
+            <div className="card">
               <div className="section-title">下一步</div>
               <p style={{ fontSize: 15, fontWeight: 500, marginBottom: 4, color: 'var(--text)' }}>
                 {analysis.next_step.action}

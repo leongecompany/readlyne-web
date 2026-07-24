@@ -53,7 +53,7 @@ export default function BottomNav() {
       <button
         onClick={toggle}
         aria-label="Toggle theme"
-        className="glass"
+        className=""
         style={{
           position: 'fixed', bottom: 76, right: 16,
           width: 38, height: 38, borderRadius: 19,
@@ -64,7 +64,7 @@ export default function BottomNav() {
       >
         {theme === 'dark' ? '☀️' : '🌙'}
       </button>
-      <nav className="bottom-nav glass-header" style={{ backdropFilter: 'blur(30px) saturate(1.5)', WebkitBackdropFilter: 'blur(30px) saturate(1.5)' }}>
+      <nav className="bottom-nav">
         <div className="bottom-nav-inner">
           {items.map((item) => {
             const active = pathname.startsWith(item.href);
