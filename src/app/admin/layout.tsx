@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, ReactNode } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { stats } from '@/lib/admin-mock';
+
+const API_BASE = process.env.NEXT_PUBLIC_WEB_API_BASE_URL || 'https://readlyne-proxy.onrender.com';
 
 const NAV = [
   { href: '/admin', label: 'Overview', icon: '◉' },
@@ -16,6 +18,35 @@ const NAV = [
 export default function AdminLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [online, setOnline] = useState<number | null>(null);
+
+  // Fetch real online count
+  useEffect(() => {
+    const token = getAdminToken();
+    if (!token) return;
+    fetch(`${API_BASE}/web/admin/online`, {
+      headers: { 'x-admin-token': token }
+    })
+      .then(r => r.json())
+      .then(d => { if (d.ok) setOnline(d.online); })
+      .catch(() => {});
+    // Poll every 30s
+    const interval = setInterval(() => {
+      fetch(`${API_BASE}/web/admin/online`, {
+        headers: { 'x-admin-token': token }
+      })
+        .then(r => r.json())
+        .then(d => { if (d.ok) setOnline(d.online); })
+        .catch(() => {});
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  function getAdminToken(): string {
+    if (typeof window === 'undefined') return '';
+    const p = new URLSearchParams(window.location.search);
+    return p.get('token') || '';
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: '#fff', color: '#000', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif', display: 'flex' }}>
@@ -39,7 +70,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
         <div style={{ padding: '8px 12px 16px', borderBottom: '1px solid #f0f0f0', marginBottom: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#34c759' }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34c759', display: 'inline-block' }} />
-            Online: {stats.liveOnline}
+            Online: {online !== null ? online : stats.liveOnline}
           </div>
         </div>
 
