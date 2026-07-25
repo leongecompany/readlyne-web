@@ -187,6 +187,20 @@ const [tab, setTab] = useState<Pg>('overview');
               </div>
             )}
 
+            {s && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 20, padding: '10px 0', borderTop: '1px solid #f0f0f0' }}>
+                <span style={{ fontSize: 11, color: '#8e8e93', fontWeight: 500 }}>API 成本预估</span>
+                <span style={{ background: '#f5f5f5', borderRadius: 6, padding: '3px 10px', fontSize: 12 }}>
+                  今日约 <b>${((s.today.total_requests || 0) * 0.00015).toFixed(3)}</b>
+                </span>
+                <span style={{ background: '#f5f5f5', borderRadius: 6, padding: '3px 10px', fontSize: 12 }}>
+                  本月约 <b>${((s.today.total_requests || 0) * 30 * 0.00015).toFixed(2)}</b>
+                </span>
+                <span style={{ fontSize: 10, color: '#aeaeb2' }}>基于 DeepSeek v4 均价，仅供参考</span>
+              </div>
+            )}
+
+
             {/* Chart */}
             {traffic.length > 0 && (
               <div style={{ marginBottom: 48 }}>
