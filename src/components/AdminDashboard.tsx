@@ -243,15 +243,15 @@ export default function AdminDashboard() {
               <StatCard label="分析" value={stats.today.analyze_count} />
               <StatCard label="回复" value={stats.today.reply_count} />
               <StatCard label="深度策略" value={stats.today.deep_count} />
-              <StatCard label="付费用户" value={stats.paid_users} color="#0060df" />
-              <StatCard label="注册设备" value={stats.installations} />
             </div>
           </Section>
 
           <Section title="累计数据">
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <StatCard label="历史总请求" value={stats.total.total_all_time} />
               <StatCard label="历史总用户" value={stats.total.total_users_all_time} />
+              <StatCard label="注册设备" value={stats.installations} />
+              <StatCard label="付费用户（历史）" value={stats.paid_users} color="#0060df" />
             </div>
           </Section>
 
