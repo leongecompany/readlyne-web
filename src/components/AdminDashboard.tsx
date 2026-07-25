@@ -46,6 +46,7 @@ const [tab, setTab] = useState<Pg>('overview');
   const [在线, setOnline] = useState<number>(0);
   const [users, setUsers] = useState<any[]>([]);
   const [errors, setErrors] = useState<any[]>([]);
+  const [countries, setCountries] = useState<any[]>([]);
 
   // Auth check
   useEffect(() => {
@@ -68,6 +69,7 @@ const [tab, setTab] = useState<Pg>('overview');
     if (o.ok) setOnline(o.在线);
     if (u.ok) setUsers(u.users?.slice(0, 15) || []);
     if (e.ok) setErrors(e.errors?.slice(0, 8) || []);
+    if (s.ok && s.countries) setCountries(s.countries);
   }, []);
 
   useEffect(() => { if (auth) load(); }, [auth, load]);
@@ -222,6 +224,34 @@ const [tab, setTab] = useState<Pg>('overview');
                       </linearGradient>
                     </defs>
                   </svg>
+                </div>
+              </div>
+            )}
+
+            {/* Countries */}
+            {countries.length > 0 && (
+              <div style={{ marginBottom: 48 }}>
+                <div style={{ marginBottom: 12 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#8e8e93' }}>用户地区</span>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {countries.map((c: any, i: number) => {
+                    const maxC = Math.max(...countries.map(x => x.count), 1);
+                    return (
+                      <div key={i} style={{
+                        display: 'flex', alignItems: 'center', gap: 6,
+                        background: '#fafafa', borderRadius: 8, padding: '6px 12px',
+                        fontSize: 12, border: '1px solid #f0f0f0',
+                      }}>
+                        <span style={{ fontWeight: 600 }}>{c.country === 'Unknown' || !c.country ? '其他' : c.country}</span>
+                        <span style={{
+                          background: '#0066ff', color: '#fff', fontSize: 10, fontWeight: 600,
+                          padding: '1px 6px', borderRadius: 10, minWidth: 20, textAlign: 'center',
+                          opacity: Math.max(0.4, c.count / maxC),
+                        }}>{c.count}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
