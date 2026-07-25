@@ -60,13 +60,13 @@ const [tab, setTab] = useState<Pg>('overview');
     const [s, t, o, u, e] = await Promise.all([
       apiFetch('/web/admin/stats'),
       apiFetch('/web/admin/traffic?days=30'),
-      apiFetch('/web/admin/在线'),
+      apiFetch('/web/admin/online'),
       apiFetch('/web/admin/users'),
       apiFetch('/web/admin/errors'),
     ]);
     if (s.ok) setStats(s);
     if (t.ok) setTraffic(t.days || []);
-    if (o.ok) setOnline(o.在线);
+    if (o.ok) setOnline(o.online);
     if (u.ok) setUsers(u.users?.slice(0, 15) || []);
     if (e.ok) setErrors(e.errors?.slice(0, 8) || []);
     if (s.ok && s.countries) setCountries(s.countries);
@@ -78,8 +78,8 @@ const [tab, setTab] = useState<Pg>('overview');
   useEffect(() => {
     if (!auth) return;
     const int = setInterval(async () => {
-      const d = await apiFetch('/web/admin/在线');
-      if (d.ok) setOnline(d.在线);
+      const d = await apiFetch('/web/admin/online');
+      if (d.ok) setOnline(d.online);
     }, 30000);
     return () => clearInterval(int);
   }, [auth]);
@@ -135,7 +135,7 @@ const [tab, setTab] = useState<Pg>('overview');
             <span style={{ fontSize: 11, color: '#aeaeb2', fontWeight: 500 }}>Admin</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {在线 > 0 && (
+            {(
               <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#34c759' }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34c759', display: 'inline-block' }} />
                 {在线} 在线
