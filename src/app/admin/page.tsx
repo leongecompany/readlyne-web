@@ -1,166 +1,161 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getStats, getTraffic, getOnline, getUsers, getRevenue, formatTime } from '@/lib/admin-api';
 
-export default function AdminOverview() {
+const API_BASE = process.env.NEXT_PUBLIC_WEB_API_BASE_URL || 'https://readlyne-proxy.onrender.com';
+
+function getToken(): string {
+  if (typeof window === 'undefined') return '';
+  return new URLSearchParams(window.location.search).get('token') || '';
+}
+
+async function api(path: string): Promise<any> {
+  const token = getToken();
+  if (!token) return { ok: false };
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: { 'x-admin-token': token },
+      signal: AbortSignal.timeout(8000),
+    });
+    return res.json();
+  } catch { return { ok: false, error: 'NETWORK_ERROR' }; }
+}
+
+function fmt(iso: string): string {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return d.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+const TABS = [
+  { key: 'overview', label: 'Overview', icon: '◉' },
+  { key: 'users', label: 'Users', icon: '◎' },
+  { key: 'revenue', label: 'Revenue', icon: '◈' },
+  { key: 'errors', label: 'Errors', icon: '◌' },
+  { key: 'settings', label: 'Settings', icon: '◊' },
+];
+
+export default function AdminPage() {
+  const [tab, setTab] = useState('overview');
+  const [online, setOnline] = useState<number | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [traffic, setTraffic] = useState<any[]>([]);
-  const [online, setOnline] = useState<number>(0);
   const [users, setUsers] = useState<any[]>([]);
   const [revenue, setRevenue] = useState<any>(null);
+  const [errors, setErrors] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getStats().then(d => d.ok && setStats(d));
-    getTraffic(30).then(d => d.ok && setTraffic(d.days));
-    getOnline().then(d => d.ok && setOnline(d.online));
-    getUsers().then(d => d.ok && setUsers(d.users.slice(0, 20)));
-    getRevenue().then(d => d.ok && setRevenue(d));
+    const h = window.location.hash.replace('#', '') || 'overview';
+    setTab(h);
   }, []);
 
-  const maxTraffic = Math.max(...traffic.map(d => d.requests), 1);
-  const userMax = Math.max(...traffic.map(d => d.users), 1);
-  const popularMode = (stats?.countries || []).slice(0, 3);
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      api('/web/admin/stats'),
+      api('/web/admin/traffic?days=30'),
+      api('/web/admin/online'),
+      api('/web/admin/users'),
+      api('/web/admin/revenue'),
+      api('/web/admin/errors'),
+    ]).then(([s, t, o, u, r, e]) => {
+      if (s.ok) setStats(s);
+      if (t.ok) setTraffic(t.days || []);
+      if (o.ok) setOnline(o.online);
+      if (u.ok) setUsers(u.users || []);
+      if (r.ok) setRevenue(r);
+      if (e.ok) setErrors(e.errors || []);
+      setLoading(false);
+    });
+    const interval = setInterval(() => {
+      api('/web/admin/online').then(d => d.ok && setOnline(d.online));
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
-  if (!stats) {
-    return <div style={{ padding: 40, textAlign: 'center', color: '#8e8e93' }}>Loading…</div>;
-  }
+  const navigate = (k: string) => { setTab(k); window.location.hash = k; };
 
+  const main = (
+    <div style={{ minHeight: '100vh', background: '#fff' }}>
+      <style>{`
+        .site-footer, .bottom-nav, [aria-label="Toggle theme"] { display: none !important; }
+        .app-container > footer, .app-container > nav { display: none !important; }
+      `}</style>
+
+      <div style={{ display: 'flex', minHeight: '100vh', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif' }}>
+        <aside style={{ width: 220, borderRight: '1px solid #e5e5e5', padding: '0 12px', position: 'fixed', top: 0, left: 0, bottom: 0, background: '#fff', zIndex: 100, overflowY: 'auto' }}>
+          <div style={{ padding: '20px 12px 16px', borderBottom: '1px solid #f0f0f0', marginBottom: 8 }}>
+            <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: '-0.03em' }}>Readlyne</div>
+            <div style={{ fontSize: 11, color: '#8e8e93', marginTop: 1 }}>Admin</div>
+          </div>
+          <div style={{ padding: '8px 12px 16px', borderBottom: '1px solid #f0f0f0', marginBottom: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#34c759' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34c759', display: 'inline-block' }} />
+              Online: {online !== null ? online : '…'}
+            </div>
+          </div>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {TABS.map(t => (
+              <button key={t.key} onClick={() => navigate(t.key)}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '8px 12px', borderRadius: 6, fontSize: 13, fontWeight: 500, border: 'none', cursor: 'pointer', textAlign: 'left', color: tab === t.key ? '#000' : '#666', background: tab === t.key ? '#f5f5f5' : 'transparent' }}
+              ><span style={{ fontSize: 14, opacity: 0.6 }}>{t.icon}</span>{t.label}</button>
+            ))}
+          </nav>
+        </aside>
+
+        <main style={{ flex: 1, marginLeft: 220, padding: '32px 40px', maxWidth: 'calc(100vw - 220px)' }}>
+          {tab === 'overview' && <Overview stats={stats} traffic={traffic} loading={loading} />}
+          {tab === 'users' && <Users users={users} />}
+          {tab === 'revenue' && <RevenueTab revenue={revenue} />}
+          {tab === 'errors' && <ErrTab errors={errors} />}
+          {tab === 'settings' && <Settings />}
+        </main>
+      </div>
+    </div>
+  );
+  return main;
+}
+
+function Overview({ stats, traffic, loading }: { stats: any; traffic: any[]; loading: boolean }) {
+  if (loading || !stats) return <p style={{ color: '#8e8e93', padding: 40 }}>Loading…</p>;
+  const mR = Math.max(...traffic.map(d => d.requests), 1);
+  const mU = Math.max(...traffic.map(d => d.users), 1);
   return (
-    <div data-admin-root>
+    <div>
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.03em', margin: 0 }}>Dashboard</h1>
-        <p style={{ fontSize: 13, color: '#8e8e93', margin: '4px 0 0' }}>
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        </p>
+        <p style={{ fontSize: 13, color: '#8e8e93', margin: '4px 0 0' }}>{new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
       </div>
-
-      {/* 6 Stat Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12, marginBottom: 32 }}>
-        <StatCard icon="👤" label="总访客" value={stats.installations} />
-        <StatCard icon="🆕" label="新用户" value={stats.today.unique_users} sub="今日" />
-        <StatCard icon="📊" label="今日分析" value={stats.today.analyze_count} />
-        <StatCard icon="💬" label="今日回复" value={stats.today.reply_count} />
-        <StatCard icon="💰" label="今日收入" value={revenue ? `A$${(revenue.today / 100).toFixed(2)}` : '…'} />
-        <StatCard icon="😊" label="活跃用户" value={stats.today.unique_users} sub={online > 0 ? `🟢 ${online} 在线` : '今日'} />
-      </div>
-
-      {/* Chart + Countries */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20, marginBottom: 32 }}>
-        <div style={{ border: '1px solid #e5e5e5', borderRadius: 10, padding: '20px 22px' }}>
-          <h2 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 16px' }}>最近30天趋势</h2>
-          {traffic.length > 0 && (
-            <>
-              <div style={{ height: 200, position: 'relative' }}>
-                <svg width="100%" height="200" viewBox="0 0 600 200" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                  {[0, 1, 2, 3, 4].map(i => (
-                    <line key={i} x1="0" y1={40 * i} x2="600" y2={40 * i} stroke="#f0f0f0" strokeWidth={1} />
-                  ))}
-                  <polyline
-                    points={traffic.map((d, i) => `${(i / (traffic.length - 1)) * 600},${200 - (d.users / userMax) * 180}`).join(' ')}
-                    fill="none" stroke="#0066ff" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                  <polyline
-                    points={traffic.map((d, i) => `${(i / (traffic.length - 1)) * 600},${200 - (d.requests / maxTraffic) * 180}`).join(' ')}
-                    fill="none" stroke="#34c759" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <div style={{ display: 'flex', gap: 20, marginTop: 8, fontSize: 11, color: '#8e8e93' }}>
-                <span><span style={{ color: '#0066ff', fontWeight: 600 }}>━</span> 用户数 (峰值 {userMax})</span>
-                <span><span style={{ color: '#34c759', fontWeight: 600 }}>━</span> 请求量 (峰值 {maxTraffic})</span>
-              </div>
-            </>
-          )}
-          {traffic.length === 0 && <p style={{ color: '#aeaeb2', fontSize: 12 }}>暂无数据</p>}
-        </div>
-
-        <div style={{ border: '1px solid #e5e5e5', borderRadius: 10, padding: '20px 22px' }}>
-          <h2 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 16px' }}>地区分布</h2>
-          {(popularMode.length > 0 ? popularMode : [{ country: '暂无数据', count: 0 }]).map((c: any, i: number) => (
-            <div key={i} style={{ marginBottom: 8 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 3 }}>
-                <span style={{ color: '#666' }}>{c.country === 'Unknown' || !c.country ? '其他' : c.country}</span>
-                <span style={{ fontWeight: 600 }}>{c.count}</span>
-              </div>
-              {c.count > 0 && (
-                <div style={{ background: '#f0f0f0', borderRadius: 4, height: 6, overflow: 'hidden' }}>
-                  <div style={{
-                    width: `${(c.count / Math.max(...(stats.countries || []).map((x: any) => x.count), 1)) * 100}%`,
-                    height: '100%', background: '#0066ff', borderRadius: 4,
-                  }} />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Recent Users + Revenue */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 32 }}>
-        <div style={{ border: '1px solid #e5e5e5', borderRadius: 10, padding: '20px 22px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <h2 style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>最近用户</h2>
-            <span style={{ fontSize: 11, color: '#8e8e93' }}>{users.length} 条</span>
+        {[
+          ['👤', '总访客', stats.installations],
+          ['🆕', '今日新用户', stats.today.unique_users],
+          ['📊', '今日分析', stats.today.analyze_count],
+          ['💬', '今日回复', stats.today.reply_count],
+          ['💰', '今日收入', '—'],
+          ['😊', '活跃用户', stats.today.unique_users],
+        ].map(([icon, label, value], i) => (
+          <div key={i} style={{ background: '#fff', border: '1px solid #e5e5e5', borderRadius: 10, padding: '14px 16px' }}>
+            <div style={{ fontSize: 20 }}>{icon}</div>
+            <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em', marginTop: 4 }}>{value}</div>
+            <div style={{ fontSize: 12, color: '#8e8e93', marginTop: 2 }}>{label}</div>
           </div>
-          {users.slice(0, 8).map((u, i) => (
-            <div key={i} style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '7px 10px', borderRadius: 6, background: '#fafafa', fontSize: 12, marginBottom: 4,
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontWeight: 500, fontFamily: 'monospace', fontSize: 11, color: '#666' }}>
-                  {(u.installation_id || '').slice(0, 12)}
-                </span>
-                <span style={{ color: '#8e8e93' }}>{['分析', '回复', '深度'][['analyze', 'reply', 'deep_strategy'].indexOf(u.last_mode || '')] || '-'}</span>
-                {(u.credits || 0) > 0 && <span style={{ color: '#34c759', fontSize: 10, fontWeight: 600 }}>PAID</span>}
-              </div>
-              <span style={{ fontSize: 11, color: '#8e8e93' }}>📊{u.total_requests || 0}</span>
-            </div>
-          ))}
-          {users.length === 0 && <p style={{ color: '#aeaeb2', fontSize: 12 }}>暂无数据</p>}
-        </div>
-
-        <div style={{ border: '1px solid #e5e5e5', borderRadius: 10, padding: '20px 22px' }}>
-          <h2 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 14px' }}>收入概览</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <MiniBox label="今日" value={revenue ? `A$${(revenue.today / 100).toFixed(2)}` : '…'} />
-            <MiniBox label="本周" value={revenue ? `A$${(revenue.week / 100).toFixed(2)}` : '…'} />
-            <MiniBox label="本月" value={revenue ? `A$${(revenue.month / 100).toFixed(2)}` : '…'} />
-            <div style={{ background: '#fafafa', borderRadius: 8, padding: '12px', textAlign: 'center' }}>
-              <div style={{ fontSize: 11, color: '#8e8e93', marginBottom: 4 }}>付款/退款</div>
-              <div style={{ fontSize: 18, fontWeight: 700 }}>
-                {revenue?.payers || 0}
-                <span style={{ fontSize: 12, fontWeight: 400, color: '#ff3b30' }}> / {revenue?.refunds || 0}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
-
-      {/* Traffic by day (mini) */}
       {traffic.length > 0 && (
-        <div style={{ border: '1px solid #e5e5e5', borderRadius: 10, padding: '20px 22px', marginBottom: 32 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <h2 style={{ fontSize: 14, fontWeight: 600, margin: 0 }}>每日统计</h2>
+        <div style={{ border: '1px solid #e5e5e5', borderRadius: 10, padding: 20, marginBottom: 32 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 16px' }}>最近30天趋势</h2>
+          <div style={{ height: 200 }}>
+            <svg width="100%" height="200" viewBox="0 0 600 200" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+              {[0,1,2,3,4].map(i => <line key={i} x1={0} y1={40*i} x2={600} y2={40*i} stroke="#f0f0f0" strokeWidth={1} />)}
+              <polyline points={traffic.map((d,i) => `${(i/(traffic.length-1))*600},${200-(d.users/mU)*180}`).join(' ')} fill="none" stroke="#0066ff" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              <polyline points={traffic.map((d,i) => `${(i/(traffic.length-1))*600},${200-(d.requests/mR)*180}`).join(' ')} fill="none" stroke="#34c759" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {traffic.slice(-14).map((d: any, i: number) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}>
-                <span style={{ width: 50, color: '#8e8e93' }}>{(d.day || '').slice(5) || '-'}</span>
-                <div style={{ flex: 1, height: 14, background: '#f0f0f0', borderRadius: 3, overflow: 'hidden', display: 'flex' }}>
-                  <div style={{
-                    width: `${(d.users / userMax) * 100}%`, height: '100%',
-                    background: '#0066ff', borderRadius: 3, minWidth: d.users > 0 ? 4 : 0,
-                  }} />
-                  <div style={{
-                    width: `${(d.requests / maxTraffic) * 100}%`, height: '100%',
-                    background: '#34c759', borderRadius: 3, minWidth: d.requests > 0 ? 4 : 0,
-                  }} />
-                </div>
-                <span style={{ width: 60, textAlign: 'right', color: '#666' }}>
-                  {d.users}u / {d.requests}r
-                </span>
-              </div>
-            ))}
+          <div style={{ display: 'flex', gap: 20, marginTop: 8, fontSize: 11, color: '#8e8e93' }}>
+            <span><span style={{ color: '#0066ff' }}>━</span> 用户数</span>
+            <span><span style={{ color: '#34c759' }}>━</span> 请求量</span>
           </div>
         </div>
       )}
@@ -168,25 +163,121 @@ export default function AdminOverview() {
   );
 }
 
-function StatCard({ icon, label, value, sub }: { icon: string; label: string; value: string | number; sub?: string }) {
+function Users({ users }: { users: any[] }) {
+  const [q, setQ] = useState('');
+  const f = users.filter(u => (u.installation_id||'').includes(q.toLowerCase()));
   return (
-    <div style={{
-      background: '#fff', border: '1px solid #e5e5e5', borderRadius: 10,
-      padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 4,
-    }}>
-      <span style={{ fontSize: 20 }}>{icon}</span>
-      <div style={{ fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em' }}>{value}</div>
-      <div style={{ fontSize: 12, color: '#8e8e93' }}>{label}</div>
-      {sub && <div style={{ fontSize: 11, color: '#aeaeb2' }}>{sub}</div>}
+    <div>
+      <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Users</h1>
+      <p style={{ fontSize: 13, color: '#8e8e93', marginBottom: 16 }}>{users.length} 条</p>
+      <input placeholder="搜索ID…" value={q} onChange={e => setQ(e.target.value)}
+        style={{ width: '100%', maxWidth: 320, padding: '8px 12px', border: '1px solid #e5e5e5', borderRadius: 6, fontSize: 13, marginBottom: 16, background: '#fff' }} />
+      <div style={{ overflowX: 'auto', border: '1px solid #e5e5e5', borderRadius: 10 }}>
+        <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
+          <thead><tr>
+            {['ID', '请求', 'Credits', '购买', '注册', '活跃'].map(h => (
+              <th key={h} style={{ padding: '8px 10px', textAlign: 'left', fontWeight: 500, color: '#8e8e93', borderBottom: '2px solid #e5e5e5' }}>{h}</th>
+            ))}
+          </tr></thead>
+          <tbody>
+            {f.map((u:any,i:number) => (
+              <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                <td style={{ padding: '8px 10px', fontFamily: 'monospace', fontSize: 11, color: '#666' }}>{(u.installation_id||'').slice(0,18)}</td>
+                <td style={{ padding: '8px 10px', fontWeight: 600 }}>{u.total_requests||0}</td>
+                <td style={{ padding: '8px 10px', color: (u.credits||0) > 0 ? '#34c759' : '#aeaeb2', fontWeight: 600 }}>{u.credits||0}</td>
+                <td style={{ padding: '8px 10px' }}>{(u.total_purchases||0) > 0 ? `$${u.total_purchases}` : '—'}</td>
+                <td style={{ padding: '8px 10px', color: '#8e8e93', fontSize: 11 }}>{fmt(u.created_at)}</td>
+                <td style={{ padding: '8px 10px', color: '#8e8e93', fontSize: 11 }}>{fmt(u.updated_at)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
 
-function MiniBox({ label, value }: { label: string; value: string }) {
+function RevenueTab({ revenue }: { revenue: any }) {
+  if (!revenue) return <p style={{ color: '#8e8e93', padding: 40 }}>Loading…</p>;
   return (
-    <div style={{ background: '#fafafa', borderRadius: 8, padding: '12px', textAlign: 'center' }}>
-      <div style={{ fontSize: 11, color: '#8e8e93', marginBottom: 4 }}>{label}</div>
-      <div style={{ fontSize: 18, fontWeight: 700 }}>{value}</div>
+    <div>
+      <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Revenue</h1>
+      <p style={{ fontSize: 13, color: '#8e8e93', marginBottom: 16 }}>Stripe 付款</p>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
+        {[
+          ['今日', `$${(revenue.today/100).toFixed(2)}`],
+          ['本周', `$${(revenue.week/100).toFixed(2)}`],
+          ['本月', `$${(revenue.month/100).toFixed(2)}`],
+          ['付款人数', revenue.payers],
+          ['退款', revenue.refunds],
+        ].map(([k,v],i) => (
+          <div key={i} style={{ background: '#fafafa', border: '1px solid #e5e5e5', borderRadius: 8, padding: '12px 18px', minWidth: 90 }}>
+            <div style={{ fontSize: 11, color: '#8e8e93', marginBottom: 4 }}>{k}</div>
+            <div style={{ fontSize: 18, fontWeight: 700 }}>{v}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ overflowX: 'auto', border: '1px solid #e5e5e5', borderRadius: 10 }}>
+        <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
+          <thead><tr>
+            {['时间', '金额', '状态', '用户'].map(h => (
+              <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 500, color: '#8e8e93', borderBottom: '2px solid #e5e5e5' }}>{h}</th>
+            ))}
+          </tr></thead>
+          <tbody>
+            {revenue.records.map((r:any,i:number) => (
+              <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                <td style={{ padding: '10px 14px', color: '#8e8e93', fontSize: 11 }}>{fmt(r.time)}</td>
+                <td style={{ padding: '10px 14px', fontWeight: 600 }}>{r.amount}</td>
+                <td style={{ padding: '10px 14px' }}><span style={{ background: r.status==='paid'?'#e8f5e9':'#fce8e6', color: r.status==='paid'?'#248a3d':'#d70015', fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 4 }}>{r.status}</span></td>
+                <td style={{ padding: '10px 14px', fontFamily: 'monospace', fontSize: 11, color: '#666' }}>{(r.installation_id||'').slice(0,14)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function ErrTab({ errors }: { errors: any[] }) {
+  return (
+    <div>
+      <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Errors</h1>
+      <p style={{ fontSize: 13, color: '#8e8e93', marginBottom: 16 }}>{errors.length} 条</p>
+      <div style={{ overflowX: 'auto', border: '1px solid #e5e5e5', borderRadius: 10 }}>
+        <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
+          <thead><tr>
+            {['时间', '用户', '模式', '信息'].map(h => (
+              <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 500, color: '#8e8e93', borderBottom: '2px solid #e5e5e5' }}>{h}</th>
+            ))}
+          </tr></thead>
+          <tbody>
+            {errors.length===0 && <tr><td colSpan={4} style={{ padding: 40, textAlign: 'center', color: '#aeaeb2' }}>暂无错误 🎉</td></tr>}
+            {errors.map((e:any,i:number) => (
+              <tr key={i} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                <td style={{ padding: '10px 14px', color: '#8e8e93', fontSize: 11 }}>{fmt(e.created_at)}</td>
+                <td style={{ padding: '10px 14px', fontFamily: 'monospace', fontSize: 11, color: '#666' }}>{(e.installation_id||'').slice(0,14)}</td>
+                <td style={{ padding: '10px 14px' }}>{e.mode}</td>
+                <td style={{ padding: '10px 14px', color: '#d70015', fontSize: 11 }}>{e.message_snippet||'-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function Settings() {
+  return (
+    <div>
+      <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Settings</h1>
+      <p style={{ fontSize: 13, color: '#8e8e93', marginBottom: 16 }}>开发中</p>
+      <div style={{ border: '1px solid #e5e5e5', borderRadius: 10, padding: 60, textAlign: 'center', color: '#aeaeb2' }}>
+        <div style={{ fontSize: 32, marginBottom: 12 }}>⚙️</div>
+        <p style={{ margin: 0, fontSize: 14 }}>Coming soon.</p>
+      </div>
     </div>
   );
 }
