@@ -47,8 +47,8 @@ export default function BottomNav() {
   const { theme, toggle } = useTheme();
 
   const items = [
-    { href: `/${locale}/analyze`, label: cn ? '分析' : 'Analyze', icon: '🔍' },
-    { href: `/${locale}/reply`, label: cn ? '怎么回' : 'Reply', icon: '💬' },
+    { href: `/${locale}/analyze`, label: cn ? '救我' : 'Analyze', icon: '🔍' },
+    { href: `/${locale}/reply`, label: cn ? '助我' : 'Reply', icon: '💬' },
   ];
 
   return (

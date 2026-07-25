@@ -27,7 +27,7 @@ export default function ContactPage() {
           </div>
         </div>
         <h2>{cn ? '关于' : 'About'}</h2>
-        <p>{cn ? 'Readlyne 由 Leon AI Studio 运营。\n悉尼，澳大利亚。' : 'Readlyne is operated by Leon AI Studio.\nSydney, Australia.'}</p>
+        <p>{cn ? '懂了么 由 Leon AI Studio 运营。\n悉尼，澳大利亚。' : 'Readlyne is operated by Leon AI Studio.\nSydney, Australia.'}</p>
       </div>
     </div>
   );

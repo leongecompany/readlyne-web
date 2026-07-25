@@ -96,13 +96,13 @@ export default function ReplyPage() {
     <div>
       {/* Brand header */}
       <div className="brand-header">
-        <span className="brand-name">Readlyne</span>
+        <span className="brand-name">懂了么</span>
         <span className="brand-tag">聊天洞察 AI</span>
       </div>
 
       {/* Hero */}
       <div style={{ padding: '12px 16px 0' }}>
-        <h1 className="hero-title">不知道怎么回 TA？</h1>
+        <h1 className="hero-title">军师助我！ <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--text-tertiary)' }}>- 如何回复吸引 Ta</span></h1>
         <p className="hero-sub">描述场景，AI 给你保守、自然、主动三种风格的回复参考。</p>
       </div>
 
@@ -250,7 +250,7 @@ export default function ReplyPage() {
 
           {/* App CTA */}
           <div className="app-cta">
-            <p className="cta-title">想让 Readlyne 记住这个人？</p>
+            <p className="cta-title">想让 懂了么 记住这个人？</p>
             <p className="cta-desc">
               下载 App 建立关系档案，<br />
               让后续分析越来越贴合你们的互动。

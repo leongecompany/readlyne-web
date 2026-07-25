@@ -120,7 +120,7 @@ export default function AnalyzePage() {
     catch { return false; }
   });
   const handleShare = useCallback(async () => {
-    const shareText = 'Readlyne — AI 聊天洞察，粘贴对话即可获取潜台词分析';
+    const shareText = '懂了么 — AI 聊天洞察，粘贴对话即可获取潜台词分析';
     const shareUrl = 'https://readlyne.com';
     try {
       if (navigator.share) {
@@ -138,13 +138,13 @@ export default function AnalyzePage() {
     <div>
       {/* Brand header */}
       <div className="brand-header">
-        <span className="brand-name">Readlyne</span>
+        <span className="brand-name">懂了么</span>
         <span className="brand-tag">聊天洞察 AI</span>
       </div>
 
       {/* Hero */}
       <div style={{ padding: '12px 16px 0' }}>
-        <h1 className="hero-title">看不懂 TA 的话？</h1>
+        <h1 className="hero-title">军师救我 <span style={{ fontSize: 14, fontWeight: 400, color: 'var(--text-tertiary)' }}>- 看懂Ta 的心里</span></h1>
         <p className="hero-sub">粘贴聊天内容，AI 分析潜台词、误读风险和怎么回。</p>
       </div>
 
@@ -234,7 +234,7 @@ export default function AnalyzePage() {
                 className="btn-secondary"
                 onClick={() => {
                   const text = [
-                    'Readlyne 聊天分析结果',
+                    '懂了么 聊天分析结果',
                     '',
                     analysis.relationship_signal && `🔮 直观判断: ${analysis.relationship_signal.summary}`,
                     ...(analysis.possible_intentions || []).map((item, i) =>
@@ -245,7 +245,7 @@ export default function AnalyzePage() {
                     ),
                     '',
                     '——',
-                    '由 Readlyne 分析',
+                    '由 懂了么 分析',
                   ].filter(Boolean).join('\n');
                   navigator.clipboard.writeText(text).then(() => {
                     const btn = document.activeElement as HTMLElement;
@@ -348,7 +348,7 @@ export default function AnalyzePage() {
 
           {/* App CTA */}
           <div className="app-cta">
-            <p className="cta-title">想让 Readlyne 记住这个人？</p>
+            <p className="cta-title">想让 懂了么 记住这个人？</p>
             <p className="cta-desc">
               下载 App 建立关系档案，<br />
               让后续分析越来越贴合你们的互动。
@@ -442,7 +442,7 @@ export default function AnalyzePage() {
             </div>
           )}
           <div className="app-promo">
-            <div className="app-name">Readlyne</div>
+            <div className="app-name">懂了么</div>
             <BetaSignup locale="cn" />
           </div>
         </>

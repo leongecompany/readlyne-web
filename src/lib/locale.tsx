@@ -11,8 +11,8 @@ interface LocaleContextType {
 
 const cn: Record<string, string> = {
   // Nav
-  'nav.analyze': '分析',
-  'nav.reply': '怎么回',
+  'nav.analyze': '救我',
+  'nav.reply': '助我',
   'nav.dashboard': '管理',
   // Footer
   'footer.features': '功能',
@@ -22,9 +22,9 @@ const cn: Record<string, string> = {
   'footer.privacy': '隐私政策',
   'footer.terms': '服务条款',
   'footer.disclaimer': 'Readlyne 提供 AI 关系洞察，仅供参考。不可替代专业心理咨询。',
-  'footer.tag': 'AI 聊天洞察',
+  'footer.tag': '懂了么 · AI 聊天洞察',
   // Analyze
-  'analyze.hero': '看不懂 TA 的话？',
+  'analyze.hero': '军师救我',
   'analyze.sub': '粘贴聊天内容，AI 分析潜台词、误读风险和怎么回。',
   'analyze.label': '聊天内容',
   'analyze.placeholder': '我：你今天怎么不理我了？\nTA：没有啊，最近工作比较忙。',
@@ -45,7 +45,7 @@ const cn: Record<string, string> = {
   'analyze.email_placeholder': 'your@email.com',
   'analyze.join': '加入',
   // Reply
-  'reply.hero': '不知道怎么回 TA？',
+  'reply.hero': '军师助我！',
   'reply.sub': '描述场景，AI 给你保守、自然、主动三种风格的回复参考。',
   'reply.label': '想回应的内容',
   'reply.placeholder': '对方说了什么？或者描述一下你现在的情况…',
