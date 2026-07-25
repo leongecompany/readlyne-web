@@ -43,7 +43,7 @@ const [tab, setTab] = useState<Pg>('overview');
   const [auth, setAuth] = useState<boolean | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [traffic, setTraffic] = useState<any[]>([]);
-  const [online, setOnline] = useState<number>(0);
+  const [在线, setOnline] = useState<number>(0);
   const [users, setUsers] = useState<any[]>([]);
   const [errors, setErrors] = useState<any[]>([]);
 
@@ -59,13 +59,13 @@ const [tab, setTab] = useState<Pg>('overview');
     const [s, t, o, u, e] = await Promise.all([
       apiFetch('/web/admin/stats'),
       apiFetch('/web/admin/traffic?days=30'),
-      apiFetch('/web/admin/online'),
+      apiFetch('/web/admin/在线'),
       apiFetch('/web/admin/users'),
       apiFetch('/web/admin/errors'),
     ]);
     if (s.ok) setStats(s);
     if (t.ok) setTraffic(t.days || []);
-    if (o.ok) setOnline(o.online);
+    if (o.ok) setOnline(o.在线);
     if (u.ok) setUsers(u.users?.slice(0, 15) || []);
     if (e.ok) setErrors(e.errors?.slice(0, 8) || []);
   }, []);
@@ -76,8 +76,8 @@ const [tab, setTab] = useState<Pg>('overview');
   useEffect(() => {
     if (!auth) return;
     const int = setInterval(async () => {
-      const d = await apiFetch('/web/admin/online');
-      if (d.ok) setOnline(d.online);
+      const d = await apiFetch('/web/admin/在线');
+      if (d.ok) setOnline(d.在线);
     }, 30000);
     return () => clearInterval(int);
   }, [auth]);
@@ -91,8 +91,8 @@ const [tab, setTab] = useState<Pg>('overview');
       }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#8e8e93', marginBottom: 8, letterSpacing: '0.05em' }}>READLYNE</div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#000', margin: '0 0 8px' }}>Access required</h1>
-          <p style={{ fontSize: 13, color: '#8e8e93', margin: 0 }}>Add <code style={{ background: '#f5f5f5', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>?token=***</code> to the URL</p>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#000', margin: '0 0 8px' }}>需要权限</h1>
+          <p style={{ fontSize: 13, color: '#8e8e93', margin: 0 }}>添加 <code style={{ background: '#f5f5f5', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>?token=***</code> 到 URL</p>
         </div>
       </div>
     );
@@ -133,10 +133,10 @@ const [tab, setTab] = useState<Pg>('overview');
             <span style={{ fontSize: 11, color: '#aeaeb2', fontWeight: 500 }}>Admin</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {online > 0 && (
+            {在线 > 0 && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#34c759' }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34c759', display: 'inline-block' }} />
-                {online} online
+                {在线} 在线
               </div>
             )}
             <nav style={{ display: 'flex', gap: 2 }}>
@@ -147,7 +147,7 @@ const [tab, setTab] = useState<Pg>('overview');
                     border: 'none', cursor: 'pointer', background: tab === t ? '#f5f5f5' : 'transparent',
                     color: tab === t ? '#000' : '#666',
                   }}
-                >{t === 'overview' ? 'Dashboard' : t.charAt(0).toUpperCase() + t.slice(1)}</button>
+                >{t === 'overview' ? '总览' : t==='users'?'用户':t==='queries'?'查询':'设置'}</button>
               ))}
             </nav>
           </div>
@@ -167,14 +167,14 @@ const [tab, setTab] = useState<Pg>('overview');
                   <span style={{ fontSize: 48, fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1 }}>
                     {s.today.unique_users || 0}
                   </span>
-                  <span style={{ fontSize: 15, color: '#8e8e93' }}>active users today</span>
+                  <span style={{ fontSize: 15, color: '#8e8e93' }}>今日活跃用户</span>
                 </div>
                 <div style={{ display: 'flex', gap: 32, marginTop: 12 }}>
                   {[
-                    { label: 'Analyzes', value: s.today.analyze_count },
-                    { label: 'Replies', value: s.today.reply_count },
-                    { label: 'Devices', value: s.installations },
-                    { label: 'Paid', value: s.paid_users },
+                    { label: '分析', value: s.today.analyze_count },
+                    { label: '回复', value: s.today.reply_count },
+                    { label: '设备', value: s.installations },
+                    { label: '付费', value: s.paid_users },
                   ].map(m => (
                     <div key={m.label} style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
                       <span style={{ fontSize: 18, fontWeight: 600 }}>{m.value}</span>
@@ -189,7 +189,7 @@ const [tab, setTab] = useState<Pg>('overview');
             {traffic.length > 0 && (
               <div style={{ marginBottom: 48 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#8e8e93' }}>LAST 30 DAYS</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#8e8e93' }}>最近 30 天</span>
                   <span style={{ fontSize: 11, color: '#aeaeb2' }}>
                     <span style={{ color: '#0066ff' }}>●</span> Users <span style={{ color: '#34c759', marginLeft: 12 }}>●</span> Requests
                   </span>
@@ -231,10 +231,10 @@ const [tab, setTab] = useState<Pg>('overview');
               {/* Recent users */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#8e8e93' }}>RECENT DEVICES</span>
-                  <span style={{ fontSize: 11, color: '#aeaeb2' }}>{users.length} total</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#8e8e93' }}>最近设备</span>
+                  <span style={{ fontSize: 11, color: '#aeaeb2' }}>{users.length} 条</span>
                 </div>
-                {users.length === 0 && <p style={{ fontSize: 13, color: '#aeaeb2' }}>No data yet</p>}
+                {users.length === 0 && <p style={{ fontSize: 13, color: '#aeaeb2' }}>暂无数据</p>}
                 {users.map((u: any, i: number) => (
                   <div key={i} style={{
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -251,7 +251,7 @@ const [tab, setTab] = useState<Pg>('overview');
                           {(u.installation_id || '').slice(0, 16)}
                         </div>
                         <div style={{ fontSize: 11, color: '#aeaeb2', marginTop: 1 }}>
-                          {u.total_requests || 0} requests {(u.credits || 0) > 0 ? '· Paid' : ''}
+                          {u.条_requests || 0} requests {(u.credits || 0) > 0 ? '· Paid' : ''}
                         </div>
                       </div>
                     </div>
@@ -263,10 +263,10 @@ const [tab, setTab] = useState<Pg>('overview');
               {/* Recent errors */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#8e8e93' }}>RECENT ERRORS</span>
-                  <span style={{ fontSize: 11, color: '#aeaeb2' }}>{errors.length} total</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#8e8e93' }}>最近错误</span>
+                  <span style={{ fontSize: 11, color: '#aeaeb2' }}>{errors.length} 条</span>
                 </div>
-                {errors.length === 0 && <p style={{ fontSize: 13, color: '#aeaeb2' }}>No errors 🎉</p>}
+                {errors.length === 0 && <p style={{ fontSize: 13, color: '#aeaeb2' }}>暂无错误 🎉</p>}
                 {errors.map((e: any, i: number) => (
                   <div key={i} style={{
                     display: 'flex', gap: 10, padding: '8px 0',
@@ -277,7 +277,7 @@ const [tab, setTab] = useState<Pg>('overview');
                       color: '#d70015', fontSize: 10, fontWeight: 600, minWidth: 38, paddingTop: 1,
                     }}>ERROR</span>
                     <span style={{ color: '#666', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {e.message_snippet || 'Unknown'}
+                      {e.message_snippet || '未知'}
                     </span>
                     <span style={{ color: '#aeaeb2', fontSize: 11, whiteSpace: 'nowrap' }}>{fmtDate(e.created_at)}</span>
                   </div>
@@ -292,7 +292,7 @@ const [tab, setTab] = useState<Pg>('overview');
         {tab === 'settings' && (
           <div style={{ textAlign: 'center', padding: '80px 0', color: '#aeaeb2' }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>⚙️</div>
-            <p style={{ fontSize: 14, margin: 0 }}>Settings — coming soon</p>
+            <p style={{ fontSize: 14, margin: 0 }}>设置 — 开发中</p>
           </div>
         )}
       </div>
@@ -329,7 +329,7 @@ function UsersPage() {
         <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid #e5e5e5' }}>
-              {['ID', 'Requests', 'Credits', 'Purchases', 'First seen', 'Last active'].map(h => (
+              {['ID', '请求', '积分', '购买', '首次', '最近'].map(h => (
                 <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 500, color: '#8e8e93', fontSize: 11 }}>{h}</th>
               ))}
             </tr>
@@ -338,9 +338,9 @@ function UsersPage() {
             {filtered.map((u: any, i: number) => (
               <tr key={i} style={{ borderBottom: i < filtered.length - 1 ? '1px solid #f5f5f5' : 'none' }}>
                 <td style={{ padding: '10px 12px', fontFamily: 'monospace', fontSize: 11, color: '#666' }}>{(u.installation_id || '').slice(0, 20)}</td>
-                <td style={{ padding: '10px 12px', fontWeight: 600 }}>{u.total_requests || 0}</td>
+                <td style={{ padding: '10px 12px', fontWeight: 600 }}>{u.条_requests || 0}</td>
                 <td style={{ padding: '10px 12px', color: (u.credits || 0) > 0 ? '#34c759' : '#aeaeb2', fontWeight: 600 }}>{u.credits || 0}</td>
-                <td style={{ padding: '10px 12px' }}>{(u.total_purchases || 0) > 0 ? `$${u.total_purchases}` : '—'}</td>
+                <td style={{ padding: '10px 12px' }}>{(u.条_purchases || 0) > 0 ? `$${u.条_purchases}` : '—'}</td>
                 <td style={{ padding: '10px 12px', color: '#8e8e93', fontSize: 11 }}>{fmtDate(u.created_at)}</td>
                 <td style={{ padding: '10px 12px', color: '#8e8e93', fontSize: 11 }}>{fmtDate(u.updated_at)}</td>
               </tr>
@@ -362,9 +362,9 @@ function QueriesPage() {
   return (
     <div>
       <h1 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 4px' }}>Queries</h1>
-      <p style={{ fontSize: 13, color: '#8e8e93', margin: '0 0 24px' }}>{queries.length} recent</p>
+      <p style={{ fontSize: 13, color: '#8e8e93', margin: '0 0 24px' }}>{queries.length} 最近</p>
 
-      {queries.length === 0 && <p style={{ fontSize: 13, color: '#aeaeb2' }}>No queries yet</p>}
+      {queries.length === 0 && <p style={{ fontSize: 13, color: '#aeaeb2' }}>暂无查询</p>}
       {queries.map((q: any, i: number) => (
         <div key={i} style={{
           padding: '12px 0', borderBottom: i < queries.length - 1 ? '1px solid #f5f5f5' : 'none',
