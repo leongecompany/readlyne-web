@@ -89,8 +89,9 @@ export async function getReplySuggestions(message: string, context = '', locale 
     body: JSON.stringify({
       message: message.trim(),
       context: context.trim(),
+      locale: locale,
       operation_id: operationId,
-    }),
+      }),
   });
   return res.json();
 }
