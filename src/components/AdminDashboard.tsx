@@ -41,17 +41,29 @@ type FeedbackRow = { time: string; installation_id_hash: string; ip: string; tex
 
 function getAdminToken(): string {
   if (typeof window === 'undefined') return '';
+  // 支持 #?token=xxx（Telegram 等平台可能吃 query params）
   const params = new URLSearchParams(window.location.search);
-  return params.get('token') || '';
+  const hash = window.location.hash || '';
+  const hashParams = new URLSearchParams(hash.replace('#', ''));
+  return params.get('token') || hashParams.get('token') || '';
 }
 
 async function adminFetch(path: string): Promise<any> {
   const token = getAdminToken();
   if (!token) return { ok: false };
-  const res = await fetch(`${API_BASE}${path}`, {
-    headers: { 'x-admin-token': token },
-  });
-  return res.json();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: { 'x-admin-token': token },
+      signal: controller.signal,
+    });
+    clearTimeout(timeout);
+    return res.json();
+  } catch (e) {
+    clearTimeout(timeout);
+    return { ok: false, error: 'NETWORK_ERROR' };
+  }
 }
 
 /* ====== Component ====== */
@@ -89,6 +101,9 @@ export default function AdminDashboard() {
       } else {
         setError('密码错误或服务器未响应');
       }
+      setChecking(false);
+    }).catch(() => {
+      setError('无法连接服务器，请检查网络或稍后重试');
       setChecking(false);
     });
   }, []);
