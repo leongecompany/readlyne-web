@@ -98,8 +98,12 @@ export default function AdminDashboard() {
       if (data.ok) {
         setAuthed(true);
         setStats(data);
+      } else if (data.error === 'UNAUTHORIZED') {
+        setError('密码错误（token 无效）');
+      } else if (data.error && data.error.includes('does not exist')) {
+        setError('数据库表未创建，请在 Supabase SQL Editor 执行迁移');
       } else {
-        setError('密码错误或服务器未响应');
+        setError('服务器响应异常：' + (data.error || '未知错误'));
       }
       setChecking(false);
     }).catch(() => {
