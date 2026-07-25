@@ -1,0 +1,27 @@
+/* Admin Dashboard — Vercel/Linear Style Reset */
+/* Overrides the site's hand-drawn doodle styles completely */
+
+html body [data-admin-root] {
+  all: initial;
+  display: block;
+}
+
+[data-admin-root] *,
+[data-admin-root] *::before,
+[data-admin-root] *::after {
+  box-sizing: border-box;
+}
+
+[data-admin-root] {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #000;
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-admin-root] a { text-decoration: none; color: inherit; }
+[data-admin-root] button { font-family: inherit; }
+[data-admin-root] input { font-family: inherit; }
+[data-admin-root] table { border-collapse: collapse; }
