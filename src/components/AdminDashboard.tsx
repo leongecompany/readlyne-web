@@ -2,543 +2,247 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-const API_BASE = process.env.NEXT_PUBLIC_WEB_API_BASE_URL || 'https://readlyne-proxy.onrender.com';
+const A = process.env.NEXT_PUBLIC_WEB_API_BASE_URL || 'https://readlyne-proxy.onrender.com';
 
-type Tab = 'overview' | 'traffic' | 'queries' | 'users' | 'feedback' | 'geo';
+function T():string{if(typeof window==='undefined')return '';return new URLSearchParams(window.location.search).get('token')||''}
+async function P(p:string):Promise<any>{const t=T();if(!t)return{ok:false};try{const r=await fetch(A+p,{headers:{'x-admin-token':t},signal:AbortSignal.timeout(8e3)});return r.json()}catch{return{ok:false}}}
+function F(d:any):string{if(!d)return'-';try{return new Date(d).toLocaleDateString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}catch{return d||'-'}}
 
-/* ====== Types ====== */
+type T='overview'|'users'|'queries'|'feedback'|'revenue'|'errors'|'settings';
 
-type Stats = {
-  today: {
-    total_requests: number; unique_users: number;
-    success_count: number; error_count: number;
-    analyze_count: number; reply_count: number; deep_count: number;
-  };
-  total: { total_all_time: number; total_users_all_time: number };
-  countries: { country: string; count: number }[];
-  installations: number;
-  paid_users: number;
-};
+const TABS:{k:T;l:string}[]=[
+  {k:'overview',l:'总览'},{k:'users',l:'用户'},{k:'queries',l:'查询'},{k:'feedback',l:'反馈'},{k:'revenue',l:'收入'},{k:'errors',l:'错误'},{k:'settings',l:'设置'},
+];
 
-type TrafficDay = { day: string; requests: number; users: number; analyze: number; reply: number; deep_strategy: number };
+export default function Admin(){
+  const [tab,setTab]=useState<T>('overview');
+  const [ok,setOk]=useState(false);
+  const [ch,setCh]=useState(true);
+  const [on,setOn]=useState<number|null>(null);
+  const [st,setSt]=useState<any>(null);
+  const [tr,setTr]=useState<any[]>([]);
+  const [us,setUs]=useState<any[]>([]);
+  const [rv,setRv]=useState<any>(null);
+  const [er,setEr]=useState<any[]>([]);
+  const [fb,setFb]=useState<any[]>([]);
 
-type QueryRow = {
-  id: number; created_at: string; installation_id: string;
-  message: string; context: string; locale: string;
-  mode: string; status: string; ip: string;
-};
+  // Auth on mount
+  useEffect(()=>{
+    const token=T();
+    if(!token){setCh(false);return}
+    P('/web/admin/stats').then(d=>{if(d.ok){setOk(true);setSt(d)}else{setCh(false)}}).catch(()=>setCh(false));
+  },[]);
 
-type UserRow = {
-  installation_id: string; credits: number; free_uses: number; reply_free_uses: number;
-  created_at: string; updated_at: string;
-  total_requests: number; today_requests: number;
-  last_mode: string; last_active: string; total_purchases: number;
-};
-
-type FeedbackRow = { time: string; installation_id_hash: string; ip: string; text: string };
-
-/* ====== Auth: token from URL only ====== */
-
-function getAdminToken(): string {
-  if (typeof window === 'undefined') return '';
-  // 支持 #?token=xxx（Telegram 等平台可能吃 query params）
-  const params = new URLSearchParams(window.location.search);
-  const hash = window.location.hash || '';
-  const hashParams = new URLSearchParams(hash.replace('#', ''));
-  return params.get('token') || hashParams.get('token') || '';
-}
-
-async function adminFetch(path: string): Promise<any> {
-  const token = getAdminToken();
-  if (!token) return { ok: false };
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
-  try {
-    const res = await fetch(`${API_BASE}${path}`, {
-      headers: { 'x-admin-token': token },
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-    return res.json();
-  } catch (e) {
-    clearTimeout(timeout);
-    return { ok: false, error: 'NETWORK_ERROR' };
-  }
-}
-
-/* ====== Component ====== */
-export default function AdminDashboard() {
-  const [authed, setAuthed] = useState(false);
-  const [checking, setChecking] = useState(true);
-  const [tab, setTab] = useState<Tab>('overview');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  // Data
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [traffic, setTraffic] = useState<TrafficDay[]>([]);
-  const [queries, setQueries] = useState<QueryRow[]>([]);
-  const [queriesTotal, setQueriesTotal] = useState(0);
-  const [queriesOffset, setQueriesOffset] = useState(0);
-  const [queriesMode, setQueriesMode] = useState('');
-  const [users, setUsers] = useState<UserRow[]>([]);
-  const [usersTotal, setUsersTotal] = useState(0);
-  const [feedback, setFeedback] = useState<FeedbackRow[]>([]);
-  const [trafficDays, setTrafficDays] = useState(7);
-
-  // Verify token on mount
-  useEffect(() => {
-    const token = getAdminToken();
-    if (!token) {
-      setError('请在 URL 中添加 ?token=<管理密码>');
-      setChecking(false);
-      return;
+  // Load tab data
+  const load=useCallback(async(tab:T)=>{
+    switch(tab){
+      case'overview':{const[s,_,o,u,r,e]=await Promise.all([P('/web/admin/stats'),P('/web/admin/traffic?days=30'),P('/web/admin/online'),P('/web/admin/users'),P('/web/admin/revenue'),P('/web/admin/errors')]);s.ok&&setSt(s);_.ok&&setTr(_.days||[]);o.ok&&setOn(o.online);u.ok&&setUs(u.users||[]);r.ok&&setRv(r);e.ok&&setEr(e.errors||[]);break}
+      case'users':{const u=await P('/web/admin/users');u.ok&&setUs(u.users||[]);break}
+      case'queries':{break}
+      case'feedback':{const f=await P('/web/admin/feedback');f.ok&&setFb(f.feedback||[]);break}
+      case'revenue':{const r=await P('/web/admin/revenue');r.ok&&setRv(r);break}
+      case'errors':{const e=await P('/web/admin/errors');e.ok&&setEr(e.errors||[]);break}
     }
-    adminFetch('/web/admin/stats').then(data => {
-      if (data.ok) {
-        setAuthed(true);
-        setStats(data);
-      } else if (data.error === 'UNAUTHORIZED') {
-        setError('密码错误（token 无效）');
-      } else if (data.error && data.error.includes('does not exist')) {
-        setError('数据库表未创建，请在 Supabase SQL Editor 执行迁移');
-      } else {
-        setError('服务器响应异常：' + (data.error || '未知错误'));
-      }
-      setChecking(false);
-    }).catch(() => {
-      setError('无法连接服务器，请检查网络或稍后重试');
-      setChecking(false);
-    });
-  }, []);
+  },[]);
 
-  // Load data based on active tab
-  const loadData = useCallback(async (activeTab: Tab) => {
-    setLoading(true);
-    try {
-      switch (activeTab) {
-        case 'overview': {
-          const s = await adminFetch('/web/admin/stats');
-          if (s.ok) setStats(s);
-          break;
-        }
-        case 'traffic': {
-          const t = await adminFetch(`/web/admin/traffic?days=${trafficDays}`);
-          if (t.ok) setTraffic(t.days);
-          break;
-        }
-        case 'queries': {
-          const modeParam = queriesMode ? `&mode=${queriesMode}` : '';
-          const q = await adminFetch(`/web/admin/queries?limit=50&offset=${queriesOffset}${modeParam}`);
-          if (q.ok) { setQueries(q.queries); setQueriesTotal(q.total); }
-          break;
-        }
-        case 'users': {
-          const u = await adminFetch('/web/admin/users');
-          if (u.ok) { setUsers(u.users); setUsersTotal(u.total); }
-          break;
-        }
-        case 'feedback': {
-          const f = await adminFetch('/web/admin/feedback');
-          if (f.ok) setFeedback(f.feedback);
-          break;
-        }
-        case 'geo': {
-          const s = await adminFetch('/web/admin/stats');
-          if (s.ok) setStats(s);
-          break;
-        }
-      }
-    } catch (e) { /* ignore */ }
-    setLoading(false);
-  }, [trafficDays, queriesOffset, queriesMode]);
+  useEffect(()=>{if(ok)load(tab)},[ok,tab,load]);
+  useEffect(()=>{if(!ok)return;const i=setInterval(()=>P('/web/admin/online').then(d=>d.ok&&setOn(d.online)),3e4);return ()=>clearInterval(i)},[ok]);
 
-  // Load on tab change
-  useEffect(() => {
-    if (authed) loadData(tab);
-  }, [authed, tab, loadData]);
+  if(!ok)return <div style={{maxWidth:480,margin:'80px auto',padding:20,textAlign:'center',fontFamily:'-apple-system, BlinkMacSystemFont, sans-serif'}}>
+    <h2 style={{fontSize:22,fontWeight:700,marginBottom:12,color:'#000'}}>Readlyne 管理后台</h2>
+    {ch?<p style={{fontSize:14,color:'#8e8e93'}}>验证中…</p>:<div style={{background:'#fff5f5',border:'1px solid #ffd7d5',borderRadius:10,padding:'16px 20px'}}>
+      <p style={{fontSize:14,color:'#d70015',margin:0}}>访问需要 token 参数</p>
+      <p style={{fontSize:12,color:'#8e8e93',marginTop:8}}>readlyne.com/dashboard?token=&lt;管理密码&gt;</p>
+    </div>}
+  </div>;
 
-  if (checking) {
-    return (
-      <div style={{ maxWidth: 400, margin: '80px auto', padding: 20, textAlign: 'center' }}>
-        <p style={{ fontSize: 14, color: 'var(--text-secondary)' }}>验证中…</p>
+  const nav=(k:T)=>{setTab(k);window.location.hash=k};
+
+  return <div style={{minHeight:'100vh',background:'#fff',color:'#000',fontFamily:'-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',display:'flex'}}>
+    <style>{'.site-footer,.bottom-nav,[aria-label="Toggle theme"]{display:none!important}'}</style>
+    <aside style={{width:220,borderRight:'1px solid #e5e5e5',padding:'0 12px',position:'fixed',top:0,left:0,bottom:0,background:'#fff',zIndex:100,overflowY:'auto'}}>
+      <div style={{padding:'20px 12px 16px',borderBottom:'1px solid #f0f0f0',marginBottom:8}}>
+        <div style={{fontSize:18,fontWeight:700,letterSpacing:'-0.03em'}}>懂了么</div>
+        <div style={{fontSize:11,color:'#8e8e93',marginTop:1}}>Admin</div>
       </div>
-    );
-  }
-
-  if (!authed) {
-    return (
-      <div style={{ maxWidth: 480, margin: '80px auto', padding: 20, textAlign: 'center' }}>
-        <h2 style={{ fontSize: 22, fontWeight: 700, marginBottom: 16 }}>🔒 Readlyne 管理后台</h2>
-        <div style={{
-          background: '#fff5f5', border: '1px solid #ffd7d5', borderRadius: 12,
-          padding: '16px 20px',
-        }}>
-          <p style={{ fontSize: 14, color: '#d70015', margin: 0 }}>
-            {error || '无法访问'}
-          </p>
-          <p style={{ fontSize: 12, color: 'var(--text-tertiary)', marginTop: 8 }}>
-            访问需要有效的 token 参数：<br />
-            <code style={{ fontSize: 11 }}>readlyne.com/dashboard?token=&lt;管理密码&gt;</code>
-          </p>
+      <div style={{padding:'8px 12px 16px',borderBottom:'1px solid #f0f0f0',marginBottom:8}}>
+        <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,color:'#34c759'}}>
+          <span style={{width:6,height:6,borderRadius:'50%',background:'#34c759',display:'inline-block'}} />Online: {on!==null?on:'…'}
         </div>
       </div>
-    );
-  }
-
-  const maxTraffic = Math.max(...traffic.map(d => d.requests), 1);
-
-  return (
-    <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 80px' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>📊 Readlyne 管理后台</h2>
-        <button
-          onClick={() => loadData(tab)}
-          disabled={loading}
-          style={{
-            background: 'var(--bg-secondary)', border: '1px solid var(--card-border)',
-            padding: '6px 14px', borderRadius: 8, fontSize: 13, cursor: 'pointer',
-          }}
-        >
-          {loading ? '加载中…' : '🔄 刷新'}
-        </button>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div style={{ display: 'flex', gap: 4, marginBottom: 20, overflowX: 'auto', paddingBottom: 4 }}>
-        {[
-          { key: 'overview', label: '📈 总览' },
-          { key: 'traffic', label: '📊 流量' },
-          { key: 'queries', label: '💬 查询' },
-          { key: 'users', label: '👤 用户' },
-          { key: 'feedback', label: '📧 反馈' },
-          { key: 'geo', label: '🌍 地区' },
-        ].map(t => (
-          <button
-            key={t.key}
-            onClick={() => { setTab(t.key as Tab); }}
-            style={{
-              padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-              border: tab === t.key ? '1.5px solid var(--accent)' : '1px solid var(--card-border)',
-              background: tab === t.key ? '#e8f0fe' : 'transparent',
-              color: tab === t.key ? 'var(--accent)' : 'var(--text)',
-              cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.15s',
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ====== Overview Tab ====== */}
-      {tab === 'overview' && stats && (
-        <div>
-          <Section title="今日数据">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-              <StatCard label="总请求" value={stats.today.total_requests} />
-              <StatCard label="活跃用户" value={stats.today.unique_users} />
-              <StatCard label="成功" value={stats.today.success_count} color="#34c759" />
-              <StatCard label="失败" value={stats.today.error_count} color={stats.today.error_count > 5 ? '#ff3b30' : '#8e8e93'} />
-              <StatCard label="分析" value={stats.today.analyze_count} />
-              <StatCard label="回复" value={stats.today.reply_count} />
-              <StatCard label="深度策略" value={stats.today.deep_count} />
-            </div>
-          </Section>
-
-          <Section title="累计数据">
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <StatCard label="历史总请求" value={stats.total.total_all_time} />
-              <StatCard label="历史总用户" value={stats.total.total_users_all_time} />
-              <StatCard label="注册设备" value={stats.installations} />
-              <StatCard label="付费用户（历史）" value={stats.paid_users} color="#0060df" />
-            </div>
-          </Section>
-
-          {stats.countries && stats.countries.length > 0 && (
-            <Section title="地区分布（今日）">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {stats.countries.map((c, i) => (
-                  <div key={i} style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '8px 12px', background: 'var(--bg-secondary)',
-                    border: '1px solid var(--card-border)', borderRadius: 8,
-                  }}>
-                    <span style={{ fontSize: 14 }}>{(c.country === 'Unknown' || !c.country) ? '未知' : c.country}</span>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)' }}>{c.count}</span>
-                  </div>
-                ))}
-              </div>
-            </Section>
-          )}
-
-          <Section title="快速操作">
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button className="btn-secondary" onClick={() => setTab('queries')} style={{ fontSize: 13, padding: '8px 16px' }}>
-                查看用户查询
-              </button>
-              <button className="btn-secondary" onClick={() => setTab('users')} style={{ fontSize: 13, padding: '8px 16px' }}>
-                查看用户列表
-              </button>
-            </div>
-          </Section>
-        </div>
-      )}
-
-      {/* ====== Traffic Tab ====== */}
-      {tab === 'traffic' && (
-        <div>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-            {[7, 14, 30].map(d => (
-              <button key={d}
-                onClick={() => setTrafficDays(d)}
-                style={{
-                  padding: '6px 14px', borderRadius: 8, fontSize: 12,
-                  border: trafficDays === d ? '1.5px solid var(--accent)' : '1px solid var(--card-border)',
-                  background: trafficDays === d ? '#e8f0fe' : 'transparent',
-                  color: trafficDays === d ? 'var(--accent)' : 'var(--text)',
-                  cursor: 'pointer', fontWeight: 600,
-                }}
-              >
-                过去{d}天
-              </button>
-            ))}
-          </div>
-
-          <Section title="每日请求量">
-            {traffic.length === 0 && <EmptyText />}
-            {traffic.map((d, i) => (
-              <div key={i} style={{ marginBottom: 8 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 4 }}>
-                  <span>{d.day?.slice(5) || '今日'}</span>
-                  <span>{d.requests} 请求 / {d.users} 用户</span>
-                </div>
-                <div style={{ background: 'var(--bg-secondary)', borderRadius: 6, height: 20, overflow: 'hidden' }}>
-                  <div style={{
-                    width: `${(d.requests / maxTraffic) * 100}%`,
-                    height: '100%',
-                    background: 'linear-gradient(90deg, #0060df, #409cff)',
-                    borderRadius: 6,
-                    minWidth: d.requests > 0 ? '4px' : 0,
-                    transition: 'width 0.3s',
-                  }} />
-                </div>
-                <div style={{ display: 'flex', gap: 12, fontSize: 10, color: 'var(--text-tertiary)', marginTop: 2 }}>
-                  <span>分析 {d.analyze}</span>
-                  <span>回复 {d.reply}</span>
-                  <span>深度 {d.deep_strategy}</span>
-                </div>
-              </div>
-            ))}
-          </Section>
-        </div>
-      )}
-
-      {/* ====== Queries Tab ====== */}
-      {tab === 'queries' && (
-        <div>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>过滤：</span>
-            {[{ v: '', l: '全部' }, { v: 'analyze', l: '分析' }, { v: 'reply', l: '回复' }, { v: 'deep_strategy', l: '深度' }].map(m => (
-              <button key={m.v}
-                onClick={() => { setQueriesMode(m.v); setQueriesOffset(0); }}
-                style={{
-                  padding: '4px 12px', borderRadius: 6, fontSize: 12,
-                  border: queriesMode === m.v ? '1.5px solid var(--accent)' : '1px solid var(--card-border)',
-                  background: queriesMode === m.v ? '#e8f0fe' : 'transparent',
-                  color: queriesMode === m.v ? 'var(--accent)' : 'var(--text)',
-                  cursor: 'pointer',
-                }}
-              >
-                {m.l}
-              </button>
-            ))}
-            <span style={{ fontSize: 11, color: 'var(--text-tertiary)', marginLeft: 'auto' }}>共 {queriesTotal} 条</span>
-          </div>
-
-          {queries.length === 0 && <EmptyText />}
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {queries.map((q) => (
-              <div key={q.id} style={{
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--card-border)',
-                borderRadius: 10, padding: '10px 12px',
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 11, color: 'var(--text-tertiary)' }}>
-                  <span>
-                    {new Date(q.created_at).toLocaleString('zh-CN', {
-                      month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
-                    })}
-                  </span>
-                  <span>
-                    [{q.mode}] {q.installation_id?.slice(0, 12)}
-                  </span>
-                </div>
-                <div style={{ fontSize: 14, lineHeight: 1.5, marginBottom: 4, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                  {q.message?.slice(0, 500)}
-                  {q.message?.length > 500 && '…'}
-                </div>
-                {q.context && (
-                  <div style={{ fontSize: 12, color: 'var(--text-tertiary)', fontStyle: 'italic' }}>
-                    背景: {q.context?.slice(0, 200)}{q.context?.length > 200 && '…'}
-                  </div>
-                )}
-                <div style={{ fontSize: 10, color: 'var(--text-tertiary)', marginTop: 4 }}>
-                  {q.status === 'error' && <span style={{ color: '#ff3b30' }}>⚠️ 失败 </span>}
-                  {q.locale === 'en' ? '英文' : '中文'} · IP: {q.ip || '-'}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {queriesTotal > 50 && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 16 }}>
-              <button className="btn-secondary" disabled={queriesOffset === 0}
-                onClick={() => setQueriesOffset(Math.max(0, queriesOffset - 50))}
-                style={{ fontSize: 12, padding: '6px 14px', opacity: queriesOffset === 0 ? 0.5 : 1 }}
-              >
-                上一页
-              </button>
-              <span style={{ fontSize: 12, alignSelf: 'center', color: 'var(--text-secondary)' }}>
-                {queriesOffset / 50 + 1} / {Math.ceil(queriesTotal / 50)}
-              </span>
-              <button className="btn-secondary" disabled={queriesOffset + 50 >= queriesTotal}
-                onClick={() => setQueriesOffset(queriesOffset + 50)}
-                style={{ fontSize: 12, padding: '6px 14px', opacity: queriesOffset + 50 >= queriesTotal ? 0.5 : 1 }}
-              >
-                下一页
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ====== Users Tab ====== */}
-      {tab === 'users' && (
-        <div>
-          <p style={{ fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 12 }}>共 {usersTotal} 个注册设备</p>
-          {users.length === 0 && <EmptyText />}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {users.map((u, i) => (
-              <div key={i} style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '10px 12px', background: 'var(--bg-secondary)',
-                border: '1px solid var(--card-border)', borderRadius: 8,
-              }}>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 500, fontFamily: 'monospace' }}>
-                    {u.installation_id?.slice(0, 16)}…
-                  </div>
-                  <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 2 }}>
-                    注册 {new Date(u.created_at).toLocaleDateString('zh-CN')}
-                    {u.last_active && ` · 最后活跃 ${new Date(u.last_active).toLocaleDateString('zh-CN')}`}
-                    {u.last_mode && ` · ${u.last_mode}`}
-                  </div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 14, fontWeight: 600 }}>
-                    💰{u.credits} · 📊{u.total_requests}
-                    {u.total_purchases > 0 && <span style={{ color: '#34c759' }}> · 💳+${u.total_purchases}</span>}
-                  </div>
-                  {u.today_requests > 0 && (
-                    <div style={{ fontSize: 11, color: '#0060df' }}>今日 +{u.today_requests}</div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ====== Feedback Tab ====== */}
-      {tab === 'feedback' && (
-        <div>
-          <p style={{ fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 12 }}>共 {feedback.length} 条反馈</p>
-          {feedback.length === 0 && <EmptyText />}
-          {feedback.map((f, i) => (
-            <div key={i} style={{
-              background: 'var(--bg-secondary)', border: '1px solid var(--card-border)',
-              borderRadius: 10, padding: '12px 14px', marginBottom: 8,
-            }}>
-              <div style={{ fontSize: 14, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{f.text}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 4 }}>
-                {new Date(f.time).toLocaleString('zh-CN')} · {f.installation_id_hash || '-'} · {f.ip || '-'}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ====== Geo Tab ====== */}
-      {tab === 'geo' && stats && (
-        <div>
-          {stats.countries && stats.countries.length > 0 ? (
-            <>
-              <Section title="地区分布（今日）">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {stats.countries.map((c, i) => {
-                    const maxC = Math.max(...stats.countries.map(x => x.count), 1);
-                    const pct = (c.count / maxC) * 100;
-                    return (
-                      <div key={i} style={{
-                        padding: '8px 12px', background: 'var(--bg-secondary)',
-                        border: '1px solid var(--card-border)', borderRadius: 8,
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                          <span style={{ fontSize: 14, fontWeight: 500 }}>
-                            {(c.country === 'Unknown' || !c.country) ? '未知' : c.country}
-                          </span>
-                          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--accent)' }}>{c.count}</span>
-                        </div>
-                        <div style={{ background: 'var(--card-border)', borderRadius: 4, height: 8, overflow: 'hidden' }}>
-                          <div style={{
-                            width: `${pct}%`, height: '100%',
-                            background: 'linear-gradient(90deg, #ff9500, #ffcc02)',
-                            borderRadius: 4, transition: 'width 0.3s',
-                          }} />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </Section>
-              <p style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 8 }}>
-                数据来源: ip-api.com
-              </p>
-            </>
-          ) : <EmptyText />}
-        </div>
-      )}
-    </div>
-  );
+      <nav style={{display:'flex',flexDirection:'column',gap:2}}>
+        {TABS.map(t=>
+          <button key={t.k} onClick={()=>nav(t.k)}
+            style={{display:'flex',alignItems:'center',gap:10,width:'100%',padding:'8px 12px',borderRadius:6,fontSize:13,fontWeight:500,border:'none',cursor:'pointer',textAlign:'left',color:tab===t.k?'#000':'#666',background:tab===t.k?'#f5f5f5':'transparent'}}
+          ><span style={{fontSize:14,opacity:0.6}}>{'📈📊💬📧💰⚠️⚙️'['overview users queries feedback revenue errors settings'.split(' ').indexOf(t.k)]}</span>{t.l}</button>
+        )}
+      </nav>
+    </aside>
+    <main style={{flex:1,marginLeft:220,padding:'32px 40px',maxWidth:'calc(100vw - 220px)'}}>
+      {tab==='overview'&&<OverviewD st={st} tr={tr} on={on} us={us} rv={rv} er={er} />}
+      {tab==='users'&&<UsersD us={us} />}
+      {tab==='queries'&&<div><h2 style={{fontSize:18,fontWeight:700}}>用户查询</h2><p style={{fontSize:13,color:'#8e8e93'}}>（开发中 - 需要重建数据接口）</p></div>}
+      {tab==='feedback'&&<FeedbackD fb={fb} />}
+      {tab==='revenue'&&<RevenueD rv={rv} />}
+      {tab==='errors'&&<ErrorsD er={er} />}
+      {tab==='settings'&&<div style={{border:'1px solid #e5e5e5',borderRadius:10,padding:60,textAlign:'center',color:'#aeaeb2'}}><div style={{fontSize:32,marginBottom:12}}>⚙️</div><p style={{margin:0}}>开发中</p></div>}
+    </main>
+  </div>;
 }
 
-/* ====== Helper Components ====== */
-
-function StatCard({ label, value, color }: { label: string; value: number; color?: string }) {
-  return (
-    <div style={{
-      background: 'var(--bg-secondary)', border: '1px solid var(--card-border)',
-      borderRadius: 10, padding: '12px 10px', textAlign: 'center',
-    }}>
-      <div style={{ fontSize: 24, fontWeight: 700, color: color || 'var(--text)' }}>
-        {value.toLocaleString()}
+function OverviewD({st,tr,on,us,rv,er}:any){
+  if(!st)return <p style={{color:'#8e8e93',padding:40}}>加载中…</p>;
+  const mR=Math.max(...(tr||[]).map((d:any)=>d.requests),1);
+  const mU=Math.max(...(tr||[]).map((d:any)=>d.users),1);
+  return <div>
+    <div style={{marginBottom:28}}>
+      <h1 style={{fontSize:22,fontWeight:700,letterSpacing:'-0.03em',margin:0}}>总览</h1>
+      <p style={{fontSize:13,color:'#8e8e93',margin:'4px 0 0'}}>
+        {new Date().toLocaleDateString('zh-CN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}
+        {on!==null?<span style={{marginLeft:12,color:'#34c759'}}>🟢 {on} 在线</span>:''}
+      </p>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(160px,1fr))',gap:12,marginBottom:24}}>
+      <C i='👤' l='注册设备' v={st.installations} />
+      <C i='🆕' l='今日用户' v={st.today.unique_users} />
+      <C i='📊' l='今日分析' v={st.today.analyze_count} />
+      <C i='💬' l='今日回复' v={st.today.reply_count} />
+      <C i='💰' l='历史付费' v={st.paid_users} c='#0060df' />
+      <C i='😊' l='活跃用户' v={st.today.unique_users} />
+    </div>
+    {tr&&tr.length>0&&<div style={{border:'1px solid #e5e5e5',borderRadius:10,padding:20,marginBottom:24}}>
+      <h2 style={{fontSize:14,fontWeight:600,margin:'0 0 16px'}}>30天趋势</h2>
+      <div style={{height:180}}>
+        <svg width="100%" height="180" viewBox="0 0 600 180" preserveAspectRatio="none" style={{overflow:'visible'}}>
+          {[0,1,2,3,4].map(i=><line key={i} x1={0} y1={36*i} x2={600} y2={36*i} stroke="#f0f0f0" strokeWidth={1} />)}
+          <polyline points={tr.map((d:any,i:number)=>`${(i/(tr.length-1))*600},${180-(d.users/mU)*160}`).join(' ')} fill="none" stroke="#0066ff" strokeWidth={2} strokeLinecap="round" />
+          <polyline points={tr.map((d:any,i:number)=>`${(i/(tr.length-1))*600},${180-(d.requests/mR)*160}`).join(' ')} fill="none" stroke="#34c759" strokeWidth={2} strokeLinecap="round" />
+        </svg>
       </div>
-      <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>{label}</div>
+      <div style={{display:'flex',gap:20,marginTop:8,fontSize:11,color:'#8e8e93'}}>
+        <span>━<span style={{color:'#0066ff'}}>用户</span></span>
+        <span>━<span style={{color:'#34c759'}}>请求</span></span>
+      </div>
+    </div>}
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:24}}>
+      <div style={{border:'1px solid #e5e5e5',borderRadius:10,padding:20}}>
+        <h2 style={{fontSize:14,fontWeight:600,margin:'0 0 12px'}}>最近用户</h2>
+        {(us||[]).slice(0,8).map((u:any,i:number)=>
+          <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'6px 10px',borderRadius:6,background:'#fafafa',fontSize:12,marginBottom:3}}>
+            <span style={{fontFamily:'monospace',fontSize:11,color:'#666'}}>{(u.installation_id||'').slice(0,14)}</span>
+            <span>📊{u.total_requests||0}{(u.credits||0)>0?<span style={{color:'#34c759',fontSize:10,marginLeft:4}}>PAID</span>:''}</span>
+          </div>
+        )}
+        {(!us||us.length===0)&&<p style={{color:'#aeaeb2',fontSize:12}}>暂无数据</p>}
+      </div>
+      <div style={{border:'1px solid #e5e5e5',borderRadius:10,padding:20}}>
+        <h2 style={{fontSize:14,fontWeight:600,margin:'0 0 12px'}}>收入概览</h2>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+          {['today','week','month'].map((k,i)=><div key={k} style={{background:'#fafafa',borderRadius:8,padding:12,textAlign:'center'}}>
+            <div style={{fontSize:11,color:'#8e8e93',marginBottom:4}}>{['今日','本周','本月'][i]}</div>
+            <div style={{fontSize:18,fontWeight:700}}>{rv?`$${((rv[k]||0)/100).toFixed(2)}`:'—'}</div>
+          </div>)}
+          <div style={{background:'#fafafa',borderRadius:8,padding:12,textAlign:'center'}}>
+            <div style={{fontSize:11,color:'#8e8e93',marginBottom:4}}>付款/退款</div>
+            <div style={{fontSize:18,fontWeight:700}}>{rv?.payers||0}<span style={{fontSize:12,fontWeight:400,color:'#ff3b30'}}> / {rv?.refunds||0}</span></div>
+          </div>
+        </div>
+      </div>
     </div>
-  );
+    <div style={{border:'1px solid #e5e5e5',borderRadius:10,padding:20}}>
+      <h2 style={{fontSize:14,fontWeight:600,margin:'0 0 12px'}}>最近错误</h2>
+      {(er||[]).slice(0,6).map((e:any,i:number)=>
+        <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'6px 10px',borderRadius:6,background:'#fafafa',fontSize:11,marginBottom:3}}>
+          <span style={{color:'#d70015',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>{e.message_snippet||'-'}</span>
+          <span style={{color:'#aeaeb2',marginLeft:8}}>{F(e.created_at)}</span>
+        </div>
+      )}
+      {(!er||er.length===0)&&<p style={{color:'#aeaeb2',fontSize:12}}>暂无错误 🎉</p>}
+    </div>
+  </div>;
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div style={{ marginBottom: 20 }}>
-      <h3 style={{ fontSize: 15, fontWeight: 600, margin: '0 0 10px' }}>{title}</h3>
-      {children}
+function C({i,l,v,c}:{i:string;l:string;v:string|number;c?:string}){return <div style={{border:'1px solid #e5e5e5',borderRadius:10,padding:'14px 16px'}}>
+  <div style={{fontSize:20}}>{i}</div>
+  <div style={{fontSize:22,fontWeight:700,color:c||'#000',marginTop:4}}>{v}</div>
+  <div style={{fontSize:12,color:'#8e8e93',marginTop:2}}>{l}</div>
+</div>}
+
+function UsersD({us}:{us:any[]}){
+  const [q,setQ]=useState('');
+  const f=us.filter(u=>(u.installation_id||'').includes(q.toLowerCase()));
+  return <div>
+    <h1 style={{fontSize:22,fontWeight:700,marginBottom:4}}>用户</h1>
+    <p style={{fontSize:13,color:'#8e8e93',marginBottom:16}}>{us.length} 条</p>
+    <input placeholder="搜索用户ID…" value={q} onChange={e=>setQ(e.target.value)} style={{width:320,maxWidth:'100%',padding:'8px 12px',border:'1px solid #e5e5e5',borderRadius:6,fontSize:13,marginBottom:16,background:'#fff',color:'#000',outline:'none'}} />
+    <div style={{overflowX:'auto',border:'1px solid #e5e5e5',borderRadius:10}}>
+      <table style={{width:'100%',fontSize:12,borderCollapse:'collapse'}}>
+        <thead><tr>{['ID','请求','Credits','购买','注册','活跃'].map(h=><th key={h} style={{padding:'8px 10px',textAlign:'left',fontWeight:500,color:'#8e8e93',borderBottom:'2px solid #e5e5e5'}}>{h}</th>)}</tr></thead>
+        <tbody>{f.map((u:any,i:number)=><tr key={i} style={{borderBottom:'1px solid #f5f5f5'}}>
+          <td style={{padding:'8px 10px',fontFamily:'monospace',fontSize:11,color:'#666'}}>{(u.installation_id||'').slice(0,18)}</td>
+          <td style={{padding:'8px 10px',fontWeight:600}}>{u.total_requests||0}</td>
+          <td style={{padding:'8px 10px',color:(u.credits||0)>0?'#34c759':'#aeaeb2',fontWeight:600}}>{u.credits||0}</td>
+          <td style={{padding:'8px 10px'}}>{(u.total_purchases||0)>0?`$${u.total_purchases}`:'—'}</td>
+          <td style={{padding:'8px 10px',color:'#8e8e93',fontSize:11}}>{F(u.created_at)}</td>
+          <td style={{padding:'8px 10px',color:'#8e8e93',fontSize:11}}>{F(u.updated_at)}</td>
+        </tr>)}</tbody>
+      </table>
     </div>
-  );
+  </div>;
 }
 
-function EmptyText() {
-  return <p style={{ fontSize: 13, color: 'var(--text-tertiary)', textAlign: 'center', padding: 20 }}>暂无数据</p>;
+function FeedbackD({fb}:{fb:any[]}){
+  return <div>
+    <h1 style={{fontSize:22,fontWeight:700,marginBottom:4}}>反馈</h1>
+    <p style={{fontSize:13,color:'#8e8e93',marginBottom:16}}>{fb.length} 条</p>
+    {fb.length===0&&<p style={{color:'#aeaeb2'}}>暂无数据</p>}
+    {fb.map((f:any,i:number)=><div key={i} style={{border:'1px solid #e5e5e5',borderRadius:10,padding:'12px 14px',marginBottom:8}}>
+      <div style={{fontSize:14,marginBottom:4,whiteSpace:'pre-wrap'}}>{f.text}</div>
+      <div style={{fontSize:11,color:'#8e8e93'}}>{F(f.time)} · {f.installation_id_hash||'-'}</div>
+    </div>)}
+  </div>;
+}
+
+function RevenueD({rv}:{rv:any}){
+  if(!rv)return <p style={{color:'#8e8e93',padding:40}}>加载中…</p>;
+  return <div>
+    <h1 style={{fontSize:22,fontWeight:700,marginBottom:4}}>收入</h1>
+    <p style={{fontSize:13,color:'#8e8e93',marginBottom:16}}>Stripe 付款</p>
+    <div style={{display:'flex',gap:10,marginBottom:20,flexWrap:'wrap'}}>
+      {[['今日',`$${(rv.today/100).toFixed(2)}`],['本周',`$${(rv.week/100).toFixed(2)}`],['本月',`$${(rv.month/100).toFixed(2)}`],['付款',rv.payers],['退款',rv.refunds]].map(([k,v],i)=><div key={i} style={{background:'#fafafa',border:'1px solid #e5e5e5',borderRadius:8,padding:'12px 18px',minWidth:90}}>
+        <div style={{fontSize:11,color:'#8e8e93',marginBottom:4}}>{k}</div>
+        <div style={{fontSize:18,fontWeight:700}}>{v}</div>
+      </div>)}
+    </div>
+    <div style={{overflowX:'auto',border:'1px solid #e5e5e5',borderRadius:10}}>
+      <table style={{width:'100%',fontSize:12,borderCollapse:'collapse'}}>
+        <thead><tr>{['时间','金额','状态','用户'].map(h=><th key={h} style={{padding:'10px 14px',textAlign:'left',fontWeight:500,color:'#8e8e93',borderBottom:'2px solid #e5e5e5'}}>{h}</th>)}</tr></thead>
+        <tbody>{rv.records.map((r:any,i:number)=><tr key={i} style={{borderBottom:'1px solid #f5f5f5'}}>
+          <td style={{padding:'10px 14px',color:'#8e8e93',fontSize:11}}>{F(r.time)}</td>
+          <td style={{padding:'10px 14px',fontWeight:600}}>{r.amount}</td>
+          <td style={{padding:'10px 14px'}}><span style={{background:r.status==='paid'?'#e8f5e9':'#fce8e6',color:r.status==='paid'?'#248a3d':'#d70015',fontSize:10,fontWeight:600,padding:'2px 8px',borderRadius:4}}>{r.status==='paid'?'成功':r.status==='refunded'?'退款':r.status}</span></td>
+          <td style={{padding:'10px 14px',fontFamily:'monospace',fontSize:11,color:'#666'}}>{(r.installation_id||'').slice(0,14)}</td>
+        </tr>)}</tbody>
+      </table>
+    </div>
+  </div>;
+}
+
+function ErrorsD({er}:{er:any[]}){
+  return <div>
+    <h1 style={{fontSize:22,fontWeight:700,marginBottom:4}}>错误</h1>
+    <p style={{fontSize:13,color:'#8e8e93',marginBottom:16}}>{er.length} 条</p>
+    <div style={{overflowX:'auto',border:'1px solid #e5e5e5',borderRadius:10}}>
+      <table style={{width:'100%',fontSize:12,borderCollapse:'collapse'}}>
+        <thead><tr>{['时间','模式','信息'].map(h=><th key={h} style={{padding:'10px 14px',textAlign:'left',fontWeight:500,color:'#8e8e93',borderBottom:'2px solid #e5e5e5'}}>{h}</th>)}</tr></thead>
+        <tbody>{er.length===0&&<tr><td colSpan={3} style={{padding:40,textAlign:'center',color:'#aeaeb2'}}>暂无错误 🎉</td></tr>}
+          {er.map((e:any,i:number)=><tr key={i} style={{borderBottom:'1px solid #f5f5f5'}}>
+            <td style={{padding:'10px 14px',color:'#8e8e93',fontSize:11}}>{F(e.created_at)}</td>
+            <td style={{padding:'10px 14px'}}>{e.mode}</td>
+            <td style={{padding:'10px 14px',color:'#d70015',fontSize:11}}>{e.message_snippet||'-'}</td>
+          </tr>)}
+        </tbody>
+      </table>
+    </div>
+  </div>;
 }
