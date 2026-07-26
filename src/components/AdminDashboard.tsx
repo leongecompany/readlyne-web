@@ -4,13 +4,16 @@ import { useState, useEffect, useCallback } from 'react';
 
 const API = process.env.NEXT_PUBLIC_WEB_API_BASE_URL || 'https://readlyne-proxy.onrender.com';
 
-function tk(): string {
+const TOKEN_KEY = 'readlyne_admin_token';
+
+function storedToken(): string {
   if (typeof window === 'undefined') return '';
-  return new URLSearchParams(window.location.search).get('token') || '';
+  // Priority: URL param > localStorage
+  return new URLSearchParams(window.location.search).get('token') || localStorage.getItem(TOKEN_KEY) || '';
 }
 
 async function apiFetch(path: string): Promise<any> {
-  const token = tk();
+  const token = storedToken();
   if (!token) return { ok: false };
   try {
     const res = await fetch(`${API}${path}`, {
@@ -35,12 +38,12 @@ function fmtDate(iso: string): string {
   } catch { return '—'; }
 }
 
-type Tab = 'overview' | 'users' | 'queries' | 'settings';
+type Pg = 'overview' | 'users' | 'queries' | 'settings';
 
 export default function Admin() {
-  type Pg = 'overview' | 'users' | 'queries' | 'settings';
-const [tab, setTab] = useState<Pg>('overview');
+  const [tab, setTab] = useState<Pg>('overview');
   const [auth, setAuth] = useState<boolean | null>(null);
+  const [tokenInput, setTokenInput] = useState('');
   const [stats, setStats] = useState<any>(null);
   const [traffic, setTraffic] = useState<any[]>([]);
   const [在线, setOnline] = useState<number>(0);
@@ -48,14 +51,18 @@ const [tab, setTab] = useState<Pg>('overview');
   const [errors, setErrors] = useState<any[]>([]);
   const [countries, setCountries] = useState<any[]>([]);
 
-  // Auth check
+  // Auth check on mount
   useEffect(() => {
+    const tok = storedToken();
+    if (!tok) {
+      setAuth(false);
+      return;
+    }
     apiFetch('/web/admin/stats').then(d => {
       if (d.ok) { setAuth(true); setStats(d); } else setAuth(false);
     }).catch(() => setAuth(false));
   }, []);
 
-  // Load overview data
   const load = useCallback(async () => {
     const [s, t, o, u, e] = await Promise.all([
       apiFetch('/web/admin/stats'),
@@ -84,17 +91,69 @@ const [tab, setTab] = useState<Pg>('overview');
     return () => clearInterval(int);
   }, [auth]);
 
-  // Unauthorized screen
+  // --- Token input / login screen ---
   if (auth === false) {
+    const handleSubmit = () => {
+      const val = tokenInput.trim();
+      if (!val) return;
+      localStorage.setItem(TOKEN_KEY, val);
+      setAuth(null);
+      // Check token
+      apiFetch('/web/admin/stats').then(d => {
+        if (d.ok) { setAuth(true); setStats(d); } else {
+          localStorage.removeItem(TOKEN_KEY);
+          setAuth(false);
+          alert('Token 无效，请重试');
+        }
+      }).catch(() => {
+        localStorage.removeItem(TOKEN_KEY);
+        setAuth(false);
+        alert('无法连接后端服务');
+      });
+    };
+
+    // Check if there's a URL token that's just invalid
+    const urlToken = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('token') : null;
+
     return (
       <div style={{
         minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: '#fff', fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif',
       }}>
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', width: 360 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#8e8e93', marginBottom: 8, letterSpacing: '0.05em' }}>READLYNE</div>
-          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#000', margin: '0 0 8px' }}>需要权限</h1>
-          <p style={{ fontSize: 13, color: '#8e8e93', margin: 0 }}>添加 <code style={{ background: '#f5f5f5', padding: '2px 6px', borderRadius: 4, fontSize: 12 }}>?token=***</code> 到 URL</p>
+          <h1 style={{ fontSize: 20, fontWeight: 700, color: '#000', margin: '0 0 4px' }}>Admin</h1>
+          <p style={{ fontSize: 13, color: '#8e8e93', margin: '0 0 24px' }}>输入 Admin Token 登录</p>
+
+          {urlToken && (
+            <p style={{ fontSize: 12, color: '#d70015', background: '#fff0f0', padding: '8px 12px', borderRadius: 8, marginBottom: 16 }}>
+              URL 中的 token 无效或已过期
+            </p>
+          )}
+
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              type="password"
+              placeholder="输入 token"
+              value={tokenInput}
+              onChange={e => setTokenInput(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+              style={{
+                flex: 1, padding: '10px 14px', borderRadius: 8, border: '1px solid #e5e5e5',
+                fontSize: 14, outline: 'none', background: '#fafafa', color: '#000',
+              }}
+              autoFocus
+            />
+            <button
+              onClick={handleSubmit}
+              style={{
+                padding: '10px 20px', borderRadius: 8, border: 'none',
+                background: '#0066ff', color: '#fff', fontSize: 14, fontWeight: 600,
+                cursor: 'pointer', opacity: tokenInput.trim() ? 1 : 0.5,
+              }}
+              disabled={!tokenInput.trim()}
+            >登录</button>
+          </div>
         </div>
       </div>
     );
@@ -116,6 +175,11 @@ const [tab, setTab] = useState<Pg>('overview');
   const maxR = Math.max(...traffic.map(d => d.requests), 1);
   const maxU = Math.max(...traffic.map(d => d.users), 1);
 
+  const handleLogout = () => {
+    localStorage.removeItem(TOKEN_KEY);
+    setAuth(false);
+  };
+
   return (
     <div style={{
       minHeight: '100vh', background: '#fff', color: '#000',
@@ -135,12 +199,10 @@ const [tab, setTab] = useState<Pg>('overview');
             <span style={{ fontSize: 11, color: '#aeaeb2', fontWeight: 500 }}>Admin</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {(
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#34c759' }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34c759', display: 'inline-block' }} />
-                {在线} 在线
-              </div>
-            )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#34c759' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34c759', display: 'inline-block' }} />
+              {在线} 在线
+            </div>
             <nav style={{ display: 'flex', gap: 2 }}>
               {(['overview', 'users', 'queries', 'settings'] as const).map(t => (
                 <button key={t} onClick={() => setTab(t)}
@@ -152,6 +214,13 @@ const [tab, setTab] = useState<Pg>('overview');
                 >{t === 'overview' ? '总览' : t==='users'?'用户':t==='queries'?'查询':'设置'}</button>
               ))}
             </nav>
+            <button onClick={handleLogout}
+              style={{
+                padding: '6px 12px', borderRadius: 6, fontSize: 12, fontWeight: 500,
+                border: '1px solid #e5e5e5', cursor: 'pointer', background: 'transparent',
+                color: '#8e8e93',
+              }}
+            >退出</button>
           </div>
         </div>
       </div>
@@ -159,7 +228,6 @@ const [tab, setTab] = useState<Pg>('overview');
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '40px 32px' }}>
         {tab === 'overview' && (
           <>
-            {/* Hero metric */}
             {s && (
               <div style={{ marginBottom: 48 }}>
                 <p style={{ fontSize: 13, fontWeight: 600, color: '#8e8e93', letterSpacing: '0.05em', marginBottom: 4 }}>
@@ -200,8 +268,6 @@ const [tab, setTab] = useState<Pg>('overview');
               </div>
             )}
 
-
-            {/* Chart */}
             {traffic.length > 0 && (
               <div style={{ marginBottom: 48 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -212,21 +278,17 @@ const [tab, setTab] = useState<Pg>('overview');
                 </div>
                 <div style={{ height: 240, position: 'relative' }}>
                   <svg width="100%" height="240" viewBox="0 0 1200 240" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                    {/* Grid */}
                     {[0,1,2,3,4].map(i => (
                       <line key={i} x1={0} y1={48*i+20} x2={1200} y2={48*i+20} stroke="#f5f5f5" strokeWidth={1} />
                     ))}
-                    {/* User area */}
                     <path
                       d={traffic.map((d, i) => `${i===0?'M':'L'}${(i/(traffic.length-1))*1200},${240-(d.users/maxU)*200}`).join(' ')+`L${1200},240L0,240Z`}
                       fill="url(#userGrad)" opacity={0.15}
                     />
-                    {/* User line */}
                     <polyline
                       points={traffic.map((d,i) => `${(i/(traffic.length-1))*1200},${240-(d.users/maxU)*200}`).join(' ')}
                       fill="none" stroke="#0066ff" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round"
                     />
-                    {/* Request line */}
                     <polyline
                       points={traffic.map((d,i) => `${(i/(traffic.length-1))*1200},${240-(d.requests/maxR)*200}`).join(' ')}
                       fill="none" stroke="#34c759" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"
@@ -242,7 +304,6 @@ const [tab, setTab] = useState<Pg>('overview');
               </div>
             )}
 
-            {/* Countries */}
             {countries.length > 0 && (
               <div style={{ marginBottom: 48 }}>
                 <div style={{ marginBottom: 12 }}>
@@ -270,9 +331,7 @@ const [tab, setTab] = useState<Pg>('overview');
               </div>
             )}
 
-            {/* Activity feed + Errors */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginBottom: 48 }}>
-              {/* Recent users */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#8e8e93' }}>最近设备</span>
@@ -304,7 +363,6 @@ const [tab, setTab] = useState<Pg>('overview');
                 ))}
               </div>
 
-              {/* Recent errors */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#8e8e93' }}>最近错误</span>
@@ -317,9 +375,7 @@ const [tab, setTab] = useState<Pg>('overview');
                     borderBottom: i < errors.length - 1 ? '1px solid #f5f5f5' : 'none',
                     fontSize: 12,
                   }}>
-                    <span style={{
-                      color: '#d70015', fontSize: 10, fontWeight: 600, minWidth: 38, paddingTop: 1,
-                    }}>ERROR</span>
+                    <span style={{ color: '#d70015', fontSize: 10, fontWeight: 600, minWidth: 38, paddingTop: 1 }}>ERROR</span>
                     <span style={{ color: '#666', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {e.message_snippet || '未知'}
                     </span>
@@ -358,7 +414,6 @@ function UsersPage() {
     <div>
       <h1 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 4px' }}>Users</h1>
       <p style={{ fontSize: 13, color: '#8e8e93', margin: '0 0 24px' }}>{users.length} devices</p>
-
       <input
         placeholder="Search by ID…"
         value={q} onChange={e => setQ(e.target.value)}
@@ -368,7 +423,6 @@ function UsersPage() {
           outline: 'none', marginBottom: 20, background: '#fff', color: '#000',
         }}
       />
-
       <div style={{ overflowX: 'auto', border: '1px solid #e5e5e5', borderRadius: 10 }}>
         <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
           <thead>
@@ -407,7 +461,6 @@ function QueriesPage() {
     <div>
       <h1 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 4px' }}>Queries</h1>
       <p style={{ fontSize: 13, color: '#8e8e93', margin: '0 0 24px' }}>{queries.length} 最近</p>
-
       {queries.length === 0 && <p style={{ fontSize: 13, color: '#aeaeb2' }}>暂无查询</p>}
       {queries.map((q: any, i: number) => (
         <div key={i} style={{
